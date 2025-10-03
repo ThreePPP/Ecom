@@ -3,9 +3,11 @@ import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser } from 'react-
 
 const Navbar = () => {
   return (
-    <div className="flex items-center px-8 py-3 bg-gradient-to-r from-blue-900 to-blue-500 text-white">
-      <h1 className="text-3xl italic font-bold mr-6">Favcom</h1>
-      <form className="flex flex-1 max-w-3xl mx-auto">
+    <div>
+      {/* Main Navbar */}
+      <div className="flex items-center px-10 py-4 bg-gradient-to-r from-blue-900 to-blue-500 text-white">
+        <h1 className="text-3xl italic font-bold mr-6">Favcom</h1>
+      <form className="flex flex-1 max-w-3xl mx-auto bg-white rounded-full">
         <input
           type="text"
           placeholder="Search Products, Categories, Brands"
@@ -44,6 +46,59 @@ const Navbar = () => {
           </button>
         </li>
       </ul>
+      </div>
+      
+      {/* Secondary Menu Bar */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-10 py-3">
+          <nav className="flex items-center space-x-8 text-gray-700">
+            {/* Categories with icon */}
+            <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-600">
+              <div className="w-4 h-4 bg-blue-600 rounded-sm flex items-center justify-center">
+                <div className="grid grid-cols-2 gap-px">
+                  <div className="w-1 h-1 bg-white rounded-xs"></div>
+                  <div className="w-1 h-1 bg-white rounded-xs"></div>
+                  <div className="w-1 h-1 bg-white rounded-xs"></div>
+                  <div className="w-1 h-1 bg-white rounded-xs"></div>
+                </div>
+              </div>
+              <span className="font-medium">Categories</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            
+            {/* Other menu items */}
+            <a href="#" className="hover:text-blue-600 transition-colors">Promotion</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">Shopping Guide</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">Our Services</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">Find our Branch / Tel.</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">Investor Relations</a>
+            
+            {/* Right side menu items with dropdown */}
+            <div className="flex items-center space-x-6 ml-auto">
+              <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-600">
+                <span>Dealer & Supplier</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-600">
+                <span>Corporate</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-600">
+                <span>Franchise</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
     </div>
   )
 }
