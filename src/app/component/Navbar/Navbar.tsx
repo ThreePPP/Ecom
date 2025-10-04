@@ -1,7 +1,12 @@
-import React from 'react'
+"use client"
+
+import React, { useState } from 'react'
 import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser } from 'react-icons/fa'
+import LoginModal from './LoginModal'
 
 const Navbar = () => {
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false)
+
   return (
     <div>
       {/* Main Navbar */}
@@ -38,17 +43,22 @@ const Navbar = () => {
             <FaShoppingCart size={20} />
           </button>
         </li>
-        {/* ปุ่ม Login */}
+        {/* ปุ่มเข้าสู่ระบบ */}
         <li>
-          <button className="flex items-center gap-2 px-5 py-2 bg-blue-900 rounded-full border border-white hover:bg-blue-800">
-            <FaUser size={20} />
-            Login
+          <button
+            className="flex items-center px-5 py-2 bg-blue-900 rounded-full border border-white hover:bg-blue-800 font-semibold"
+            onClick={() => setLoginModalOpen(true)}
+          >
+            เข้าสู่ระบบ
           </button>
         </li>
       </ul>
       </div>
       
-      {/* Secondary Menu Bar */}
+  {/* Modal สำหรับเข้าสู่ระบบ */}
+  <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
+    
+  {/* Secondary Menu Bar */}
       <div className="bg-white shadow-sm border-b">
         <div className="px-10 py-3">
           <nav className="flex items-center space-x-8 text-gray-700">
