@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser } from 'react-icons/fa'
 import LoginModal from './LoginModal'
+import BannerCarousel from './BannerCarousel'
+import type { types } from '@/app/util/types'
 
 const Navbar = () => {
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
@@ -79,35 +81,16 @@ const Navbar = () => {
             </div>
             
             {/* Other menu items */}
-            <a href="#" className="hover:text-blue-600 transition-colors">Promotion</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Shopping Guide</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Our Services</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Find our Branch / Tel.</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Investor Relations</a>
-            
-            {/* Right side menu items with dropdown */}
-            <div className="flex items-center space-x-6 ml-auto">
-              <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-600">
-                <span>Dealer & Supplier</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-              <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-600">
-                <span>Corporate</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-              <div className="flex items-center space-x-1 cursor-pointer hover:text-blue-600">
-                <span>Franchise</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+            <a href="#" className="hover:text-blue-600 transition-colors">โปรโมชันออนไลน์</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">คู่มือการช็อปปิ้ง</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">บริการหลังการขาย</a>
           </nav>
         </div>
+      </div>
+      {/* Banner carousel placed under secondary menu */}
+      <div className="px-10 mt-4">
+        {/* Use banner images from public/Banners folder */}
+        <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/who1.png"]} height="h-150" />
       </div>
     </div>
   )

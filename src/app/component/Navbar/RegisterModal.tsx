@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
+import type { types } from '@/app/util/types';
 
-interface RegisterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
+const RegisterModal: React.FC<types> = ({ isOpen, onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
