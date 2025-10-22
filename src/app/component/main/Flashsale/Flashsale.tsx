@@ -84,8 +84,8 @@ const Flashsale = () => {
   ];
 
   return (
-    <div id="flashsale-section" className="px-10 py-8">
-      <div className="flex gap-4 overflow-x-auto">
+    <div id="flashsale-section" className="bg-white px-10 py-8">
+      <div className="flex gap-4 overflow-x-auto justify-center">
         {flashSaleData.map((sale) => (
           <div
             key={sale.id}

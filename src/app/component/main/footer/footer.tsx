@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-200">
+    <footer className="bg-white">
       <div className="max-w-7xl mx-auto px-10 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* ช้อปสินค้า */}
@@ -107,7 +107,7 @@ const Footer = () => {
       </div>
 
       {/* Copyright Section */}
-      <div className="bg-blue-900 py-4">
+      <div className="bg-blue-900 py-4 flex justify-center">
         <div className="max-w-7xl mx-auto px-10">
           <p className="text-white text-sm">
             Copyright © 2025 www.favorpc.com All rights reserved.

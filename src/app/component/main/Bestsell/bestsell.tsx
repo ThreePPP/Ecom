@@ -76,7 +76,7 @@ const Bestsell = () => {
   ];
 
   return (
-    <div className="px-10 py-6">
+    <div className="bg-white px-10 py-6">
       {/* Header Section with Categories */}
       <div className="bg-gradient-to-r from-teal-500 to-blue-600 rounded-2xl p-8 mb-6 relative overflow-hidden">
         <div className="flex items-center justify-between">
