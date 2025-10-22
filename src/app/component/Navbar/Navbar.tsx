@@ -44,12 +44,6 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
             <FaExchangeAlt size={20} />
           </button>
         </li>
-        {/* ปุ่มรายการโปรด */}
-        <li>
-          <button className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-blue-800">
-            <FaHeart size={20} />
-          </button>
-        </li>
         {/* ปุ่มตะกร้าสินค้า */}
         <li className="relative">
           <button 

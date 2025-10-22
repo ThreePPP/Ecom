@@ -6,6 +6,7 @@ import Flashsale from './component/main/Flashsale/Flashsale'
 import Bestsell from './component/main/Bestsell/bestsell'
 import Footer from './component/main/footer/footer'
 import AllCategory from './component/main/Allcategory/allcategory'
+import Features from './component/main/Features/Features'
 
 const page = () => {
   return (
@@ -14,6 +15,7 @@ const page = () => {
       <Flashsale />
       <Bestsell />
       <AllCategory />
+      <Features />
       <Footer />
     </div>
   )
