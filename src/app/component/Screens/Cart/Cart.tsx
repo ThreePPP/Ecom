@@ -36,7 +36,7 @@ const CartPage = () => {
               <div className="w-10 h-10 bg-gray-300 text-white rounded-full flex items-center justify-center font-bold">
                 2
               </div>
-              <span className="ml-2 text-gray-400">รานละเอียด</span>
+              <span className="ml-2 text-gray-400">รายละเอียด</span>
             </div>
             <div className="w-20 h-1 bg-gray-300 mx-4"></div>
             <div className="flex items-center">
