@@ -24,7 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
     <div>
       {/* Main Navbar */}
       <div className="flex items-center px-10 py-4 bg-gradient-to-r from-blue-900 to-blue-500 text-white">
-        <a href="/"><img src="/Logo/logo_W.png" alt="" className='h-24 w-56'/></a>
+        <a href="/"><img src="/Logo/logo_W.png" alt="" className='h-20 w-58'/></a>
       <form className="flex flex-1 max-w-3xl mx-auto bg-white rounded-full">
         <input
           type="text"
