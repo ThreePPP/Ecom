@@ -88,7 +88,7 @@ const Navbar = () => {
         </div>
       </div>
       {/* Banner carousel placed under secondary menu */}
-      <div className="px-10 mt-4">
+      <div>
         {/* Use banner images from public/Banners folder */}
         <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/who1.png"]} height="h-150" />
       </div>
