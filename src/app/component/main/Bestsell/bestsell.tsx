@@ -176,7 +176,7 @@ const Bestsell = () => {
                 )}
               </div>
               <div className="text-xs text-gray-400 line-through mb-3">
-                *ราคาปกติ {product.oldPrice} รวบสินค้าแล้วนะ
+                *ราคาปกติ {product.oldPrice} รวมสินค้าแล้วนะ
               </div>
 
               {/* Buy Button */}
