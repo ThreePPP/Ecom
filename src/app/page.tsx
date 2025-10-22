@@ -4,6 +4,7 @@ import React from 'react'
 import Navbar from './component/Navbar/Navbar'
 import Flashsale from './component/main/Flashsale/Flashsale'
 import Bestsell from './component/main/Bestsell/bestsell'
+import Footer from './component/main/footer/footer'
 
 const page = () => {
   return (
@@ -11,6 +12,7 @@ const page = () => {
       <Navbar />
       <Flashsale />
       <Bestsell />
+      <Footer />
     </div>
   )
 }
