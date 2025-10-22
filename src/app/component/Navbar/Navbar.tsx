@@ -4,16 +4,20 @@ import React, { useState } from 'react'
 import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser } from 'react-icons/fa'
 import LoginModal from './LoginModal'
 import BannerCarousel from './BannerCarousel'
+import Promotion from './Promotion'
 import type { types } from '@/app/util/types'
 
 const Navbar = () => {
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
+  const [isPromotionOpen, setPromotionOpen] = useState(false)
 
   return (
     <div>
       {/* Main Navbar */}
       <div className="flex items-center px-10 py-4 bg-gradient-to-r from-blue-900 to-blue-500 text-white">
-        <h1 className="text-3xl italic font-bold mr-6">Favcom</h1>
+        <div className=' w-60'>
+          <img src="/Logo/logo_W.png" alt="Logo" />
+        </div>
       <form className="flex flex-1 max-w-3xl mx-auto bg-white rounded-full">
         <input
           type="text"
@@ -81,12 +85,35 @@ const Navbar = () => {
             </div>
             
             {/* Other menu items */}
-            <a href="#" className="hover:text-blue-600 transition-colors">โปรโมชันออนไลน์</a>
+            <button 
+              onClick={() => setPromotionOpen(!isPromotionOpen)}
+              className="hover:text-blue-600 transition-colors flex items-center gap-1"
+            >
+              โปรโมชันออนไลน์
+              <svg 
+                className={`w-4 h-4 transition-transform ${isPromotionOpen ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
             <a href="#" className="hover:text-blue-600 transition-colors">คู่มือการช็อปปิ้ง</a>
             <a href="#" className="hover:text-blue-600 transition-colors">บริการหลังการขาย</a>
           </nav>
         </div>
       </div>
+
+      {/* Promotion Dropdown with slide animation */}
+      <div 
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          isPromotionOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <Promotion />
+      </div>
+
       {/* Banner carousel placed under secondary menu */}
       <div>
         {/* Use banner images from public/Banners folder */}
