@@ -32,4 +32,8 @@ export interface CartContextType {
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
+  selectedItemIds: string[];
+  setSelectedItems: (ids: string[]) => void;
+  getSelectedItems: () => CartItem[];
+  clearSelectedItems: () => void;
 }

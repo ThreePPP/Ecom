@@ -1,21 +1,66 @@
 "use client"
 
-import React from 'react';
-import { FaPlus, FaMinus, FaTrash } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaPlus, FaMinus, FaTrash, FaTag, FaTruck, FaUndo, FaShieldAlt } from 'react-icons/fa';
 import Image from 'next/image';
 import { useCart } from '@/app/context/CartContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/app/component/Navbar/Navbar';
 
 const CartPage = () => {
-  const { cart, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, getTotalPrice, clearCart, getSelectedItems, selectedItemIds } = useCart();
   const router = useRouter();
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [discount, setDiscount] = useState(0);
+  const [promoError, setPromoError] = useState('');
 
-  // Calculate subtotal, VAT, and total
-  const subtotal = getTotalPrice();
+  // Get items to display (selected items or all if none selected)
+  const displayItems = selectedItemIds.length > 0 ? getSelectedItems() : cart;
+
+  // Calculate subtotal, VAT, and total based on displayed items
+  const subtotal = displayItems.reduce((total, item) => {
+    const price = Number(item.price) || 0;
+    return total + price * item.quantity;
+  }, 0);
   const vatRate = 0.07; // 7% VAT
   const vat = subtotal * vatRate;
-  const total = subtotal + vat;
+  const total = subtotal + vat - discount;
+
+  // Handle promo code
+  const handleApplyPromo = () => {
+    setPromoError('');
+    const code = promoCode.trim().toUpperCase();
+    
+    if (!code) {
+      setPromoError('กรุณาใส่โค้ดส่วนลด');
+      return;
+    }
+
+    // Valid promo codes
+    const validCodes: { [key: string]: number } = {
+      'ONLINE50': 50,
+      'SAVE100': 100,
+      'DISCOUNT20': subtotal * 0.2,
+    };
+
+    if (validCodes[code] !== undefined) {
+      setAppliedPromo(code);
+      setDiscount(validCodes[code]);
+      setPromoError('');
+    } else {
+      setPromoError('โค้ดส่วนลดไม่ถูกต้อง');
+      setAppliedPromo(null);
+      setDiscount(0);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setPromoCode('');
+    setAppliedPromo(null);
+    setDiscount(0);
+    setPromoError('');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,9 +96,20 @@ const CartPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Side - Cart Items */}
           <div className="lg:col-span-2">
-            {cart.length === 0 ? (
+            {/* Selected Items Info */}
+            {selectedItemIds.length > 0 && cart.length > 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-blue-800 font-medium">
+                  📦 แสดงสินค้าที่เลือก: {displayItems.length} จาก {cart.length} รายการ
+                </p>
+              </div>
+            )}
+
+            {displayItems.length === 0 ? (
               <div className="bg-white rounded-lg shadow p-12 text-center">
-                <p className="text-gray-500 text-xl mb-4">ตะกร้าสินค้าว่างเปล่า</p>
+                <p className="text-gray-500 text-xl mb-4">
+                  {cart.length > 0 ? 'กรุณาเลือกสินค้าที่ต้องการสั่งซื้อ' : 'ตะกร้าสินค้าว่างเปล่า'}
+                </p>
                 <button
                   onClick={() => router.push('/')}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -63,7 +119,7 @@ const CartPage = () => {
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow">
-                {cart.map((item) => (
+                {displayItems.map((item) => (
                   <div
                     key={item.id}
                     className="p-6 border-b border-gray-200 last:border-b-0"
@@ -130,23 +186,67 @@ const CartPage = () => {
                 ))}
 
                 {/* Clear Cart Button */}
-                <div className="p-6 bg-gray-50">
+                <div className="p-6 bg-gray-50 flex justify-between items-center">
                   <button
                     onClick={clearCart}
                     className="text-red-600 hover:text-red-700 font-semibold"
                   >
                     ล้างตะกร้าสินค้า
                   </button>
+                  {selectedItemIds.length > 0 && cart.length > displayItems.length && (
+                    <button
+                      onClick={() => router.push('/')}
+                      className="text-blue-600 hover:text-blue-700 font-semibold"
+                    >
+                      เลือกสินค้าเพิ่ม
+                    </button>
+                  )}
                 </div>
               </div>
             )}
           </div>
 
           {/* Right Side - Order Summary */}
-          {cart.length > 0 && (
+          {displayItems.length > 0 && (
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow p-6 sticky top-24">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">ยอดรวมทั้งหมด</h2>
+                
+                {/* Promo Code Input */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    <FaTag className="text-red-600" />
+                    โค้ดส่วนลด
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      placeholder="ใส่โค้ดส่วนลด"
+                      disabled={!!appliedPromo}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-black"
+                    />
+                    <button
+                      onClick={appliedPromo ? handleRemovePromo : handleApplyPromo}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                        appliedPromo
+                          ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {appliedPromo ? 'ยกเลิก' : 'ใช้งาน'}
+                    </button>
+                  </div>
+                  {promoError && (
+                    <p className="text-red-500 text-sm mt-2">{promoError}</p>
+                  )}
+                  {appliedPromo && (
+                    <p className="text-green-600 text-sm mt-2 flex items-center gap-1">
+                      ✓ ใช้โค้ด {appliedPromo} สำเร็จ
+                    </p>
+                  )}
+                </div>
                 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600">
@@ -161,14 +261,12 @@ const CartPage = () => {
                     <span>ภาษี VAT 7%:</span>
                     <span>฿{vat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>ส่วนลดเพิ่มหมด:</span>
-                    <span>฿0.00</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>ส่วนลด:</span>
-                    <span>฿0.00</span>
-                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-green-600 font-semibold">
+                      <span>ส่วนลด ({appliedPromo}):</span>
+                      <span>-฿{discount.toLocaleString()}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t pt-4 mb-6">
@@ -183,60 +281,51 @@ const CartPage = () => {
 
                 <button
                   onClick={() => alert('กำลังไปหน้าชำระเงิน...')}
-                  className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-bold text-lg mb-3"
+                  className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-bold text-lg mb-4"
                 >
                   ดำเนินการสั่งซื้อ
                 </button>
 
-                <button
-                  onClick={() => router.push('/')}
-                  className="w-full px-6 py-3 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-semibold"
-                >
-                  ดูสินค้าเพิ่มเติม
-                </button>
+                {/* Service Information */}
+                <div className="space-y-3 pt-4 border-t">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FaTruck className="text-red-600" size={20} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">จัดส่งทั่วประเทศ</p>
+                      <p className="text-gray-600 text-xs">โดยลูกค้าจะได้รับสินค้าภายใน 1-4 วัน</p>
+                    </div>
+                  </div>
 
-                {/* Additional Info */}
-                <div className="mt-6 space-y-3">
-                  <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <span>💳</span>
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FaUndo className="text-blue-600" size={20} />
+                    </div>
                     <div>
-                      <p className="font-semibold">ส่งฟรีทั่วไทย</p>
-                      <p>ช้อปครบ 5,000 บาทขึ้นไป</p>
+                      <p className="font-semibold text-gray-800 text-sm">เลือกซื้อสินค้าอย่างปลอดภัย</p>
+                      <p className="text-gray-600 text-xs">มั่นใจในทุกการสั่งซื้อ</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <span>🔍</span>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FaShieldAlt className="text-green-600" size={20} />
+                    </div>
                     <div>
-                      <p className="font-semibold">ผ่อนสูงสุด 10 เดือน</p>
-                      <p>**บัตรที่ผ่อนได้มีเงื่อนไขเกณฑ์ค่าตัด</p>
+                      <p className="font-semibold text-gray-800 text-sm">ดูแลลูกค้าทางออนไลน์</p>
+                      <p className="text-gray-600 text-xs">เราดูแลลูกค้าทางออนไลน์ในเวบาทำการ</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <span>💰</span>
-                    <div>
-                      <p className="font-semibold">ไว้ใจ 1000.-</p>
-                      <p>แอคโรงฝั่นเซ่ต(ซื้อสินค้า เมาคอมมุ้นี่ประกันคอมเพ็ต)</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <span>📦</span>
-                    <div>
-                      <p className="font-semibold">คืนสินค้า</p>
-                      <p>7 วัน</p>
-                      <p className="text-xs text-red-600">เป็นไปในเทอร์ของเงื่อนไขร้านค้า</p>
-                    </div>
-                  </div>
-                  <button className="w-full mt-4 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors">
-                    ขอเคลมสินค้า
-                  </button>
                 </div>
+
               </div>
             </div>
           )}
         </div>
       </div>
     </div>
-  );
+  )
 };
 
 export default CartPage;
