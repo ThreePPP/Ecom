@@ -13,19 +13,19 @@ const Flashsale = () => {
           name: "CPU (มือ) INTEL 1700 CORE I5-12400F 2.5GHz 6C 12T",
           price: "฿3,690.00",
           oldPrice: "฿3,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/12400f.jpg",
         },
         {
           name: "CPU (มือ) AMD AM5 RYZEN 5 9600X 3.9GHz 6C 12T",
           price: "฿8,690.00",
           oldPrice: "฿8,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/R5 9600X.jpg",
         },
         {
           name: "CPU (มือ) AMD AM5 RYZEN 7 9800X3D 4.7GHz 8C 16T",
           price: "฿17,690.00",
           oldPrice: "฿19,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/R7 9800X3D.jpg",
         },
       ],
     },
@@ -39,19 +39,19 @@ const Flashsale = () => {
           name: "CPU (มือ) INTEL 1700 CORE I5-12400F 2.5GHz 6C 12T",
           price: "฿3,690.00",
           oldPrice: "฿3,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/12400f.jpg",
         },
         {
           name: "CPU (มือ) AMD AM5 RYZEN 5 9600X 3.9GHz 6C 12T",
           price: "฿8,690.00",
           oldPrice: "฿8,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/R5 9600X.jpg",
         },
         {
           name: "CPU (มือ) AMD AM5 RYZEN 7 9800X3D 4.7GHz 8C 16T",
           price: "฿17,690.00",
           oldPrice: "฿19,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/R7 9800X3D.jpg",
         },
       ],
     },
@@ -65,44 +65,55 @@ const Flashsale = () => {
           name: "CPU (มือ) INTEL 1700 CORE I5-12400F 2.5GHz 6C 12T",
           price: "฿3,690.00",
           oldPrice: "฿3,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/12400f.jpg",
         },
         {
           name: "CPU (มือ) AMD AM5 RYZEN 5 9600X 3.9GHz 6C 12T",
           price: "฿8,690.00",
           oldPrice: "฿8,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/R5 9600X.jpg",
         },
         {
           name: "CPU (มือ) AMD AM5 RYZEN 7 9800X3D 4.7GHz 8C 16T",
           price: "฿17,690.00",
           oldPrice: "฿19,990.00",
-          image: "/icons/cpu-icon.png",
+          image: "/icons/R7 9800X3D.jpg",
         },
       ],
     },
   ];
 
   return (
+<<<<<<< HEAD
     <div id="flashsale-section" className="px-10 py-8">
       <div className="flex gap-4 overflow-x-auto">
+=======
+    <div className="px-10 py-12 flex justify-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl w-full">
+>>>>>>> 1389d3419a8985b08f18eee760cbdf787b4c7477
         {flashSaleData.map((sale) => (
           <div
             key={sale.id}
-            className={`${sale.color} rounded-2xl p-6 min-w-[400px] flex-shrink-0`}
+            className={`${sale.color} rounded-2xl p-6`}
           >
-            <div className="flex items-center gap-2 text-white font-bold text-xl mb-4">
-              <span className="text-yellow-300 text-2xl">{sale.icon}</span>
+            <div className="flex items-center gap-3 text-white font-bold text-2xl mb-6">
+              <span className="text-yellow-300 text-3xl">{sale.icon}</span>
               {sale.title}
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {sale.products.map((product, idx) => (
                 <div
                   key={idx}
-                  className="bg-white rounded-xl p-4 flex items-center gap-4"
+                  className="bg-white rounded-lg p-4 flex items-center gap-4"
                 >
-                  <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <div className="text-blue-600 font-bold text-xs">CPU</div>
+                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      width={96}
+                      height={96}
+                      className="object-contain"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-800 font-medium mb-2 line-clamp-2">
