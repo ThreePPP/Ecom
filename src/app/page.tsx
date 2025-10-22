@@ -5,6 +5,7 @@ import Navbar from './component/Navbar/Navbar'
 import Flashsale from './component/main/Flashsale/Flashsale'
 import Bestsell from './component/main/Bestsell/bestsell'
 import Footer from './component/main/footer/footer'
+import AllCategory from './component/main/Allcategory/allcategory'
 
 const page = () => {
   return (
@@ -12,6 +13,7 @@ const page = () => {
       <Navbar />
       <Flashsale />
       <Bestsell />
+      <AllCategory />
       <Footer />
     </div>
   )

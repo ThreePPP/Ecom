@@ -20,7 +20,7 @@ const LoginModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
             >
               &times;
             </button>
-            <h1 className="text-3xl font-bold text-blue-700 mb-1 tracking-wide select-none">Favcom</h1>
+            <img src="/Logo/logo_B.png" alt="Logo" className="w-100 h-50 mb-4" />
             <div className="text-blue-600 text-sm mb-4 text-center select-none">ศูนย์รวมสินค้าไอทีมือสองครบครบจบที่เดียว</div>
             <h2 className="text-lg text-black font-semibold mb-6 text-center">ยินดีต้อนรับ</h2>
             <div className="flex flex-col gap-3 w-full max-w-xs">
