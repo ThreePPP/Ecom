@@ -3,21 +3,28 @@
 import React, { useState } from 'react'
 import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser } from 'react-icons/fa'
 import LoginModal from './LoginModal'
+import CartModal from '@/app/component/Navbar/CartModal'
 import BannerCarousel from './BannerCarousel'
 import Promotion from './Promotion'
+import { useCart } from '@/app/context/CartContext'
 import type { types } from '@/app/util/types'
 
-const Navbar = () => {
+interface NavbarProps {
+  showBanner?: boolean;
+  showPromotion?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true }) => {
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
+  const [isCartModalOpen, setCartModalOpen] = useState(false)
   const [isPromotionOpen, setPromotionOpen] = useState(false)
+  const { getTotalItems } = useCart()
 
   return (
     <div>
       {/* Main Navbar */}
       <div className="flex items-center px-10 py-4 bg-gradient-to-r from-blue-900 to-blue-500 text-white">
-        <div className=' w-60'>
-          <img src="/Logo/logo_W.png" alt="Logo" />
-        </div>
+        <a href="/"><img src="/Logo/logo_W.png" alt="" className='h-24 w-56'/></a>
       <form className="flex flex-1 max-w-3xl mx-auto bg-white rounded-full">
         <input
           type="text"
@@ -44,9 +51,17 @@ const Navbar = () => {
           </button>
         </li>
         {/* ปุ่มตะกร้าสินค้า */}
-        <li>
-          <button className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-blue-800">
+        <li className="relative">
+          <button 
+            onClick={() => setCartModalOpen(true)}
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-blue-800 relative"
+          >
             <FaShoppingCart size={20} />
+            {getTotalItems() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {getTotalItems()}
+              </span>
+            )}
           </button>
         </li>
         {/* ปุ่มเข้าสู่ระบบ */}
@@ -63,6 +78,9 @@ const Navbar = () => {
       
   {/* Modal สำหรับเข้าสู่ระบบ */}
   <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onOpen={() => setLoginModalOpen(true)} />
+  
+  {/* Modal สำหรับตะกร้าสินค้า */}
+  <CartModal isOpen={isCartModalOpen} onClose={() => setCartModalOpen(false)} />
     
   {/* Secondary Menu Bar */}
       <div className="bg-white shadow-sm border-b">
@@ -88,6 +106,7 @@ const Navbar = () => {
             <button 
               onClick={() => setPromotionOpen(!isPromotionOpen)}
               className="hover:text-blue-600 transition-colors flex items-center gap-1"
+              style={{ display: showPromotion ? 'flex' : 'none' }}
             >
               โปรโมชันออนไลน์
               <svg 
@@ -106,19 +125,23 @@ const Navbar = () => {
       </div>
 
       {/* Promotion Dropdown with slide animation */}
-      <div 
-        className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isPromotionOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <Promotion />
-      </div>
+      {showPromotion && (
+        <div 
+          className={`overflow-hidden transition-all duration-500 ease-in-out ${
+            isPromotionOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <Promotion />
+        </div>
+      )}
 
       {/* Banner carousel placed under secondary menu */}
-      <div>
-        {/* Use banner images from public/Banners folder */}
-        <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/who1.png"]} height="h-150" />
-      </div>
+      {showBanner && (
+        <div>
+          {/* Use banner images from public/Banners folder */}
+          <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/who1.png"]} height="h-150" />
+        </div>
+      )}
     </div>
   )
 }

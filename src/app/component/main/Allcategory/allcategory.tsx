@@ -83,9 +83,6 @@ const AllCategory = () => {
         {/* สินค้ามาใหม่ */}
         <CategorySection title="สินค้ามาใหม่" icon="/icons/new-product.png" />
 
-        {/* สินค้าแนะนำ */}
-        <CategorySection title="สินค้าแนะนำ" icon="/icons/star.png" />
-
       {/* CPU */}
       <CategorySection title="CPU" icon="/icons/cpu.png" />
 
