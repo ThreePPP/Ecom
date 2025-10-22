@@ -7,6 +7,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -32,12 +33,27 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('cart');
       }
     }
+
+    // Load selected items
+    const savedSelectedIds = localStorage.getItem('selectedItemIds');
+    if (savedSelectedIds) {
+      try {
+        setSelectedItemIds(JSON.parse(savedSelectedIds));
+      } catch (error) {
+        console.error('Error loading selected items:', error);
+      }
+    }
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
+
+  // Save selected items to localStorage
+  useEffect(() => {
+    localStorage.setItem('selectedItemIds', JSON.stringify(selectedItemIds));
+  }, [selectedItemIds]);
 
   const addToCart = (product: Product) => {
     setCart((prevCart) => {
@@ -87,6 +103,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return cart.reduce((total, item) => total + item.quantity, 0);
   };
 
+  const setSelectedItems = (ids: string[]) => {
+    setSelectedItemIds(ids);
+  };
+
+  const getSelectedItems = () => {
+    return cart.filter(item => selectedItemIds.includes(item.id));
+  };
+
+  const clearSelectedItems = () => {
+    setSelectedItemIds([]);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -97,6 +125,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         getTotalPrice,
         getTotalItems,
+        selectedItemIds,
+        setSelectedItems,
+        getSelectedItems,
+        clearSelectedItems,
       }}
     >
       {children}
