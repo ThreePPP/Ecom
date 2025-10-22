@@ -58,7 +58,7 @@ const Navbar = () => {
       </div>
       
   {/* Modal สำหรับเข้าสู่ระบบ */}
-  <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
+  <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onOpen={() => setLoginModalOpen(true)} />
     
   {/* Secondary Menu Bar */}
       <div className="bg-white shadow-sm border-b">

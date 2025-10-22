@@ -3,7 +3,7 @@ import RegisterModal from './RegisterModal';
 import type { types } from '@/app/util/types';
 
 
-const LoginModal: React.FC<types> = ({ isOpen, onClose }) => {
+const LoginModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
   if (!isOpen && !isRegisterOpen) return null;
 
@@ -48,7 +48,14 @@ const LoginModal: React.FC<types> = ({ isOpen, onClose }) => {
         </div>
       )}
       {/* Register Modal */}
-      <RegisterModal isOpen={isRegisterOpen} onClose={() => setRegisterOpen(false)} />
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={() => setRegisterOpen(false)}
+        onOpen={() => {
+          setRegisterOpen(false);
+          onOpen?.();
+        }}
+      />
     </>
   );
 };
