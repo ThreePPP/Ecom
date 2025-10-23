@@ -7,11 +7,13 @@ import Bestsell from './component/main/Bestsell/bestsell'
 import Footer from './component/main/footer/footer'
 import AllCategory from './component/main/Allcategory/allcategory'
 import Features from './component/main/Features/Features'
+import PromoBanners from './component/main/PromoBanners/PromoBanners'
 
 const page = () => {
   return (
     <div>
       <Navbar />
+      <PromoBanners />
       <Flashsale />
       <Bestsell />
       <AllCategory />
