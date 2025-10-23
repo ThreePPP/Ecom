@@ -244,7 +244,7 @@ const CartPage = () => {
                 {selectedItemIds.length > 0 && cart.length > 0 && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                     <p className="text-blue-800 font-medium">
-                      📦 แสดงสินค้าที่เลือก: {displayItems.length} จาก{" "}
+                      แสดงสินค้าที่เลือก: {displayItems.length} จาก{" "}
                       {cart.length} รายการ
                     </p>
                   </div>
@@ -1007,7 +1007,12 @@ const CartPage = () => {
                   ) : (
                     <button
                       onClick={handleCompleteOrder}
-                      className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-bold text-lg"
+                      disabled={!acceptTerms}
+                      className={`w-full px-6 py-3 rounded-lg transition-all font-bold text-lg ${
+                        acceptTerms
+                          ? "bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-md hover:shadow-lg"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                      }`}
                     >
                       ยืนยันการสั่งซื้อ
                     </button>
