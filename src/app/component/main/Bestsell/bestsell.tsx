@@ -206,6 +206,18 @@ const Bestsell = () => {
           </div>
         ))}
       </div>
+
+      {/* Promotional Banner - AMD Ryzen */}
+      <div className="mt-8 rounded-xl overflow-hidden shadow-lg">
+        <div className="relative w-full h-48 md:h-64">
+          <Image
+            src="/Banners/b_amd.jpg"
+            alt="AMD Ryzen 5 5500GT - แรงกว่า คุ้มกว่า"
+            fill
+            className="object-cover"
+          />
+        </div>
+      </div>
     </div>
   );
 };
