@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { FaShoppingCart, FaPlus, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
@@ -9,6 +9,7 @@ import type { Product } from "@/app/util/types";
 const Flashsale = () => {
   const { addToCart } = useCart();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const flashSaleData = [
     {
@@ -165,20 +166,15 @@ const Flashsale = () => {
   };
 
   const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: -400,
-        behavior: 'smooth'
-      });
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
   const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: 400,
-        behavior: 'smooth'
-      });
+    const maxIndex = Math.max(0, flashSaleData.length - 3); // แสดง 3 cards พร้อมกัน
+    if (currentIndex < maxIndex) {
+      setCurrentIndex(currentIndex + 1);
     }
   };
 
@@ -188,32 +184,46 @@ const Flashsale = () => {
         {/* Left Arrow */}
         <button
           onClick={scrollLeft}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
+          disabled={currentIndex === 0}
+          className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${
+            currentIndex === 0 
+              ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+              : 'bg-black hover:bg-gray-800'
+          }`}
           aria-label="Scroll left"
         >
-          <FaChevronLeft className="text-gray-800 text-xl" />
+          <FaChevronLeft className="text-white text-xl" />
         </button>
 
         {/* Right Arrow */}
         <button
           onClick={scrollRight}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
+          disabled={currentIndex >= Math.max(0, flashSaleData.length - 3)}
+          className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${
+            currentIndex >= Math.max(0, flashSaleData.length - 3)
+              ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+              : 'bg-black hover:bg-gray-800'
+          }`}
           aria-label="Scroll right"
         >
-          <FaChevronRight className="text-gray-800 text-xl" />
+          <FaChevronRight className="text-white text-xl" />
         </button>
 
         {/* Scrollable Container */}
-        <div 
-          ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto justify-start scrollbar-hide scroll-smooth px-12"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {flashSaleData.map((sale) => (
-          <div
-            key={sale.id}
-            className={`${sale.color} rounded-2xl p-6`}
+        <div className="overflow-hidden px-12">
+          <div 
+            ref={scrollContainerRef}
+            className="flex gap-6 transition-transform duration-700 ease-in-out"
+            style={{ 
+              transform: `translateX(-${currentIndex * (100 / 3 + 2)}%)` // เลื่อนทีละ 1 card (ประมาณ 33.33% + gap)
+            }}
           >
+            {flashSaleData.map((sale) => (
+            <div
+              key={sale.id}
+              className={`${sale.color} rounded-2xl p-6 flex-shrink-0`}
+              style={{ width: 'calc(33.333% - 16px)' }} // แสดง 3 cards พร้อมกัน
+            >
             <div className="flex items-center gap-3 text-white font-bold text-2xl mb-6">
               <span className="text-yellow-300 text-3xl">{sale.icon}</span>
               {sale.title}
@@ -260,6 +270,23 @@ const Flashsale = () => {
             </div>
           </div>
         ))}
+          </div>
+        </div>
+
+        {/* Dots Indicator */}
+        <div className="flex justify-center gap-2 mt-6">
+          {Array.from({ length: Math.max(0, flashSaleData.length - 2) }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === currentIndex 
+                  ? 'bg-red-600 w-8' 
+                  : 'bg-gray-300 w-2 hover:bg-gray-400'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </div>

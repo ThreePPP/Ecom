@@ -60,17 +60,21 @@ const BannerCarousel: React.FC<BannerCarouselProps> = ({
       {/* Left / Right arrows */}
       <button
         onClick={() => { stopAutoPlay(); prev(); }}
-        className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-700 rounded-full p-2 shadow"
+        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black hover:bg-gray-800 text-white rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
         aria-label="Previous"
       >
-        ‹
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
       </button>
       <button
         onClick={() => { stopAutoPlay(); next(); }}
-        className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-700 rounded-full p-2 shadow"
+        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black hover:bg-gray-800 text-white rounded-full p-3 shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
         aria-label="Next"
       >
-        ›
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
       </button>
 
       {/* Dots */}

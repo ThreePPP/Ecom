@@ -48,3 +48,27 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Smooth scrolling for all elements */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced smooth scroll for containers */
+.scrollbar-hide {
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding: 0 48px; /* padding for smooth snap */
+}
+
+.scrollbar-hide > * {
+  scroll-snap-align: center; /* เปลี่ยนเป็น center เพื่อความนุ่มนวล */
+  scroll-snap-stop: normal;
+}
+
+/* Custom smooth scroll timing */
+@media (prefers-reduced-motion: no-preference) {
+  .scrollbar-hide {
+    scroll-behavior: smooth;
+  }
+}
