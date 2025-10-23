@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser } from 'react-icons/fa'
 import LoginModal from './LoginModal'
 import CartModal from '@/app/component/Navbar/CartModal'
@@ -18,12 +18,29 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
   const [isCartModalOpen, setCartModalOpen] = useState(false)
   const [isPromotionOpen, setPromotionOpen] = useState(false)
+  const [isSticky, setIsSticky] = useState(false)
   const { getTotalItems } = useCart()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // เมื่อเลื่อนลงเกิน 100px จะทำให้ navbar ติด
+      if (window.scrollY > 100) {
+        setIsSticky(true)
+      } else {
+        setIsSticky(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
     <div>
       {/* Main Navbar */}
-      <div className="flex items-center px-10 py-4 bg-gradient-to-r from-blue-900 to-blue-500 text-white">
+      <div className={`flex items-center px-10 py-4 bg-gradient-to-r from-blue-900 to-blue-500 text-white transition-all duration-500 ease-in-out ${
+        isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-2xl transform scale-100' : ''
+      }`}>
         <a href="/"><img src="/Logo/logo_W.png" alt="" className='h-20 w-58'/></a>
       <form className="flex flex-1 max-w-3xl mx-auto bg-white rounded-full">
         <input
@@ -75,6 +92,12 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   
   {/* Modal สำหรับตะกร้าสินค้า */}
   <CartModal isOpen={isCartModalOpen} onClose={() => setCartModalOpen(false)} />
+    
+  {/* Spacer เมื่อ navbar เป็น fixed */}
+  <div 
+    className="transition-all duration-500 ease-in-out overflow-hidden"
+    style={{ height: isSticky ? '88px' : '0' }}
+  ></div>
     
   {/* Secondary Menu Bar */}
       <div className="bg-white shadow-sm border-b">
