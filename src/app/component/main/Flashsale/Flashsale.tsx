@@ -1,13 +1,14 @@
 "use client"
 
-import React from "react";
+import React, { useRef } from "react";
 import Image from "next/image";
-import { FaShoppingCart, FaPlus } from "react-icons/fa";
+import { FaShoppingCart, FaPlus, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
 import type { Product } from "@/app/util/types";
 
 const Flashsale = () => {
   const { addToCart } = useCart();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const flashSaleData = [
     {
@@ -41,7 +42,7 @@ const Flashsale = () => {
     },
     {
       id: 2,
-      title: "GPU SALE",
+      title: "MAINBOARD SALE",
       icon: "⚡",
       color: "bg-red-600",
       products: [
@@ -97,6 +98,64 @@ const Flashsale = () => {
         },
       ],
     },
+    {
+      id: 4,
+      title: "GPU SALE",
+      icon: "⚡",
+      color: "bg-red-600",
+      products: [
+        {
+          id: "mb-1",
+          name: "MAINBOARD ASUS ROG STRIX B550-F GAMING (AM4)",
+          price: 5490,
+          oldPrice: 6290,
+          image: "/icons/12400f.jpg",
+        },
+        {
+          id: "mb-2",
+          name: "MAINBOARD MSI MAG B660M MORTAR WIFI DDR4 (LGA1700)",
+          price: 4990,
+          oldPrice: 5690,
+          image: "/icons/R5 9600X.jpg",
+        },
+        {
+          id: "mb-3",
+          name: "MAINBOARD GIGABYTE Z790 AORUS ELITE AX (LGA1700)",
+          price: 8990,
+          oldPrice: 10990,
+          image: "/icons/R7 9800X3D.jpg",
+        },
+      ],
+    },
+    {
+      id: 5,
+      title: "PSU SALE",
+      icon: "⚡",
+      color: "bg-red-600",
+      products: [
+        {
+          id: "psu-1",
+          name: "PSU CORSAIR RM850x 850W 80+ GOLD MODULAR",
+          price: 4290,
+          oldPrice: 4990,
+          image: "/icons/12400f.jpg",
+        },
+        {
+          id: "psu-2",
+          name: "PSU SEASONIC FOCUS GX-750 750W 80+ GOLD",
+          price: 3490,
+          oldPrice: 3990,
+          image: "/icons/R5 9600X.jpg",
+        },
+        {
+          id: "psu-3",
+          name: "PSU THERMALTAKE TOUGHPOWER GF1 1000W 80+ GOLD",
+          price: 5490,
+          oldPrice: 6290,
+          image: "/icons/R7 9800X3D.jpg",
+        },
+      ],
+    },
   ];
 
   const handleAddToCart = (product: Product) => {
@@ -105,10 +164,52 @@ const Flashsale = () => {
     alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);
   };
 
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: -400,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: 400,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <div id="flashsale-section" className="bg-white px-10 py-8">
-      <div className="flex gap-4 overflow-x-auto justify-center">
-        {flashSaleData.map((sale) => (
+      <div className="relative">
+        {/* Left Arrow */}
+        <button
+          onClick={scrollLeft}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
+          aria-label="Scroll left"
+        >
+          <FaChevronLeft className="text-gray-800 text-xl" />
+        </button>
+
+        {/* Right Arrow */}
+        <button
+          onClick={scrollRight}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-3 transition-all hover:scale-110"
+          aria-label="Scroll right"
+        >
+          <FaChevronRight className="text-gray-800 text-xl" />
+        </button>
+
+        {/* Scrollable Container */}
+        <div 
+          ref={scrollContainerRef}
+          className="flex gap-4 overflow-x-auto justify-start scrollbar-hide scroll-smooth px-12"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {flashSaleData.map((sale) => (
           <div
             key={sale.id}
             className={`${sale.color} rounded-2xl p-6`}
@@ -159,6 +260,7 @@ const Flashsale = () => {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );
