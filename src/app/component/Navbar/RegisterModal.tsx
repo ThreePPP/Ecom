@@ -103,7 +103,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 text-black"
                   required
                 />
               </div>
@@ -116,7 +116,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 text-black"
                   required
                 />
               </div>
@@ -131,7 +131,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 text-black"
                   placeholder="0812345678"
                   pattern="[0-9]{10}"
                   maxLength={10}
@@ -147,7 +147,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="dateOfBirth"
                   value={formData.dateOfBirth}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 text-black"
                   required
                 />
               </div>
@@ -161,7 +161,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded px-3 py-2 text-black"
                 placeholder="example@email.com"
                 required
               />
@@ -176,7 +176,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2 pr-10"
+                  className="w-full border rounded px-3 py-2 pr-10 text-black"
                   minLength={6}
                   required
                 />
@@ -202,7 +202,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2 pr-10"
+                  className="w-full border rounded px-3 py-2 pr-10 text-black"
                   required
                 />
                 <button

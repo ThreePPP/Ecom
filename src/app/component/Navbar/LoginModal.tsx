@@ -121,7 +121,7 @@ const LoginModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 text-black"
                   placeholder="example@email.com"
                   required
                 />
@@ -133,7 +133,7 @@ const LoginModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 text-black"
                   placeholder="••••••••"
                   required
                 />

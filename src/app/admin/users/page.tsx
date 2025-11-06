@@ -118,6 +118,10 @@ export default function AdminUsersPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+            <button onClick={() => router.push('/')} className="hover:text-orange-500">
+              Main
+            </button>
+            <span>/</span>
             <button onClick={() => router.push('/admin')} className="hover:text-orange-500">
               Admin
             </button>
