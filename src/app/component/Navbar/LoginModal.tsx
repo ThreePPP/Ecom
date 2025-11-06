@@ -1,16 +1,50 @@
 import React, { useState } from 'react';
 import RegisterModal from './RegisterModal';
 import type { types } from '@/app/util/types';
+import { useAuth } from '@/app/context/AuthContext';
 
 
 const LoginModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
   const [isRegisterOpen, setRegisterOpen] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+
   if (!isOpen && !isRegisterOpen) return null;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    setError("");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await login(formData.email, formData.password);
+      onClose?.();
+      window.location.reload(); // Reload to update user state
+    } catch (err: any) {
+      setError(err.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       {/* Login Modal */}
-      {isOpen && (
+      {isOpen && !showEmailForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="bg-white rounded-xl shadow-2xl p-8 min-w-[350px] max-w-[95vw] relative flex flex-col items-center">
             <button
@@ -34,7 +68,9 @@ const LoginModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
               <span className="mx-2 text-gray-400 text-sm">หรือ</span>
               <div className="flex-1 h-px bg-gray-200" />
             </div>
-            <button className="flex items-center gap-3 px-4 py-2 border rounded-full bg-white hover:bg-gray-50 shadow-sm font-medium text-gray-800 w-full max-w-xs mb-2">
+            <button 
+              onClick={() => setShowEmailForm(true)}
+              className="flex items-center gap-3 px-4 py-2 border rounded-full bg-white hover:bg-gray-50 shadow-sm font-medium text-gray-800 w-full max-w-xs mb-2">
               <svg width="24" height="24" viewBox="0 0 48 48"><g><rect width="48" height="48" rx="24" fill="#F2F2F2"/><path d="M14 18v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V18c0-1.1-.9-2-2-2H16c-1.1 0-2 .9-2 2zm16 0l-8 5-8-5" fill="#333"/></g></svg>
               เข้าสู่ระบบด้วย Email
             </button>
@@ -43,6 +79,76 @@ const LoginModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
             </div>
             <div className="text-center mt-2 text-xs text-gray-400">
               เมื่อเข้าสู่ระบบ ถือว่าคุณได้ยอมรับและรับทราบ <a href="#" className="text-blue-600 hover:underline">นโยบายความเป็นส่วนตัว</a> ของ Favcom แล้ว
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Email Login Form */}
+      {isOpen && showEmailForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-2xl p-8 min-w-[350px] max-w-[95vw] relative flex flex-col items-center">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl"
+              onClick={() => {
+                setShowEmailForm(false);
+                setError("");
+              }}
+              aria-label="close"
+            >
+              &times;
+            </button>
+            <button
+              className="absolute top-4 left-4 text-gray-400 hover:text-gray-700 text-xl"
+              onClick={() => setShowEmailForm(false)}
+            >
+              ←
+            </button>
+            <img src="/Logo/logo_B.png" alt="Logo" className="w-100 h-50 mb-4" />
+            <h2 className="text-lg text-black font-semibold mb-6 text-center">เข้าสู่ระบบด้วย Email</h2>
+            
+            {error && (
+              <div className="w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-sm">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-4">
+              <div>
+                <label className="block text-sm text-black font-medium mb-1">อีเมล</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full border rounded px-3 py-2"
+                  placeholder="example@email.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-black font-medium mb-1">รหัสผ่าน</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full border rounded px-3 py-2"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-500 text-white font-bold py-2 rounded-full hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+              </button>
+            </form>
+
+            <div className="text-center mt-4 text-sm text-gray-500">
+              ยังไม่ได้เป็นสมาชิก ? <button className="text-blue-600 font-medium hover:underline" onClick={() => { setShowEmailForm(false); setRegisterOpen(true); onClose(); }}>สมัครสมาชิกเลย</button>
             </div>
           </div>
         </div>

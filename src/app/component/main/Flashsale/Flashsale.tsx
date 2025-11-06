@@ -1,167 +1,140 @@
 "use client"
 
-import React, { useRef, useState } from "react";
-import Image from "next/image";
-import { FaShoppingCart, FaPlus, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import React, { useRef, useState, useEffect } from "react";
+import { FaShoppingCart, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
-import type { Product } from "@/app/util/types";
+import { productAPI } from "@/app/lib/api";
+
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  images?: string[];
+  image?: string;
+  category?: string;
+  flashSaleEndTime?: string;
+}
+
+// Countdown Timer Hook
+const useCountdown = (endTime?: string) => {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false
+  });
+
+  useEffect(() => {
+    if (!endTime) {
+      setTimeLeft({
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        isExpired: true
+      });
+      return;
+    }
+
+    const calculateTimeLeft = () => {
+      const difference = new Date(endTime).getTime() - new Date().getTime();
+      
+      if (difference <= 0) {
+        setTimeLeft({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          isExpired: true
+        });
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+        isExpired: false
+      });
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, [endTime]);
+
+  return timeLeft;
+};
 
 const Flashsale = () => {
   const { addToCart } = useCart();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const flashSaleData = [
-    {
-      id: 1,
-      title: "CPU SALE",
-      icon: "⚡",
-      color: "bg-red-600",
-      products: [
-        {
-          id: "cpu-1",
-          name: "CPU (มือ) INTEL 1700 CORE I5-12400F 2.5GHz 6C 12T",
-          price: 3690,
-          oldPrice: 3990,
-          image: "/icons/12400f.jpg",
-        },
-        {
-          id: "cpu-2",
-          name: "CPU (มือ) AMD AM5 RYZEN 5 9600X 3.9GHz 6C 12T",
-          price: 8690,
-          oldPrice: 8990,
-          image: "/icons/R5 9600X.jpg",
-        },
-        {
-          id: "cpu-3",
-          name: "CPU (มือ) AMD AM5 RYZEN 7 9800X3D 4.7GHz 8C 16T",
-          price: 17690,
-          oldPrice: 19990,
-          image: "/icons/R7 9800X3D.jpg",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "MAINBOARD SALE",
-      icon: "⚡",
-      color: "bg-red-600",
-      products: [
-        {
-          id: "gpu-1",
-          name: "CPU (มือ) INTEL 1700 CORE I5-12400F 2.5GHz 6C 12T",
-          price: 3690,
-          oldPrice: 3990,
-          image: "/icons/12400f.jpg",
-        },
-        {
-          id: "gpu-2",
-          name: "CPU (มือ) AMD AM5 RYZEN 5 9600X 3.9GHz 6C 12T",
-          price: 8690,
-          oldPrice: 8990,
-          image: "/icons/R5 9600X.jpg",
-        },
-        {
-          id: "gpu-3",
-          name: "CPU (มือ) AMD AM5 RYZEN 7 9800X3D 4.7GHz 8C 16T",
-          price: 17690,
-          oldPrice: 19990,
-          image: "/icons/R7 9800X3D.jpg",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "RAM SALE",
-      icon: "⚡",
-      color: "bg-red-600",
-      products: [
-        {
-          id: "ram-1",
-          name: "CPU (มือ) INTEL 1700 CORE I5-12400F 2.5GHz 6C 12T",
-          price: 3690,
-          oldPrice: 3990,
-          image: "/icons/12400f.jpg",
-        },
-        {
-          id: "ram-2",
-          name: "CPU (มือ) AMD AM5 RYZEN 5 9600X 3.9GHz 6C 12T",
-          price: 8690,
-          oldPrice: 8990,
-          image: "/icons/R5 9600X.jpg",
-        },
-        {
-          id: "ram-3",
-          name: "CPU (มือ) AMD AM5 RYZEN 7 9800X3D 4.7GHz 8C 16T",
-          price: 17690,
-          oldPrice: 19990,
-          image: "/icons/R7 9800X3D.jpg",
-        },
-      ],
-    },
-    {
-      id: 4,
-      title: "GPU SALE",
-      icon: "⚡",
-      color: "bg-red-600",
-      products: [
-        {
-          id: "mb-1",
-          name: "MAINBOARD ASUS ROG STRIX B550-F GAMING (AM4)",
-          price: 5490,
-          oldPrice: 6290,
-          image: "/icons/12400f.jpg",
-        },
-        {
-          id: "mb-2",
-          name: "MAINBOARD MSI MAG B660M MORTAR WIFI DDR4 (LGA1700)",
-          price: 4990,
-          oldPrice: 5690,
-          image: "/icons/R5 9600X.jpg",
-        },
-        {
-          id: "mb-3",
-          name: "MAINBOARD GIGABYTE Z790 AORUS ELITE AX (LGA1700)",
-          price: 8990,
-          oldPrice: 10990,
-          image: "/icons/R7 9800X3D.jpg",
-        },
-      ],
-    },
-    {
-      id: 5,
-      title: "PSU SALE",
-      icon: "⚡",
-      color: "bg-red-600",
-      products: [
-        {
-          id: "psu-1",
-          name: "PSU CORSAIR RM850x 850W 80+ GOLD MODULAR",
-          price: 4290,
-          oldPrice: 4990,
-          image: "/icons/12400f.jpg",
-        },
-        {
-          id: "psu-2",
-          name: "PSU SEASONIC FOCUS GX-750 750W 80+ GOLD",
-          price: 3490,
-          oldPrice: 3990,
-          image: "/icons/R5 9600X.jpg",
-        },
-        {
-          id: "psu-3",
-          name: "PSU THERMALTAKE TOUGHPOWER GF1 1000W 80+ GOLD",
-          price: 5490,
-          oldPrice: 6290,
-          image: "/icons/R7 9800X3D.jpg",
-        },
-      ],
-    },
-  ];
+  // Get the earliest end time for countdown display
+  const earliestEndTime = products.length > 0 
+    ? products.reduce((earliest, product) => {
+        if (!product.flashSaleEndTime) return earliest;
+        if (!earliest) return product.flashSaleEndTime;
+        return new Date(product.flashSaleEndTime) < new Date(earliest) 
+          ? product.flashSaleEndTime 
+          : earliest;
+      }, products[0]?.flashSaleEndTime)
+    : undefined;
+
+  const countdown = useCountdown(earliestEndTime);
+
+  useEffect(() => {
+    const fetchFlashSaleProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await productAPI.getProducts({ 
+          flashSale: 'true' as any,
+          limit: 20 
+        });
+        
+        if (response.success) {
+          setProducts(response.data.products);
+        }
+      } catch (error) {
+        console.error('Error fetching flash sale products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFlashSaleProducts();
+  }, []);
+
+  // Group products by category
+  const groupedProducts = products.reduce((acc, product) => {
+    const category = product.category || 'อื่นๆ';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(product);
+    return acc;
+  }, {} as Record<string, Product[]>);
+
+  const flashSaleData = Object.entries(groupedProducts).map(([category, categoryProducts], index) => ({
+    id: index + 1,
+    title: `${category} SALE`,
+    icon: "⚡",
+    color: "bg-red-600",
+    products: categoryProducts,
+  }));
 
   const handleAddToCart = (product: Product) => {
-    addToCart(product);
-    // Optional: Show a toast notification
+    addToCart({
+      ...product,
+      id: product._id,
+      image: product.images?.[0] || product.image || '/placeholder.jpg'
+    });
     alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);
   };
 
@@ -172,14 +145,67 @@ const Flashsale = () => {
   };
 
   const scrollRight = () => {
-    const maxIndex = Math.max(0, flashSaleData.length - 3); // แสดง 3 cards พร้อมกัน
+    const maxIndex = Math.max(0, flashSaleData.length - 3);
     if (currentIndex < maxIndex) {
       setCurrentIndex(currentIndex + 1);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="bg-white px-10 py-8">
+        <div className="animate-pulse">
+          <div className="h-64 bg-gray-200 rounded-2xl"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (flashSaleData.length === 0) {
+    return (
+      <div className="bg-white px-10 py-8">
+        <div className="text-center py-8 text-gray-500">
+          ไม่มีสินค้า Flash Sale ในขณะนี้
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div id="flashsale-section" className="bg-white px-10 py-8">
+      {/* Flash Sale Header with Countdown */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <h2 className="text-3xl font-bold text-gray-800">⚡ Flash Sale</h2>
+        </div>
+        {!countdown.isExpired && (
+          <div className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-500 text-white px-6 py-3 rounded-xl shadow-lg">
+            <span className="text-sm font-semibold">เหลือเวลา:</span>
+            <div className="flex gap-2">
+              {countdown.days > 0 && (
+                <>
+                  <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
+                    {countdown.days.toString().padStart(2, '0')}
+                  </div>
+                  <span className="self-center font-bold">:</span>
+                </>
+              )}
+              <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
+                {countdown.hours.toString().padStart(2, '0')}
+              </div>
+              <span className="self-center font-bold">:</span>
+              <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
+                {countdown.minutes.toString().padStart(2, '0')}
+              </div>
+              <span className="self-center font-bold">:</span>
+              <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
+                {countdown.seconds.toString().padStart(2, '0')}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="relative">
         {/* Left Arrow */}
         <button
@@ -215,32 +241,30 @@ const Flashsale = () => {
             ref={scrollContainerRef}
             className="flex gap-6 transition-transform duration-700 ease-in-out"
             style={{ 
-              transform: `translateX(-${currentIndex * (100 / 3 + 2)}%)` // เลื่อนทีละ 1 card (ประมาณ 33.33% + gap)
+              transform: `translateX(-${currentIndex * (100 / 3 + 2)}%)`
             }}
           >
             {flashSaleData.map((sale) => (
             <div
               key={sale.id}
               className={`${sale.color} rounded-2xl p-6 flex-shrink-0`}
-              style={{ width: 'calc(33.333% - 16px)' }} // แสดง 3 cards พร้อมกัน
+              style={{ width: 'calc(33.333% - 16px)' }}
             >
             <div className="flex items-center gap-3 text-white font-bold text-2xl mb-6">
               <span className="text-yellow-300 text-3xl">{sale.icon}</span>
               {sale.title}
             </div>
             <div className="space-y-4">
-              {sale.products.map((product, idx) => (
+              {sale.products.map((product) => (
                 <div
-                  key={idx}
+                  key={product._id}
                   className="bg-white rounded-lg p-4 flex items-center gap-4 hover:shadow-lg transition-shadow"
                 >
                   <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    <Image
-                      src={product.image}
+                    <img
+                      src={product.images?.[0] || product.image || '/placeholder.jpg'}
                       alt={product.name}
-                      width={96}
-                      height={96}
-                      className="object-contain"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -251,11 +275,6 @@ const Flashsale = () => {
                       <span className="text-red-600 font-bold text-lg">
                         ฿{product.price.toLocaleString()}
                       </span>
-                      {product.oldPrice && (
-                        <span className="text-gray-400 text-sm line-through">
-                          ฿{product.oldPrice.toLocaleString()}
-                        </span>
-                      )}
                     </div>
                   </div>
                   <button

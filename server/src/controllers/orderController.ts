@@ -1,0 +1,256 @@
+import { Response } from 'express';
+import Order from '../models/Order';
+import Cart from '../models/Cart';
+import Product from '../models/Product';
+import { AuthRequest } from '../middleware/auth';
+
+// @desc    Create new order
+// @route   POST /api/orders
+// @access  Private
+export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { items, shippingAddress, paymentMethod } = req.body;
+
+    if (!items || items.length === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'กรุณาเลือกสินค้า',
+      });
+      return;
+    }
+
+    // Validate and prepare order items
+    const orderItems = [];
+    let subtotal = 0;
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        res.status(404).json({
+          success: false,
+          message: `ไม่พบสินค้า: ${item.productId}`,
+        });
+        return;
+      }
+
+      if (product.stock < item.quantity) {
+        res.status(400).json({
+          success: false,
+          message: `สินค้า ${product.name} ไม่เพียงพอ`,
+        });
+        return;
+      }
+
+      orderItems.push({
+        product: product._id,
+        name: product.name,
+        quantity: item.quantity,
+        price: product.price,
+        image: product.images[0],
+      });
+
+      subtotal += product.price * item.quantity;
+
+      // Update product stock and sold count
+      product.stock -= item.quantity;
+      product.sold += item.quantity;
+      await product.save();
+    }
+
+    // Calculate shipping fee (example: free shipping over 1000)
+    const shippingFee = subtotal >= 1000 ? 0 : 50;
+    const total = subtotal + shippingFee;
+
+    // Create order
+    const order = await Order.create({
+      user: req.user._id,
+      items: orderItems,
+      shippingAddress,
+      paymentMethod,
+      subtotal,
+      shippingFee,
+      discount: 0,
+      total,
+    });
+
+    // Clear cart after successful order
+    await Cart.findOneAndUpdate(
+      { user: req.user._id },
+      { items: [] }
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'สั่งซื้อสำเร็จ',
+      data: { order },
+    });
+  } catch (error: any) {
+    console.error('Create order error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'เกิดข้อผิดพลาดในการสั่งซื้อ',
+    });
+  }
+};
+
+// @desc    Get user orders
+// @route   GET /api/orders
+// @access  Private
+export const getMyOrders = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: { orders },
+    });
+  } catch (error: any) {
+    console.error('Get orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Get order by ID
+// @route   GET /api/orders/:id
+// @access  Private
+export const getOrderById = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const order = await Order.findById(req.params.id).populate('items.product');
+
+    if (!order) {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบออเดอร์',
+      });
+      return;
+    }
+
+    // Check if order belongs to user
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      res.status(403).json({
+        success: false,
+        message: 'คุณไม่มีสิทธิ์เข้าถึงออเดอร์นี้',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: { order },
+    });
+  } catch (error: any) {
+    console.error('Get order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Update order to paid
+// @route   PUT /api/orders/:id/pay
+// @access  Private
+export const updateOrderToPaid = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบออเดอร์',
+      });
+      return;
+    }
+
+    order.paymentStatus = 'paid';
+    order.paidAt = new Date();
+    order.orderStatus = 'processing';
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'อัพเดทสถานะการชำระเงินสำเร็จ',
+      data: { order },
+    });
+  } catch (error: any) {
+    console.error('Update order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Update order status
+// @route   PUT /api/orders/:id/status
+// @access  Private/Admin
+export const updateOrderStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบออเดอร์',
+      });
+      return;
+    }
+
+    order.orderStatus = status;
+
+    if (status === 'delivered') {
+      order.deliveredAt = new Date();
+    } else if (status === 'cancelled') {
+      order.cancelledAt = new Date();
+      
+      // Restore product stock
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: item.quantity, sold: -item.quantity },
+        });
+      }
+    }
+
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'อัพเดทสถานะออเดอร์สำเร็จ',
+      data: { order },
+    });
+  } catch (error: any) {
+    console.error('Update order status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Get all orders (Admin)
+// @route   GET /api/orders/admin/all
+// @access  Private/Admin
+export const getAllOrders = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const orders = await Order.find({})
+      .populate('user', 'firstName lastName email')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: { orders },
+    });
+  } catch (error: any) {
+    console.error('Get all orders error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};

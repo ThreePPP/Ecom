@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser } from 'react-icons/fa'
+import React, { useState, useEffect, useRef } from 'react'
+import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser, FaUserCircle, FaSignOutAlt, FaCog, FaClipboardList } from 'react-icons/fa'
 import LoginModal from './LoginModal'
 import CartModal from '@/app/component/Navbar/CartModal'
 import BannerCarousel from './BannerCarousel'
 import Promotion from './Promotion'
 import { useCart } from '@/app/context/CartContext'
+import { useAuth } from '@/app/context/AuthContext'
 import type { types } from '@/app/util/types'
 
 interface NavbarProps {
@@ -19,7 +20,10 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   const [isCartModalOpen, setCartModalOpen] = useState(false)
   const [isPromotionOpen, setPromotionOpen] = useState(false)
   const [isSticky, setIsSticky] = useState(false)
+  const [isDropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLLIElement>(null)
   const { getTotalItems } = useCart()
+  const { user, isAuthenticated, isAdmin, logout } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +37,18 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
 
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   return (
@@ -75,14 +91,105 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
             )}
           </button>
         </li>
-        {/* ปุ่มเข้าสู่ระบบ */}
-        <li>
-          <button
-            className="flex items-center px-5 py-2 bg-blue-900 rounded-full border border-white hover:bg-blue-800 font-semibold"
-            onClick={() => setLoginModalOpen(true)}
-          >
-            เข้าสู่ระบบ
-          </button>
+        {/* ปุ่มเข้าสู่ระบบ / บัญชีผู้ใช้ */}
+        <li className="relative" ref={dropdownRef}>
+          {isAuthenticated ? (
+            <>
+              <button
+                className="flex items-center gap-2 px-5 py-2 bg-blue-900 rounded-full border border-white hover:bg-blue-800 font-semibold"
+                onClick={() => setDropdownOpen(!isDropdownOpen)}
+              >
+                <FaUserCircle size={20} />
+                <span>{user?.firstName}</span>
+                <svg 
+                  className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <p className="text-sm text-gray-900 font-semibold">
+                      {user?.firstName} {user?.lastName}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    {isAdmin && (
+                      <span className="inline-block mt-1 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                        Admin
+                      </span>
+                    )}
+                  </div>
+
+                  <a
+                    href="/profile"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <FaUser className="text-gray-500" />
+                    ข้อมูลของฉัน
+                  </a>
+
+                  <a
+                    href="/orders"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <FaClipboardList className="text-gray-500" />
+                    คำสั่งซื้อของฉัน
+                  </a>
+
+                  <a
+                    href="/wishlist"
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <FaHeart className="text-gray-500" />
+                    รายการโปรด
+                  </a>
+
+                  {isAdmin && (
+                    <>
+                      <div className="border-t border-gray-200 my-2"></div>
+                      <a
+                        href="/admin"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        <FaCog className="text-red-600" />
+                        Admin Panel
+                      </a>
+                    </>
+                  )}
+
+                  <div className="border-t border-gray-200 my-2"></div>
+
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false)
+                      logout()
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <FaSignOutAlt className="text-gray-500" />
+                    ออกจากระบบ
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <button
+              className="flex items-center px-5 py-2 bg-blue-900 rounded-full border border-white hover:bg-blue-800 font-semibold"
+              onClick={() => setLoginModalOpen(true)}
+            >
+              เข้าสู่ระบบ
+            </button>
+          )}
         </li>
       </ul>
       </div>

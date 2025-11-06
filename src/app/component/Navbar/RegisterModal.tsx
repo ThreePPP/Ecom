@@ -1,11 +1,71 @@
 import React, { useState } from "react";
 import type { types } from "@/app/util/types";
+import { authAPI } from "@/app/lib/api";
 
 const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    dateOfBirth: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    setError("");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      setError("รหัสผ่านไม่ตรงกัน");
+      return;
+    }
+
+    // Validate password length
+    if (formData.password.length < 6) {
+      setError("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await authAPI.register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        dateOfBirth: formData.dateOfBirth,
+      });
+
+      if (response.success) {
+        alert("สมัครสมาชิกสำเร็จ!");
+        onClose?.();
+        window.location.reload(); // Reload to update user state
+      }
+    } catch (err: any) {
+      setError(err.message || "เกิดข้อผิดพลาดในการสมัครสมาชิก");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center ">
@@ -27,7 +87,12 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
           <h2 className="text-2xl text-black font-bold text-center mb-2">
             สมัครสมาชิกด้วย Email
           </h2>
-          <form className="space-y-3">
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-3 text-sm">
+              {error}
+            </div>
+          )}
+          <form className="space-y-3" onSubmit={handleSubmit}>
             <div className="flex gap-3">
               <div className="flex-1">
                 <label className="block text-sm text-black font-medium mb-1">
@@ -35,6 +100,9 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                 </label>
                 <input
                   type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
                   className="w-full border rounded px-3 py-2"
                   required
                 />
@@ -45,6 +113,9 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                 </label>
                 <input
                   type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
                   className="w-full border rounded px-3 py-2"
                   required
                 />
@@ -57,7 +128,13 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                 </label>
                 <input
                   type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
                   className="w-full border rounded px-3 py-2"
+                  placeholder="0812345678"
+                  pattern="[0-9]{10}"
+                  maxLength={10}
                   required
                 />
               </div>
@@ -67,6 +144,9 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                 </label>
                 <input
                   type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
                   className="w-full border rounded px-3 py-2"
                   required
                 />
@@ -78,7 +158,11 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full border rounded px-3 py-2"
+                placeholder="example@email.com"
                 required
               />
             </div>
@@ -89,7 +173,11 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   className="w-full border rounded px-3 py-2 pr-10"
+                  minLength={6}
                   required
                 />
                 <button
@@ -100,12 +188,8 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
                   {showPassword ? "🙈" : "👁️"}
                 </button>
               </div>
-              <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-2">
-                <span>รหัสผ่านต้องมีความยาว 8 ตัวอักษรขึ้นไป</span>
-                <span>1 ตัวอักษรพิมพ์ใหญ่ (A-Z)</span>
-                <span>1 ตัวอักษรพิมพ์เล็ก (a-z)</span>
-                <span>1 ตัวเลข (0-9)</span>
-                <span>1 สัญลักษณ์พิเศษ (@ # $ % &amp; * ( ) !)</span>
+              <div className="text-xs text-gray-500 mt-1">
+                <span>รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร</span>
               </div>
             </div>
             <div>
@@ -115,6 +199,9 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
               <div className="relative">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   className="w-full border rounded px-3 py-2 pr-10"
                   required
                 />
@@ -145,9 +232,10 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="w-1/2 bg-blue-400 text-white font-bold py-2 rounded-full mt-2"
+                disabled={loading}
+                className="w-1/2 bg-blue-400 text-white font-bold py-2 rounded-full mt-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                สมัครสมาชิก
+                {loading ? "กำลังสมัคร..." : "สมัครสมาชิก"}
               </button>
             </div>
           </form>

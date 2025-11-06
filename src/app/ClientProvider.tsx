@@ -2,11 +2,18 @@
 
 import React from 'react';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext';
 
 export default function ClientProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <CartProvider>{children}</CartProvider>;
+  return (
+    <AuthProvider>
+      <CartProvider>
+        {children}
+      </CartProvider>
+    </AuthProvider>
+  );
 }
