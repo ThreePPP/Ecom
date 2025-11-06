@@ -19,7 +19,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const imageUrl = product.images?.[0] || product.image || '/placeholder.jpg';
   
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+    <div 
+      className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => window.location.href = `/products/${product._id}`}
+    >
       <div className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden">
         <img 
           src={imageUrl} 
@@ -34,15 +37,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <p className="text-lg font-bold text-orange-500 mb-2">
           ฿{product.price.toLocaleString()}
         </p>
-        <button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2 rounded-md transition-colors flex items-center justify-center gap-2">
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            window.location.href = `/products/${product._id}`;
+          }}
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2 rounded-md transition-colors flex items-center justify-center gap-2"
+        >
           <svg
             className="w-5 h-5"
-            fill="currentColor"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            />
           </svg>
-          ใส่ตระกร้า
+          ดูรายละเอียด
         </button>
       </div>
     </div>

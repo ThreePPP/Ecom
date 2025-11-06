@@ -145,7 +145,7 @@ const Flashsale = () => {
   };
 
   const scrollRight = () => {
-    const maxIndex = Math.max(0, flashSaleData.length - 3);
+    const maxIndex = Math.max(0, products.length - 5);
     if (currentIndex < maxIndex) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -173,37 +173,84 @@ const Flashsale = () => {
 
   return (
     <div id="flashsale-section" className="bg-white px-10 py-8">
-      {/* Flash Sale Header with Countdown */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <h2 className="text-3xl font-bold text-gray-800">⚡ Flash Sale</h2>
+      {/* Flash Sale Header with Gradient Background */}
+      <div className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 rounded-3xl px-8 py-12 mb-8 overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute top-4 left-20 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-4 right-20 w-40 h-40 bg-white rounded-full blur-3xl"></div>
         </div>
-        {!countdown.isExpired && (
-          <div className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-500 text-white px-6 py-3 rounded-xl shadow-lg">
-            <span className="text-sm font-semibold">เหลือเวลา:</span>
-            <div className="flex gap-2">
-              {countdown.days > 0 && (
-                <>
-                  <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
-                    {countdown.days.toString().padStart(2, '0')}
-                  </div>
-                  <span className="self-center font-bold">:</span>
-                </>
-              )}
-              <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
-                {countdown.hours.toString().padStart(2, '0')}
-              </div>
-              <span className="self-center font-bold">:</span>
-              <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
-                {countdown.minutes.toString().padStart(2, '0')}
-              </div>
-              <span className="self-center font-bold">:</span>
-              <div className="bg-white text-red-600 px-3 py-1 rounded-md font-bold min-w-[48px] text-center">
-                {countdown.seconds.toString().padStart(2, '0')}
-              </div>
+        
+        <div className="relative z-10 flex items-center justify-between">
+          {/* Flash Sale Title */}
+          <div className="flex-shrink-0">
+            <div className="relative">
+              <h1 className="text-7xl font-black text-white drop-shadow-2xl" style={{
+                textShadow: '4px 4px 0px rgba(139, 0, 139, 0.8), 6px 6px 0px rgba(0, 0, 0, 0.3)',
+                WebkitTextStroke: '3px rgba(139, 0, 139, 0.5)',
+                letterSpacing: '0.05em'
+              }}>
+                FLASH
+              </h1>
+              <h1 className="text-7xl font-black text-white drop-shadow-2xl -mt-3" style={{
+                textShadow: '4px 4px 0px rgba(139, 0, 139, 0.8), 6px 6px 0px rgba(0, 0, 0, 0.3)',
+                WebkitTextStroke: '3px rgba(139, 0, 139, 0.5)',
+                letterSpacing: '0.05em'
+              }}>
+                SALE!
+              </h1>
+              <div className="absolute -top-4 -left-4 text-6xl animate-pulse">⚡</div>
             </div>
           </div>
-        )}
+
+          {/* Time Slots */}
+          <div className="flex-1 flex items-center justify-center gap-6 mx-8">
+            <span className="text-white font-bold text-lg">ช่วงเวลา:</span>
+            <button className="bg-white text-gray-800 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
+              <div className="text-2xl">10:00</div>
+              <div className="text-xs text-gray-500">จบแล้ว</div>
+            </button>
+            <button className="bg-white text-gray-800 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
+              <div className="text-2xl">14:00</div>
+              <div className="text-xs text-gray-500">จบแล้ว</div>
+            </button>
+            <button className="bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg">
+              <div className="text-2xl">18:00</div>
+              <div className="text-xs">กำลังดำเนินอยู่</div>
+            </button>
+          </div>
+
+          {/* Countdown Timer */}
+          {!countdown.isExpired && (
+            <div className="flex-shrink-0">
+              <div className="text-white text-center mb-2">
+                <span className="text-lg font-bold">จบลงใน:</span>
+              </div>
+              <div className="flex gap-3">
+                {countdown.hours > 0 && (
+                  <>
+                    <div className="bg-black text-white px-4 py-3 rounded-lg text-center min-w-[70px]">
+                      <div className="text-4xl font-bold">{countdown.hours.toString().padStart(2, '0')}</div>
+                    </div>
+                    <span className="text-white text-4xl font-bold self-center">:</span>
+                  </>
+                )}
+                <div className="bg-black text-white px-4 py-3 rounded-lg text-center min-w-[70px]">
+                  <div className="text-4xl font-bold">{countdown.minutes.toString().padStart(2, '0')}</div>
+                </div>
+                <span className="text-white text-4xl font-bold self-center">:</span>
+                <div className="bg-black text-white px-4 py-3 rounded-lg text-center min-w-[70px]">
+                  <div className="text-4xl font-bold">{countdown.seconds.toString().padStart(2, '0')}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* View All Button */}
+          <button className="flex-shrink-0 ml-4 bg-white text-gray-800 px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all">
+            ดูทั้งหมด →
+          </button>
+        </div>
       </div>
 
       <div className="relative">
@@ -224,9 +271,9 @@ const Flashsale = () => {
         {/* Right Arrow */}
         <button
           onClick={scrollRight}
-          disabled={currentIndex >= Math.max(0, flashSaleData.length - 3)}
+          disabled={currentIndex >= Math.max(0, products.length - 5)}
           className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${
-            currentIndex >= Math.max(0, flashSaleData.length - 3)
+            currentIndex >= Math.max(0, products.length - 5)
               ? 'bg-gray-400 cursor-not-allowed opacity-50' 
               : 'bg-black hover:bg-gray-800'
           }`}
@@ -239,62 +286,74 @@ const Flashsale = () => {
         <div className="overflow-hidden px-12">
           <div 
             ref={scrollContainerRef}
-            className="flex gap-6 transition-transform duration-700 ease-in-out"
+            className="flex gap-4 transition-transform duration-700 ease-in-out"
             style={{ 
-              transform: `translateX(-${currentIndex * (100 / 3 + 2)}%)`
+              transform: `translateX(-${currentIndex * 20}%)`
             }}
           >
-            {flashSaleData.map((sale) => (
-            <div
-              key={sale.id}
-              className={`${sale.color} rounded-2xl p-6 flex-shrink-0`}
-              style={{ width: 'calc(33.333% - 16px)' }}
-            >
-            <div className="flex items-center gap-3 text-white font-bold text-2xl mb-6">
-              <span className="text-yellow-300 text-3xl">{sale.icon}</span>
-              {sale.title}
-            </div>
-            <div className="space-y-4">
-              {sale.products.map((product) => (
-                <div
-                  key={product._id}
-                  className="bg-white rounded-lg p-4 flex items-center gap-4 hover:shadow-lg transition-shadow"
-                >
-                  <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    <img
-                      src={product.images?.[0] || product.image || '/placeholder.jpg'}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-800 font-medium mb-2 line-clamp-2">
-                      {product.name}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-red-600 font-bold text-lg">
-                        ฿{product.price.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-                  >
-                    <FaShoppingCart size={16} />
-                    <span>เพิ่ม</span>
-                  </button>
+            {products.map((product) => (
+              <div
+                key={product._id}
+                className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-xl transition-all flex-shrink-0 cursor-pointer"
+                style={{ width: '220px' }}
+                onClick={() => window.location.href = `/products/${product._id}`}
+              >
+                {/* Flash Sale Badge */}
+                <div className="mb-2">
+                  <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full inline-flex items-center gap-1">
+                    ⚡ Flash Sale
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
+                
+                {/* Product Image */}
+                <div className="w-full aspect-square bg-gray-50 rounded-lg flex items-center justify-center mb-3 overflow-hidden">
+                  <img
+                    src={product.images?.[0] || product.image || '/placeholder.jpg'}
+                    alt={product.name}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                {/* Brand/Category */}
+                <div className="text-xs text-gray-500 uppercase font-semibold mb-1">
+                  {product.category || 'สินค้า'}
+                </div>
+
+                {/* Product Name */}
+                <h3 className="text-sm font-medium text-gray-900 mb-2 line-clamp-2 h-10">
+                  {product.name}
+                </h3>
+
+                {/* Price */}
+                <div className="mb-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-gray-400 line-through text-xs">
+                      ฿{(product.price * 1.2).toLocaleString()}
+                    </span>
+                    <span className="text-red-600 font-bold text-lg">
+                      ฿{product.price.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Product Detail Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `/products/${product._id}`;
+                  }}
+                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
+                >
+                  รายละเอียดสินค้า
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Dots Indicator */}
         <div className="flex justify-center gap-2 mt-6">
-          {Array.from({ length: Math.max(0, flashSaleData.length - 2) }).map((_, index) => (
+          {Array.from({ length: Math.max(1, Math.ceil(products.length / 5)) }).map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
