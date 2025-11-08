@@ -150,13 +150,10 @@ const AllCategory = () => {
         <CategorySection title="RAM" icon="/icons/ram.png" category="RAM" />
 
         {/* Power Supply */}
-        <CategorySection title="Power Supply" icon="/icons/psu.png" category="Power Supply" />
+        <CategorySection title="Power Supply" icon="/icons/powersupply.png" category="Power Supply" />
 
         {/* Case */}
-        <CategorySection title="Case" icon="/icons/case.png" category="Case" />
-
-        {/* Other */}
-        <CategorySection title="อื่นๆ / Other" icon="/icons/other.png" category="Other" />
+        <CategorySection title="Case" icon="/icons/computer.png" category="Case" />
       </div>
     </div>
   );
