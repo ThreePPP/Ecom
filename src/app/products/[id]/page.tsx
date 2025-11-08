@@ -5,6 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { FaHeart, FaShoppingBag, FaMinus, FaPlus, FaExchangeAlt } from "react-icons/fa";
 import { productAPI } from "@/app/lib/api";
 import { useCart } from "@/app/context/CartContext";
+import Navbar from "@/app/component/Navbar/Navbar";
+import Features from "@/app/component/main/Features/Features";
+import Footer from "@/app/component/main/footer/footer";
 
 interface Product {
   _id: string;
@@ -113,6 +116,9 @@ const ProductDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <Navbar showBanner={false} showPromotion={false} />
+      
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="text-sm text-gray-600 mb-6">
@@ -387,6 +393,12 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Features Section */}
+      <Features />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
