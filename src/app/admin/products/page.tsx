@@ -256,7 +256,7 @@ export default function AdminProductsPage() {
                 placeholder="ค้นหาชื่อสินค้า..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
               />
             </div>
             <div>
@@ -266,7 +266,7 @@ export default function AdminProductsPage() {
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
               >
                 <option value="all">ทั้งหมด</option>
                 {categories.map(cat => (
@@ -370,8 +370,8 @@ export default function AdminProductsPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900">
                 {editingProduct ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}
@@ -499,31 +499,49 @@ export default function AdminProductsPage() {
                   />
                 </div>
 
-                <div>
+                <div className="space-y-3">
                   <label className="flex items-center gap-2">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="productType"
                       checked={formData.isFeatured}
-                      onChange={(e) => setFormData({...formData, isFeatured: e.target.checked})}
-                      className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                      onChange={(e) => setFormData({
+                        ...formData, 
+                        isFeatured: e.target.checked,
+                        isFlashSale: false,
+                        showInCategory: false
+                      })}
+                      className="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500"
                     />
                     <span className="text-sm text-gray-700">สินค้าแนะนำ</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="productType"
                       checked={formData.isFlashSale}
-                      onChange={(e) => setFormData({...formData, isFlashSale: e.target.checked})}
-                      className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                      onChange={(e) => setFormData({
+                        ...formData, 
+                        isFlashSale: e.target.checked,
+                        isFeatured: false,
+                        showInCategory: false
+                      })}
+                      className="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500"
                     />
                     <span className="text-sm text-gray-700">Flash Sale</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input
-                      type="checkbox"
+                      type="radio"
+                      name="productType"
                       checked={formData.showInCategory}
-                      onChange={(e) => setFormData({...formData, showInCategory: e.target.checked})}
-                      className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                      onChange={(e) => setFormData({
+                        ...formData, 
+                        showInCategory: e.target.checked,
+                        isFeatured: false,
+                        isFlashSale: false
+                      })}
+                      className="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500"
                     />
                     <span className="text-sm text-gray-700">แสดงในหมวดหมู่</span>
                   </label>

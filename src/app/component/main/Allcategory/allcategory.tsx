@@ -108,9 +108,30 @@ const CategorySection: React.FC<CategorySectionProps> = ({
 
   return (
     <div className="mb-8">
-      <div className="flex items-center gap-3 mb-4">
-        <img src={icon} alt={title} className="w-8 h-8" />
-        <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <img src={icon} alt={title} className="w-8 h-8" />
+          <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+        </div>
+        <button
+          onClick={() => window.location.href = `/category/${encodeURIComponent(category)}`}
+          className="text-orange-500 hover:text-orange-600 font-medium text-sm flex items-center gap-1"
+        >
+          ดูทั้งหมด
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
       </div>
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -146,8 +167,8 @@ const AllCategory = () => {
         {/* VGA / Graphic Card */}
         <CategorySection title="VGA / Graphic Card" icon="/icons/gpu.png" category="VGA" />
 
-        {/* RAM */}
-        <CategorySection title="RAM" icon="/icons/ram.png" category="RAM" />
+        {/* Memory */}
+        <CategorySection title="Memory" icon="/icons/ram.png" category="Memory" />
 
         {/* Power Supply */}
         <CategorySection title="Power Supply" icon="/icons/powersupply.png" category="Power Supply" />
