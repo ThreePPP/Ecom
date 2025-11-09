@@ -181,75 +181,71 @@ const Flashsale = () => {
           <div className="absolute bottom-4 right-20 w-40 h-40 bg-white rounded-full blur-3xl"></div>
         </div>
         
-        <div className="relative z-10 flex items-center justify-between">
-          {/* Flash Sale Title */}
-          <div className="flex-shrink-0">
-            <div className="relative">
-              <h1 className="text-7xl font-black text-white drop-shadow-2xl" style={{
-                textShadow: '4px 4px 0px rgba(139, 0, 139, 0.8), 6px 6px 0px rgba(0, 0, 0, 0.3)',
-                WebkitTextStroke: '3px rgba(139, 0, 139, 0.5)',
-                letterSpacing: '0.05em'
-              }}>
-                FLASH
-              </h1>
-              <h1 className="text-7xl font-black text-white drop-shadow-2xl -mt-3" style={{
-                textShadow: '4px 4px 0px rgba(139, 0, 139, 0.8), 6px 6px 0px rgba(0, 0, 0, 0.3)',
-                WebkitTextStroke: '3px rgba(139, 0, 139, 0.5)',
-                letterSpacing: '0.05em'
-              }}>
-                SALE!
-              </h1>
-              <div className="absolute -top-4 -left-4 text-6xl animate-pulse">⚡</div>
-            </div>
-          </div>
-
-          {/* Time Slots */}
-          <div className="flex-1 flex items-center justify-center gap-6 mx-8">
-            <span className="text-white font-bold text-lg">ช่วงเวลา:</span>
-            <button className="bg-white text-gray-800 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
-              <div className="text-2xl">10:00</div>
-              <div className="text-xs text-gray-500">จบแล้ว</div>
-            </button>
-            <button className="bg-white text-gray-800 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
-              <div className="text-2xl">14:00</div>
-              <div className="text-xs text-gray-500">จบแล้ว</div>
-            </button>
-            <button className="bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg">
-              <div className="text-2xl">18:00</div>
-              <div className="text-xs">กำลังดำเนินอยู่</div>
-            </button>
-          </div>
-
-          {/* Countdown Timer */}
-          {!countdown.isExpired && (
+        <div className="relative z-10">
+          {/* Main Content: Logo, Time Slots and Countdown */}
+          <div className="flex items-center gap-12">
+            {/* Flash Sale Title */}
             <div className="flex-shrink-0">
-              <div className="text-white text-center mb-2">
-                <span className="text-lg font-bold">จบลงใน:</span>
-              </div>
-              <div className="flex gap-3">
-                {countdown.hours > 0 && (
-                  <>
-                    <div className="bg-black text-white px-4 py-3 rounded-lg text-center min-w-[70px]">
-                      <div className="text-4xl font-bold">{countdown.hours.toString().padStart(2, '0')}</div>
-                    </div>
-                    <span className="text-white text-4xl font-bold self-center">:</span>
-                  </>
-                )}
-                <div className="bg-black text-white px-4 py-3 rounded-lg text-center min-w-[70px]">
-                  <div className="text-4xl font-bold">{countdown.minutes.toString().padStart(2, '0')}</div>
-                </div>
-                <span className="text-white text-4xl font-bold self-center">:</span>
-                <div className="bg-black text-white px-4 py-3 rounded-lg text-center min-w-[70px]">
-                  <div className="text-4xl font-bold">{countdown.seconds.toString().padStart(2, '0')}</div>
-                </div>
+              <div className="relative">
+                <img 
+                  src="/Banners/flashsale.png" 
+                  alt="Flash Sale" 
+                  className="w-80 h-auto drop-shadow-2xl"
+                />
               </div>
             </div>
-          )}
 
-          {/* View All Button */}
-          <button className="flex-shrink-0 ml-4 bg-white text-gray-800 px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all">
-            ดูทั้งหมด →
-          </button>
+            {/* Time Slots and Countdown (Right side) */}
+            <div className="flex flex-col gap-6 flex-1">
+              {/* Time Slots */}
+              <div className="flex items-center gap-8">
+                <span className="text-white font-bold text-2xl">ช่วงเวลา:</span>
+                <button className="bg-white text-gray-800 px-8 py-4 rounded-xl font-bold hover:shadow-lg transition-all">
+                  <div className="text-3xl">10:00</div>
+                  <div className="text-sm text-gray-500">จบแล้ว</div>
+                </button>
+                <button className="bg-white text-gray-800 px-8 py-4 rounded-xl font-bold hover:shadow-lg transition-all">
+                  <div className="text-3xl">14:00</div>
+                  <div className="text-sm text-gray-500">จบแล้ว</div>
+                </button>
+                <button className="bg-blue-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg">
+                  <div className="text-3xl">18:00</div>
+                  <div className="text-sm">กำลังดำเนินอยู่</div>
+                </button>
+              </div>
+
+              {/* Countdown Timer */}
+              {!countdown.isExpired && (
+                <div className="flex items-center gap-6">
+                  <span className="text-white font-bold text-2xl">จบลงใน :</span>
+                  <div className="flex gap-4">
+                    {countdown.hours > 0 && (
+                      <>
+                        <div className="bg-black text-white px-6 py-4 rounded-lg text-center min-w-[90px]">
+                          <div className="text-5xl font-bold">{countdown.hours.toString().padStart(2, '0')}</div>
+                        </div>
+                        <span className="text-white text-5xl font-bold self-center">:</span>
+                      </>
+                    )}
+                    <div className="bg-black text-white px-6 py-4 rounded-lg text-center min-w-[90px]">
+                      <div className="text-5xl font-bold">{countdown.minutes.toString().padStart(2, '0')}</div>
+                    </div>
+                    <span className="text-white text-5xl font-bold self-center">:</span>
+                    <div className="bg-black text-white px-6 py-4 rounded-lg text-center min-w-[90px]">
+                      <div className="text-5xl font-bold">{countdown.seconds.toString().padStart(2, '0')}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* View All Button */}
+            <div className="flex-shrink-0">
+              <button className="bg-white text-gray-800 px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all">
+                ดูทั้งหมด →
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

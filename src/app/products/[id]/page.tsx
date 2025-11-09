@@ -294,7 +294,7 @@ const ProductDetailPage = () => {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              ทั่วไป
+              ทั้งหมด
             </button>
             <button
               onClick={() => setActiveTab('details')}
