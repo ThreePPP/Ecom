@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI } from '../../lib/api';
+import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 
 interface User {
   _id: string;
@@ -117,17 +118,10 @@ export default function AdminUsersPage() {
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-            <button onClick={() => router.push('/')} className="hover:text-orange-500">
-              Main
-            </button>
-            <span>/</span>
-            <button onClick={() => router.push('/admin')} className="hover:text-orange-500">
-              Admin
-            </button>
-            <span>/</span>
-            <span className="text-gray-900">จัดการผู้ใช้</span>
-          </div>
+          <Breadcrumb items={[
+            { label: 'Admin', href: '/admin' },
+            { label: 'จัดการผู้ใช้' }
+          ]} />
           <h1 className="text-3xl font-bold text-gray-900">จัดการผู้ใช้</h1>
           <p className="text-gray-600 mt-2">จัดการข้อมูลผู้ใช้และสิทธิ์การเข้าถึง</p>
         </div>

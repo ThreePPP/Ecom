@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCompare } from '@/app/context/CompareContext';
 import Navbar from '@/app/component/Navbar/Navbar';
 import Footer from '@/app/component/main/footer/footer';
+import Breadcrumb from '@/app/component/Breadcrumb/Breadcrumb';
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '@/app/context/CartContext';
 
@@ -49,6 +50,7 @@ export default function ComparePage() {
       <div className="min-h-screen bg-gray-50">
         <Navbar showBanner={false} showPromotion={false} />
         <div className="max-w-7xl mx-auto px-4 py-16">
+          <Breadcrumb items={[{ label: 'เปรียบเทียบสินค้า' }]} />
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">เปรียบเทียบสินค้า</h1>
             <p className="text-gray-600 mb-8">คุณยังไม่มีสินค้าในรายการเปรียบเทียบ</p>
@@ -72,6 +74,7 @@ export default function ComparePage() {
       <Navbar showBanner={false} showPromotion={false} />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <Breadcrumb items={[{ label: 'เปรียบเทียบสินค้า' }]} />
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900">เปรียบเทียบสินค้า</h1>
           <div className="flex gap-4">

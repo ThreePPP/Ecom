@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { FaHeart } from "react-icons/fa";
+import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 
 export default function WishlistPage() {
   const { isAuthenticated, loading } = useAuth();
@@ -30,6 +31,7 @@ export default function WishlistPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
+        <Breadcrumb items={[{ label: 'รายการโปรด' }]} />
         <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
           <FaHeart className="text-red-500" />
           รายการโปรด

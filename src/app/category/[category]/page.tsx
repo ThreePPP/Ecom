@@ -6,6 +6,7 @@ import { productAPI } from '../../lib/api';
 import Navbar from '../../component/Navbar/Navbar';
 import Features from '../../component/main/Features/Features';
 import Footer from '../../component/main/footer/footer';
+import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 
 interface Product {
   _id: string;
@@ -128,18 +129,7 @@ export default function CategoryPage() {
       <div className="min-h-screen bg-gray-100">
         <div className="container mx-auto px-4 py-6">
           {/* Breadcrumb */}
-          <div className="mb-4">
-            <div className="flex items-center gap-2 text-sm">
-              <button 
-                onClick={() => router.push('/')}
-                className="text-gray-600 hover:text-orange-500 transition-colors"
-              >
-                Home
-              </button>
-              <span className="text-gray-400">›</span>
-              <span className="text-gray-900 font-medium">{category}</span>
-            </div>
-          </div>
+          <Breadcrumb items={[{ label: category }]} />
 
           <div className="flex gap-6">
           {/* Left Sidebar */}

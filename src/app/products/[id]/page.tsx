@@ -7,6 +7,7 @@ import { productAPI } from "@/app/lib/api";
 import { useCart } from "@/app/context/CartContext";
 import { useCompare } from "@/app/context/CompareContext";
 import Navbar from "@/app/component/Navbar/Navbar";
+import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 import Features from "@/app/component/main/Features/Features";
 import Footer from "@/app/component/main/footer/footer";
 
@@ -129,17 +130,10 @@ const ProductDetailPage = () => {
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="text-sm text-gray-600 mb-6">
-          <span className="hover:text-red-600 cursor-pointer" onClick={() => router.push('/')}>
-            หน้าแรก
-          </span>
-          <span className="mx-2">/</span>
-          <span className="hover:text-red-600 cursor-pointer">
-            {product.category || 'สินค้า'}
-          </span>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900">{product.name}</span>
-        </div>
+        <Breadcrumb items={[
+          { label: product.category || 'สินค้า', href: `/category/${encodeURIComponent(product.category || 'สินค้า')}` },
+          { label: product.name }
+        ]} />
 
         {/* Main Product Section */}
         <div className="bg-white rounded-2xl shadow-sm p-8 mb-6">

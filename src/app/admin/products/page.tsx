@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { productAPI } from '../../lib/api';
 import ImageUpload from '../../component/ImageUpload/ImageUpload';
+import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 
 interface Product {
   _id: string;
@@ -219,17 +220,10 @@ export default function AdminProductsPage() {
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-            <button onClick={() => router.push('/')} className="hover:text-orange-500">
-              Main
-            </button>
-            <span>/</span>
-            <button onClick={() => router.push('/admin')} className="hover:text-orange-500">
-              Admin
-            </button>
-            <span>/</span>
-            <span className="text-gray-900">จัดการสินค้า</span>
-          </div>
+          <Breadcrumb items={[
+            { label: 'Admin', href: '/admin' },
+            { label: 'จัดการสินค้า' }
+          ]} />
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">จัดการสินค้า</h1>

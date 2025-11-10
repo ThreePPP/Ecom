@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
+import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 import { 
   FaUsers, 
   FaBox, 
@@ -135,6 +136,7 @@ export default function AdminPage() {
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-900 to-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <Breadcrumb items={[{ label: 'Admin Dashboard' }]} theme="white" />
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>

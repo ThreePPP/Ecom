@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { addressAPI } from "@/app/lib/api";
+import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 import {
   FaMapMarkerAlt,
   FaPlus,
@@ -152,6 +153,15 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-6xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-4">
+          <Breadcrumb items={[{ label: 'ข้อมูลของฉัน' }]} />
+          <a
+            href="/"
+            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
+            กลับหน้าแรก
+          </a>
+        </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-8">ข้อมูลของฉัน</h1>
 
         {/* User Information */}
@@ -433,15 +443,6 @@ export default function ProfilePage() {
             </div>
           </div>
         )}
-
-        <div className="mt-8">
-          <a
-            href="/"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
-            กลับหน้าแรก
-          </a>
-        </div>
       </div>
     </div>
   );
