@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaPlus,
   FaMinus,
@@ -17,15 +17,19 @@ import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/component/Navbar/Navbar";
+import { addressAPI } from "@/app/lib/api";
 
 interface ShippingAddress {
+  _id?: string;
   fullName: string;
   phone: string;
+  phoneNumber?: string;
   address: string;
   province: string;
   district: string;
-  subdistrict: string;
+  subdistrict?: string;
   postalCode: string;
+  isDefault?: boolean;
 }
 
 const CartPage = () => {
@@ -45,6 +49,11 @@ const CartPage = () => {
   const [discount, setDiscount] = useState(0);
   const [promoError, setPromoError] = useState("");
 
+  // Saved addresses from database
+  const [savedAddresses, setSavedAddresses] = useState<ShippingAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+
   // Shipping address state
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: "",
@@ -59,6 +68,65 @@ const CartPage = () => {
   // Payment method state
   const [paymentMethod, setPaymentMethod] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+
+  // Fetch saved addresses when component mounts
+  useEffect(() => {
+    fetchSavedAddresses();
+  }, []);
+
+  // Re-fetch addresses when returning to step 2
+  useEffect(() => {
+    if (currentStep === 2) {
+      fetchSavedAddresses();
+    }
+  }, [currentStep]);
+
+  const fetchSavedAddresses = async () => {
+    try {
+      setLoadingAddresses(true);
+      const response = await addressAPI.getAddresses();
+      if (response.success && response.data) {
+        setSavedAddresses(response.data);
+        // Auto-select default address if exists and no address currently selected
+        if (!selectedAddressId) {
+          const defaultAddress = response.data.find((addr: ShippingAddress) => addr.isDefault);
+          if (defaultAddress && defaultAddress._id) {
+            setSelectedAddressId(defaultAddress._id);
+            setShippingAddress({
+              fullName: defaultAddress.fullName,
+              phone: defaultAddress.phoneNumber || defaultAddress.phone || "",
+              address: defaultAddress.address,
+              province: defaultAddress.province,
+              district: defaultAddress.district,
+              subdistrict: defaultAddress.subdistrict || "",
+              postalCode: defaultAddress.postalCode,
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+    } finally {
+      setLoadingAddresses(false);
+    }
+  };
+
+  // Handle address selection
+  const handleSelectAddress = (addressId: string) => {
+    setSelectedAddressId(addressId);
+    const selected = savedAddresses.find((addr) => addr._id === addressId);
+    if (selected) {
+      setShippingAddress({
+        fullName: selected.fullName,
+        phone: selected.phoneNumber || selected.phone || "",
+        address: selected.address,
+        province: selected.province,
+        district: selected.district,
+        subdistrict: selected.subdistrict || "",
+        postalCode: selected.postalCode,
+      });
+    }
+  };
 
   // Get items to display (selected items or all if none selected)
   const displayItems = selectedItemIds.length > 0 ? getSelectedItems() : cart;
@@ -275,7 +343,7 @@ const CartPage = () => {
                           {/* Product Image */}
                           <div className="w-32 h-32 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                             <Image
-                              src={item.image}
+                              src={item.image || "/placeholder-product.jpg"}
                               alt={item.name}
                               width={128}
                               height={128}
@@ -370,25 +438,100 @@ const CartPage = () => {
                     <FaMapMarkerAlt className="text-red-600 text-xl" />
                   </div>
                   <h2 className="text-2xl font-bold text-gray-800">
-                    เพิ่มที่อยู่สำหรับจัดส่ง
+                    เลือกที่อยู่สำหรับจัดส่ง
                   </h2>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ชื่อ - นามสกุล
-                    </label>
-                    <input
-                      type="text"
-                      value={shippingAddress.fullName}
-                      onChange={(e) =>
-                        handleAddressChange("fullName", e.target.value)
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
-                      placeholder="กรุณากรอกชื่อ - นามสกุล"
-                    />
+                {/* Saved Addresses */}
+                {loadingAddresses ? (
+                  <div className="text-center py-8 text-gray-500">
+                    กำลังโหลดที่อยู่...
                   </div>
+                ) : savedAddresses.length > 0 ? (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-3">ที่อยู่ที่บันทึกไว้</h3>
+                    <div className="space-y-3">
+                      {savedAddresses.map((addr) => (
+                        <div
+                          key={addr._id}
+                          onClick={() => addr._id && handleSelectAddress(addr._id)}
+                          className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            selectedAddressId === addr._id
+                              ? "border-red-500 bg-red-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="font-semibold text-gray-800">
+                                  {addr.fullName}
+                                </span>
+                                {addr.isDefault && (
+                                  <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded">
+                                    ค่าเริ่มต้น
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600">{addr.phoneNumber || addr.phone}</p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {addr.address}, {addr.district}, {addr.province} {addr.postalCode}
+                              </p>
+                            </div>
+                            {selectedAddressId === addr._id && (
+                              <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <button
+                        onClick={() => {
+                          setSelectedAddressId("");
+                          setShippingAddress({
+                            fullName: "",
+                            phone: "",
+                            address: "",
+                            province: "",
+                            district: "",
+                            subdistrict: "",
+                            postalCode: "",
+                          });
+                        }}
+                        className="text-red-600 hover:text-red-700 font-medium"
+                      >
+                        + ใช้ที่อยู่ใหม่
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg">
+                    ไม่พบที่อยู่ที่บันทึกไว้ กรุณากรอกที่อยู่ใหม่
+                  </div>
+                )}
+
+                {/* Address Form - Show when no address selected or using new address */}
+                {(!selectedAddressId || savedAddresses.length === 0) && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ชื่อ - นามสกุล
+                      </label>
+                      <input
+                        type="text"
+                        value={shippingAddress.fullName}
+                        onChange={(e) =>
+                          handleAddressChange("fullName", e.target.value)
+                        }
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
+                        placeholder="กรุณากรอกชื่อ - นามสกุล"
+                      />
+                    </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -483,7 +626,49 @@ const CartPage = () => {
                       />
                     </div>
                   </div>
-                </div>
+
+                  {/* Save Address Button - Show when using new address */}
+                  {!selectedAddressId && (
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <button
+                        onClick={async () => {
+                          try {
+                            if (
+                              !shippingAddress.fullName ||
+                              !shippingAddress.phone ||
+                              !shippingAddress.address ||
+                              !shippingAddress.district ||
+                              !shippingAddress.province ||
+                              !shippingAddress.postalCode
+                            ) {
+                              alert("กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วนก่อนบันทึก");
+                              return;
+                            }
+
+                            await addressAPI.addAddress({
+                              fullName: shippingAddress.fullName,
+                              phoneNumber: shippingAddress.phone,
+                              address: shippingAddress.address,
+                              district: shippingAddress.district,
+                              province: shippingAddress.province,
+                              postalCode: shippingAddress.postalCode,
+                              isDefault: savedAddresses.length === 0,
+                            });
+
+                            alert("บันทึกที่อยู่สำเร็จ!");
+                            fetchSavedAddresses();
+                          } catch (error: any) {
+                            alert(error.message || "เกิดข้อผิดพลาดในการบันทึกที่อยู่");
+                          }
+                        }}
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        <FaMapMarkerAlt /> บันทึกที่อยู่นี้ไว้ในข้อมูลของฉัน
+                      </button>
+                    </div>
+                  )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -543,7 +728,7 @@ const CartPage = () => {
                       >
                         <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                           <Image
-                            src={item.image}
+                            src={item.image || "/placeholder-product.jpg"}
                             alt={item.name}
                             width={64}
                             height={64}

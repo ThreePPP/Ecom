@@ -326,4 +326,58 @@ export const uploadAPI = {
   },
 };
 
+// Address API
+export const addressAPI = {
+  // ดึงที่อยู่จัดส่งทั้งหมด
+  getAddresses: async () => {
+    return fetchAPI('/addresses');
+  },
+
+  // เพิ่มที่อยู่จัดส่งใหม่
+  addAddress: async (addressData: {
+    fullName: string;
+    phoneNumber: string;
+    address: string;
+    district: string;
+    province: string;
+    postalCode: string;
+    isDefault?: boolean;
+  }) => {
+    return fetchAPI('/addresses', {
+      method: 'POST',
+      body: JSON.stringify(addressData),
+    });
+  },
+
+  // แก้ไขที่อยู่จัดส่ง
+  updateAddress: async (addressId: string, addressData: {
+    fullName: string;
+    phoneNumber: string;
+    address: string;
+    district: string;
+    province: string;
+    postalCode: string;
+    isDefault?: boolean;
+  }) => {
+    return fetchAPI(`/addresses/${addressId}`, {
+      method: 'PUT',
+      body: JSON.stringify(addressData),
+    });
+  },
+
+  // ลบที่อยู่จัดส่ง
+  deleteAddress: async (addressId: string) => {
+    return fetchAPI(`/addresses/${addressId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // ตั้งเป็นที่อยู่เริ่มต้น
+  setDefaultAddress: async (addressId: string) => {
+    return fetchAPI(`/addresses/${addressId}/default`, {
+      method: 'PATCH',
+    });
+  },
+};
+
 export { API_URL };
