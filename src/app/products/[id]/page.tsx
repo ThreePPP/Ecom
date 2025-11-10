@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FaHeart, FaShoppingBag, FaMinus, FaPlus, FaExchangeAlt } from "react-icons/fa";
 import { productAPI } from "@/app/lib/api";
 import { useCart } from "@/app/context/CartContext";
+import { useCompare } from "@/app/context/CompareContext";
 import Navbar from "@/app/component/Navbar/Navbar";
 import Features from "@/app/component/main/Features/Features";
 import Footer from "@/app/component/main/footer/footer";
@@ -36,6 +37,7 @@ const ProductDetailPage = () => {
   const params = useParams();
   const router = useRouter();
   const { addToCart } = useCart();
+  const { addToCompare, isInCompare } = useCompare();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -82,6 +84,12 @@ const ProductDetailPage = () => {
   const handleBuyNow = () => {
     handleAddToCart();
     router.push('/cart');
+  };
+
+  const handleAddToCompare = () => {
+    if (product) {
+      addToCompare(product);
+    }
   };
 
   if (loading) {
@@ -200,11 +208,15 @@ const ProductDetailPage = () => {
               {/* Action Icons */}
               <div className="flex gap-4 mb-6">
                 <button 
-                  className="flex items-center gap-2 px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                  title="เปรียบเทียบสินค้า"
+                  onClick={handleAddToCompare}
+                  className={`p-2 rounded-full transition-colors ${
+                    isInCompare(product._id)
+                      ? 'bg-yellow-100 text-yellow-600'
+                      : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                  title={isInCompare(product._id) ? 'อยู่ในรายการเปรียบเทียบแล้ว' : 'เปรียบเทียบสินค้า'}
                 >
-                  <FaExchangeAlt className="text-blue-600" />
-                  <span className="font-semibold text-sm">เปรียบเทียบ</span>
+                  <FaExchangeAlt className={isInCompare(product._id) ? 'text-yellow-600' : 'text-gray-600'} />
                 </button>
                 <button 
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -223,27 +235,22 @@ const ProductDetailPage = () => {
 
               {/* Quantity Selector */}
               <div className="mb-8">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  จำนวน
-                </label>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-700 mr-2">จำนวน</span>
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-12 h-12 flex items-center justify-center border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center border border-red-600 text-red-600 rounded hover:bg-red-50 transition-colors"
                   >
-                    <FaMinus />
+                    <FaMinus className="text-sm" />
                   </button>
-                  <input
-                    type="text"
-                    value={quantity}
-                    readOnly
-                    className="w-20 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg"
-                  />
+                  <div className="w-12 h-10 flex items-center justify-center border border-gray-300 rounded text-lg font-semibold text-gray-900">
+                    {quantity}
+                  </div>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-12 h-12 flex items-center justify-center border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center border border-red-600 text-red-600 rounded hover:bg-red-50 transition-colors"
                   >
-                    <FaPlus />
+                    <FaPlus className="text-sm" />
                   </button>
                 </div>
               </div>

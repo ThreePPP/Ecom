@@ -7,6 +7,7 @@ import CartModal from '@/app/component/Navbar/CartModal'
 import BannerCarousel from './BannerCarousel'
 import Promotion from './Promotion'
 import { useCart } from '@/app/context/CartContext'
+import { useCompare } from '@/app/context/CompareContext'
 import { useAuth } from '@/app/context/AuthContext'
 import type { types } from '@/app/util/types'
 
@@ -23,6 +24,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   const [isDropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLLIElement>(null)
   const { getTotalItems } = useCart()
+  const { getCompareCount } = useCompare()
   const { user, isAuthenticated, isAdmin, logout } = useAuth()
 
   useEffect(() => {
@@ -72,10 +74,18 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
       {/* เมนูด้านขวา สามารถเพิ่มตามต้องการ */}
       <ul className="flex items-center space-x-2 ml-6">
         {/* ปุ่มเปรียบเทียบ */}
-        <li>
-          <button className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-blue-800">
+        <li className="relative">
+          <a 
+            href="/compare"
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-blue-800 relative"
+          >
             <FaExchangeAlt size={20} />
-          </button>
+            {getCompareCount() > 0 && (
+              <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {getCompareCount()}
+              </span>
+            )}
+          </a>
         </li>
         {/* ปุ่มตะกร้าสินค้า */}
         <li className="relative">

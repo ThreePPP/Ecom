@@ -3,6 +3,7 @@
 import React from 'react';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { CompareProvider } from './context/CompareContext';
 
 export default function ClientProvider({
   children,
@@ -12,7 +13,9 @@ export default function ClientProvider({
   return (
     <AuthProvider>
       <CartProvider>
-        {children}
+        <CompareProvider>
+          {children}
+        </CompareProvider>
       </CartProvider>
     </AuthProvider>
   );

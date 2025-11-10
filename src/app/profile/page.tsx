@@ -156,7 +156,7 @@ export default function ProfilePage() {
 
         {/* User Information */}
         <div className="bg-white rounded-lg shadow p-8 mb-8">
-          <h2 className="text-xl font-semibold mb-6">ข้อมูลส่วนตัว</h2>
+          <h2 className="text-xl font-semibold mb-6 text-black">ข้อมูลส่วนตัว</h2>
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -210,7 +210,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <FaMapMarkerAlt className="text-red-600 text-2xl" />
-              <h2 className="text-xl font-semibold">ที่อยู่สำหรับจัดส่ง</h2>
+              <h2 className="text-xl font-semibold text-black">ที่อยู่สำหรับจัดส่ง</h2>
             </div>
             <button
               onClick={handleAddAddress}
@@ -296,10 +296,10 @@ export default function ProfilePage() {
 
         {/* Address Form Modal */}
         {showAddressForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-6">
+                <h3 className="text-xl font-semibold mb-6 text-black">
                   {editingAddress ? "แก้ไขที่อยู่" : "เพิ่มที่อยู่ใหม่"}
                 </h3>
 
@@ -315,7 +315,6 @@ export default function ProfilePage() {
                         setFormData({ ...formData, fullName: e.target.value })
                       }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
-                      placeholder="กรุณากรอกชื่อ - นามสกุล"
                     />
                   </div>
 
@@ -333,7 +332,6 @@ export default function ProfilePage() {
                         })
                       }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
-                      placeholder="0812345678"
                     />
                   </div>
 
@@ -348,7 +346,6 @@ export default function ProfilePage() {
                       }
                       rows={3}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
-                      placeholder="บ้านเลขที่ หมู่บ้าน ซอย ถนน"
                     />
                   </div>
 
@@ -364,7 +361,6 @@ export default function ProfilePage() {
                           setFormData({ ...formData, district: e.target.value })
                         }
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
-                        placeholder="อำเภอ / เขต"
                       />
                     </div>
 
@@ -379,7 +375,6 @@ export default function ProfilePage() {
                           setFormData({ ...formData, province: e.target.value })
                         }
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
-                        placeholder="จังหวัด"
                       />
                     </div>
                   </div>
@@ -398,7 +393,6 @@ export default function ProfilePage() {
                         })
                       }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-black"
-                      placeholder="10260"
                     />
                   </div>
 
