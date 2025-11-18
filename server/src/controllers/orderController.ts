@@ -9,7 +9,7 @@ import { AuthRequest } from '../middleware/auth';
 // @access  Private
 export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { items, shippingAddress, paymentMethod } = req.body;
+    const { items, shippingAddress, paymentMethod, subtotal: clientSubtotal, vat: clientVat, discount: clientDiscount, total: clientTotal } = req.body;
 
     if (!items || items.length === 0) {
       res.status(400).json({
@@ -21,7 +21,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
 
     // Validate and prepare order items
     const orderItems = [];
-    let subtotal = 0;
+    let calculatedSubtotal = 0;
 
     for (const item of items) {
       const product = await Product.findById(item.productId);
@@ -46,11 +46,11 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
         product: product._id,
         name: product.name,
         quantity: item.quantity,
-        price: product.price,
-        image: product.images[0],
+        price: item.price || product.price,
+        image: item.image || product.images?.[0] || '/placeholder.jpg',
       });
 
-      subtotal += product.price * item.quantity;
+      calculatedSubtotal += (item.price || product.price) * item.quantity;
 
       // Update product stock and sold count
       product.stock -= item.quantity;
@@ -58,9 +58,13 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
       await product.save();
     }
 
-    // Calculate shipping fee (example: free shipping over 1000)
-    const shippingFee = subtotal >= 1000 ? 0 : 50;
-    const total = subtotal + shippingFee;
+    // Use client-provided values or calculate
+    const subtotal = clientSubtotal || calculatedSubtotal;
+    const vatRate = 0.07;
+    const vat = clientVat || (subtotal * vatRate);
+    const discount = clientDiscount || 0;
+    const shippingFee = 0; // Free shipping
+    const total = clientTotal || (subtotal + vat + shippingFee - discount);
 
     // Create order
     const order = await Order.create({
@@ -70,7 +74,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
       paymentMethod,
       subtotal,
       shippingFee,
-      discount: 0,
+      discount,
       total,
     });
 

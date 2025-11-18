@@ -9,6 +9,8 @@ interface Product {
   _id: string;
   name: string;
   price: number;
+  oldPrice?: number;
+  originalPrice?: number;
   images?: string[];
   image?: string;
   category?: string;
@@ -131,9 +133,12 @@ const Flashsale = () => {
 
   const handleAddToCart = (product: Product) => {
     addToCart({
-      ...product,
       id: product._id,
-      image: product.images?.[0] || product.image || '/placeholder.jpg'
+      name: product.name,
+      price: Number(product.price) || 0,
+      oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
+      image: product.images?.[0] || product.image || '/placeholder.jpg',
+      images: product.images
     });
     alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);
   };

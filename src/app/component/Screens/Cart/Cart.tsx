@@ -41,6 +41,7 @@ const CartPage = () => {
     clearCart,
     getSelectedItems,
     selectedItemIds,
+    clearSelectedItems,
   } = useCart();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -212,7 +213,7 @@ const CartPage = () => {
     }));
   };
 
-  const handleCompleteOrder = () => {
+  const handleCompleteOrder = async () => {
     if (!paymentMethod) {
       alert("กรุณาเลือกช่องทางการชำระเงิน");
       return;
@@ -221,9 +222,70 @@ const CartPage = () => {
       alert("กรุณายอมรับเงื่อนไขและข้อตกลงในการใช้บริการ");
       return;
     }
-    alert(
-      `สั่งซื้อสำเร็จ!\nช่องทางการชำระเงิน: ${paymentMethod}\nยอดชำระ: ฿${total.toLocaleString()}`
-    );
+
+    try {
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ');
+        router.push('/');
+        return;
+      }
+
+      // Prepare order items
+      const orderItems = displayItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: Number(item.price) || 0,
+        name: item.name,
+        image: item.image
+      }));
+
+      // Create order
+      const orderData = {
+        items: orderItems,
+        shippingAddress: {
+          fullName: shippingAddress.fullName,
+          phoneNumber: shippingAddress.phone,
+          address: shippingAddress.address,
+          district: shippingAddress.district,
+          province: shippingAddress.province,
+          postalCode: shippingAddress.postalCode,
+        },
+        paymentMethod: paymentMethod,
+        subtotal: subtotal,
+        vat: vat,
+        discount: discount,
+        total: total,
+      };
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`สั่งซื้อสำเร็จ!\nเลขที่คำสั่งซื้อ: ${result.data.order.orderNumber}\nยอดชำระ: ฿${total.toLocaleString()}`);
+        
+        // Clear cart and selected items
+        displayItems.forEach(item => removeFromCart(item.id));
+        clearSelectedItems();
+        
+        // Redirect to orders page
+        router.push('/orders');
+      } else {
+        alert(`เกิดข้อผิดพลาด: ${result.message || 'ไม่สามารถสร้างคำสั่งซื้อได้'}`);
+      }
+    } catch (error: any) {
+      console.error('Error creating order:', error);
+      alert(`เกิดข้อผิดพลาด: ${error.message || 'ไม่สามารถสร้างคำสั่งซื้อได้'}`);
+    }
   };
 
   return (
