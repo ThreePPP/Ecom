@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
+import path from 'path';
 import connectDB from '../config/database';
 import { seedProducts } from './seedProducts';
 import mongoose from 'mongoose';
 
-dotenv.config();
+// Load .env from root directory
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const runSeeder = async () => {
   try {
