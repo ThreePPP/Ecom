@@ -21,6 +21,7 @@ interface Product {
   description: string;
   rating?: number;
   reviewCount?: number;
+  specifications?: { [key: string]: string };
 }
 
 export default function CategoryPage() {
@@ -33,16 +34,24 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState('default');
   const [priceRange, setPriceRange] = useState('all');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedMainboardSupport, setSelectedMainboardSupport] = useState<string[]>([]);
+  const [selectedCapacity, setSelectedCapacity] = useState<string[]>([]);
+  const [selectedMaxPower, setSelectedMaxPower] = useState<string[]>([]);
 
   // Get category icon
   const getCategoryIcon = () => {
     const icons: Record<string, string> = {
       'CPU': '/icons/cpu.png',
+      'CPU Cooler': '/icons/cooler.png',
       'Mainboard': '/icons/mainboard.png',
       'VGA': '/icons/gpu.png',
+      'Memory': '/icons/ram.png',
       'RAM': '/icons/ram.png',
+      'SSD': '/icons/ssd.png',
+      'Harddisk': '/icons/hard-disk.png',
       'Power Supply': '/icons/powersupply.png',
       'Case': '/icons/computer.png',
+      'Accessories': '/icons/as.png',
     };
     return icons[category] || '/icons/cpu.png';
   };
@@ -77,6 +86,24 @@ export default function CategoryPage() {
       // Filter by brand
       if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand || '')) {
         return false;
+      }
+
+      // Filter by Mainboard Support (Case)
+      if (category === 'Case' && selectedMainboardSupport.length > 0) {
+        const support = product.specifications?.['Mainboard Support'];
+        if (!support || !selectedMainboardSupport.some(s => support.includes(s))) return false;
+      }
+
+      // Filter by Capacity (SSD/HDD)
+      if ((category === 'SSD' || category === 'Harddisk') && selectedCapacity.length > 0) {
+        const capacity = product.specifications?.['Capacity'];
+        if (!capacity || !selectedCapacity.includes(capacity)) return false;
+      }
+
+      // Filter by Max Power (PSU)
+      if (category === 'Power Supply' && selectedMaxPower.length > 0) {
+        const power = product.specifications?.['Maximum Power'];
+        if (!power || !selectedMaxPower.includes(power)) return false;
       }
 
       // Filter by price range
@@ -116,14 +143,36 @@ export default function CategoryPage() {
     });
 
   const toggleBrand = (brand: string) => {
-    setSelectedBrands(prev =>
-      prev.includes(brand)
+    setSelectedBrands(prev => 
+      prev.includes(brand) 
         ? prev.filter(b => b !== brand)
         : [...prev, brand]
     );
   };
 
-  return (
+  const toggleMainboardSupport = (support: string) => {
+    setSelectedMainboardSupport(prev => 
+      prev.includes(support) 
+        ? prev.filter(s => s !== support)
+        : [...prev, support]
+    );
+  };
+
+  const toggleCapacity = (capacity: string) => {
+    setSelectedCapacity(prev => 
+      prev.includes(capacity) 
+        ? prev.filter(c => c !== capacity)
+        : [...prev, capacity]
+    );
+  };
+
+  const toggleMaxPower = (power: string) => {
+    setSelectedMaxPower(prev => 
+      prev.includes(power) 
+        ? prev.filter(p => p !== power)
+        : [...prev, power]
+    );
+  };  return (
     <>
       <Navbar showBanner={false} showPromotion={false} />
       <div className="min-h-screen bg-gray-100">
@@ -137,6 +186,7 @@ export default function CategoryPage() {
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               
               {/* Brands Section */}
+              {category !== 'Accessories' && (
               <div className="border-b">
                 <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Brands</h3>
                 <div className="p-4 space-y-2">
@@ -350,6 +400,76 @@ export default function CategoryPage() {
                         <span className="text-sm text-gray-700">PATRIOT</span>
                       </label>
                     </>
+                  ) : category === 'Case' ? (
+                    <>
+                      {['AEROCOOL', 'ANTEC', 'ASUS', 'BE QUIET', 'COOLER MASTER', 'CORSAIR', 'DEEPCOOL', 'GIGABYTE', 'LIAN LI', 'MONTECH', 'MSI', 'NZXT', 'THERMALTAKE'].map((brand) => (
+                        <label key={brand} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                          <input
+                            type="checkbox"
+                            checked={selectedBrands.includes(brand)}
+                            onChange={() => toggleBrand(brand)}
+                            className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{brand}</span>
+                        </label>
+                      ))}
+                    </>
+                  ) : category === 'SSD' ? (
+                    <>
+                      {['ADATA', 'KINGSTON', 'KLEVV', 'LEXAR', 'SAMSUNG', 'WD'].map((brand) => (
+                        <label key={brand} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                          <input
+                            type="checkbox"
+                            checked={selectedBrands.includes(brand)}
+                            onChange={() => toggleBrand(brand)}
+                            className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{brand}</span>
+                        </label>
+                      ))}
+                    </>
+                  ) : category === 'Harddisk' ? (
+                    <>
+                      {['WD', 'SEAGATE'].map((brand) => (
+                        <label key={brand} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                          <input
+                            type="checkbox"
+                            checked={selectedBrands.includes(brand)}
+                            onChange={() => toggleBrand(brand)}
+                            className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{brand}</span>
+                        </label>
+                      ))}
+                    </>
+                  ) : category === 'Power Supply' ? (
+                    <>
+                      {['AEROCOOL', 'ANTEC', 'ASUS', 'BE QUIET', 'COOLER MASTER', 'CORSAIR', 'DEEPCOOL', 'GIGABYTE', 'MSI', 'SILVERSTONE', 'THERMALTAKE'].map((brand) => (
+                        <label key={brand} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                          <input
+                            type="checkbox"
+                            checked={selectedBrands.includes(brand)}
+                            onChange={() => toggleBrand(brand)}
+                            className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{brand}</span>
+                        </label>
+                      ))}
+                    </>
+                  ) : category === 'CPU Cooler' ? (
+                    <>
+                      {['AEROCOOL', 'ANTEC', 'ASUS', 'BE QUIET', 'COOLER MASTER', 'CORSAIR', 'DEEPCOOL', 'GIGABYTE', 'ID-COOLING', 'LIAN LI', 'MSI', 'NZXT', 'THERMALTAKE'].map((brand) => (
+                        <label key={brand} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                          <input
+                            type="checkbox"
+                            checked={selectedBrands.includes(brand)}
+                            onChange={() => toggleBrand(brand)}
+                            className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{brand}</span>
+                        </label>
+                      ))}
+                    </>
                   ) : brands.length > 0 ? (
                     brands.map((brand) => (
                       <label key={brand} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
@@ -367,6 +487,7 @@ export default function CategoryPage() {
                   )}
                 </div>
               </div>
+              )}
 
               {/* GPU Series Section - Only for VGA */}
               {category === 'VGA' && (
@@ -667,6 +788,66 @@ export default function CategoryPage() {
                       <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
                       <span className="text-sm text-gray-700">Intel Core i9</span>
                     </label>
+                  </div>
+                </div>
+              )}
+
+              {/* Mainboard Support - Only for Case */}
+              {category === 'Case' && (
+                <div className="border-b">
+                  <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Mainboard Support</h3>
+                  <div className="p-4 space-y-2">
+                    {['ATX', 'E-ATX', 'ITX', 'Micro-ATX', 'Mini-ITX'].map((size) => (
+                      <label key={size} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedMainboardSupport.includes(size)}
+                          onChange={() => toggleMainboardSupport(size)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded" 
+                        />
+                        <span className="text-sm text-gray-700">{size}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Capacity - For SSD and Harddisk */}
+              {(category === 'SSD' || category === 'Harddisk') && (
+                <div className="border-b">
+                  <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Capacity</h3>
+                  <div className="p-4 space-y-2">
+                    {['128 GB', '256 GB', '512 GB', '1 TB', '2 TB'].map((cap) => (
+                      <label key={cap} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedCapacity.includes(cap)}
+                          onChange={() => toggleCapacity(cap)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded" 
+                        />
+                        <span className="text-sm text-gray-700">{cap}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Maximum Power - Only for Power Supply */}
+              {category === 'Power Supply' && (
+                <div className="border-b">
+                  <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Maximum Power</h3>
+                  <div className="p-4 space-y-2">
+                    {['550 Watt', '600 Watt', '650 Watt', '750 Watt', '850 Watt', '1000 Watt'].map((watt) => (
+                      <label key={watt} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedMaxPower.includes(watt)}
+                          onChange={() => toggleMaxPower(watt)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded" 
+                        />
+                        <span className="text-sm text-gray-700">{watt}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}

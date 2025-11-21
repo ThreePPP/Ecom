@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react'
-import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser, FaUserCircle, FaSignOutAlt, FaCog, FaClipboardList } from 'react-icons/fa'
+import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser, FaUserCircle, FaSignOutAlt, FaCog, FaClipboardList, FaDesktop } from 'react-icons/fa'
 import LoginModal from './LoginModal'
 import CartModal from '@/app/component/Navbar/CartModal'
 import BannerCarousel from './BannerCarousel'
 import Promotion from './Promotion'
+import CategoriesDropdown from './CategoriesDropdown'
 import { useCart } from '@/app/context/CartContext'
 import { useCompare } from '@/app/context/CompareContext'
 import { useAuth } from '@/app/context/AuthContext'
@@ -20,6 +21,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
   const [isCartModalOpen, setCartModalOpen] = useState(false)
   const [isPromotionOpen, setPromotionOpen] = useState(false)
+  const [isCategoriesOpen, setCategoriesOpen] = useState(false)
   const [isSticky, setIsSticky] = useState(false)
   const [isDropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLLIElement>(null)
@@ -73,6 +75,16 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
       </form>
       {/* เมนูด้านขวา สามารถเพิ่มตามต้องการ */}
       <ul className="flex items-center space-x-2 ml-6">
+        {/* ปุ่มจัดสเปคคอม */}
+        <li>
+          <a 
+            href="/pc-builder"
+            className="flex items-center gap-2 px-3 py-2 rounded-full border border-white hover:bg-blue-800 transition-colors"
+          >
+            <FaDesktop size={18} />
+            <span className="font-medium">จัดสเปคคอม</span>
+          </a>
+        </li>
         {/* ปุ่มเปรียบเทียบ */}
         <li className="relative">
           <a 
@@ -221,7 +233,13 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         <div className="px-10 py-3">
           <nav className="flex items-center space-x-8 text-gray-700">
             {/* Categories with icon */}
-            <div className="flex items-center space-x-2 cursor-pointer hover:text-blue-600">
+            <button 
+              onClick={() => {
+                setCategoriesOpen(!isCategoriesOpen);
+                setPromotionOpen(false); // Close Promotion when opening Categories
+              }}
+              className="flex items-center space-x-2 cursor-pointer hover:text-blue-600"
+            >
               <div className="w-4 h-4 bg-blue-600 rounded-sm flex items-center justify-center">
                 <div className="grid grid-cols-2 gap-px">
                   <div className="w-1 h-1 bg-white rounded-xs"></div>
@@ -231,14 +249,22 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
                 </div>
               </div>
               <span className="font-medium">Categories</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg 
+                className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-            </div>
+            </button>
             
             {/* Other menu items */}
             <button 
-              onClick={() => setPromotionOpen(!isPromotionOpen)}
+              onClick={() => {
+                setPromotionOpen(!isPromotionOpen);
+                setCategoriesOpen(false); // Close Categories when opening Promotion
+              }}
               className="hover:text-blue-600 transition-colors flex items-center gap-1"
               style={{ display: showPromotion ? 'flex' : 'none' }}
             >
@@ -258,11 +284,20 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         </div>
       </div>
 
+      {/* Categories Dropdown with slide animation */}
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          isCategoriesOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'
+        }`}
+      >
+        <CategoriesDropdown />
+      </div>
+
       {/* Promotion Dropdown with slide animation */}
       {showPromotion && (
         <div 
-          className={`overflow-hidden transition-all duration-500 ease-in-out ${
-            isPromotionOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            isPromotionOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'
           }`}
         >
           <Promotion />

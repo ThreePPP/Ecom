@@ -161,6 +161,9 @@ const AllCategory = () => {
         {/* CPU */}
         <CategorySection title="CPU" icon="/icons/cpu.png" category="CPU" />
 
+        {/* CPU Cooler */}
+        <CategorySection title="CPU Cooler" icon="/icons/cooler.png" category="CPU Cooler" />
+
         {/* Mainboard */}
         <CategorySection title="Mainboard" icon="/icons/mainboard.png" category="Mainboard" />
 
@@ -170,11 +173,20 @@ const AllCategory = () => {
         {/* Memory */}
         <CategorySection title="Memory" icon="/icons/ram.png" category="Memory" />
 
+        {/* SSD */}
+        <CategorySection title="SSD" icon="/icons/ssd.png" category="SSD" />
+
+        {/* Harddisk */}
+        <CategorySection title="Harddisk" icon="/icons/hard-disk.png" category="Harddisk" />
+
         {/* Power Supply */}
         <CategorySection title="Power Supply" icon="/icons/powersupply.png" category="Power Supply" />
 
         {/* Case */}
         <CategorySection title="Case" icon="/icons/computer.png" category="Case" />
+
+        {/* Accessories */}
+        <CategorySection title="Accessories" icon="/icons/as.png" category="Accessories" />
       </div>
     </div>
   );
