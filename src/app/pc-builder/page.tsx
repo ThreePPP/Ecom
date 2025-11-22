@@ -250,14 +250,17 @@ export default function PCBuilderPage() {
     setIsAutoBuilding(true);
     setSelectedComponents({}); // Clear current selection
 
+    // Define budget ratios for each component type
     const ratios: Record<string, number> = {
       cpu: 0.20,
+      cooler: 0.05,
       mainboard: 0.13,
-      gpu: 0.37,
-      memory: 0.08,
+      gpu: 0.30,
+      memory: 0.10,
+      hdd: 0.04,
       ssd: 0.08,
-      psu: 0.09,
-      case: 0.05
+      psu: 0.07,
+      case: 0.03
     };
 
     const newSelection: Record<string, Product> = {};
@@ -297,41 +300,57 @@ export default function PCBuilderPage() {
             const mainboardMaxPrice = mainboardTargetPrice * 1.3;
 
             const mainboardComponent = COMPONENT_LIST.find(c => c.id === 'mainboard');
-            if (mainboardComponent && cpuSocket) {
+            if (mainboardComponent) {
               try {
                 const mainboardResponse = await productAPI.getProducts({
                   category: mainboardComponent.category,
                   minPrice: Math.floor(mainboardMinPrice),
                   maxPrice: Math.floor(mainboardMaxPrice),
-                  limit: 50
+                  limit: 100
                 });
 
                 if (mainboardResponse.success && mainboardResponse.data.products.length > 0) {
                   // Filter compatible mainboards by socket
-                  const compatibleMainboards = mainboardResponse.data.products.filter((mb: Product) => {
+                  let compatibleMainboards = mainboardResponse.data.products.filter((mb: Product) => {
                     const mbSocket = mb.specifications instanceof Map 
                                     ? mb.specifications.get('socket') 
                                     : mb.specifications?.socket;
-                    return mbSocket === cpuSocket;
+                    return cpuSocket && mbSocket === cpuSocket;
                   });
 
+                  // If no compatible mainboards found in price range, try all mainboards
+                  if (compatibleMainboards.length === 0) {
+                    const allMainboards = await productAPI.getProducts({
+                      category: mainboardComponent.category,
+                      limit: 100
+                    });
+                    if (allMainboards.success) {
+                      compatibleMainboards = allMainboards.data.products.filter((mb: Product) => {
+                        const mbSocket = mb.specifications instanceof Map 
+                                        ? mb.specifications.get('socket') 
+                                        : mb.specifications?.socket;
+                        return cpuSocket && mbSocket === cpuSocket;
+                      });
+                    }
+                  }
+
                   if (compatibleMainboards.length > 0) {
+                    // Select mainboard closest to target price
                     const selectedMainboard = compatibleMainboards.reduce((prev: Product, curr: Product) => {
                       return (Math.abs(curr.price - mainboardTargetPrice) < Math.abs(prev.price - mainboardTargetPrice) ? curr : prev);
                     });
                     newSelection['mainboard'] = selectedMainboard;
-                  } else {
-                    // Fallback: get any mainboard if no compatible socket found
-                    const allMainboards = await productAPI.getProducts({
-                      category: mainboardComponent.category,
-                      limit: 50
-                    });
-                    if (allMainboards.success && allMainboards.data.products.length > 0) {
-                      const selectedMainboard = allMainboards.data.products.reduce((prev: Product, curr: Product) => {
-                        return (Math.abs(curr.price - mainboardTargetPrice) < Math.abs(prev.price - mainboardTargetPrice) ? curr : prev);
-                      });
-                      newSelection['mainboard'] = selectedMainboard;
+
+                    // Detect RAM type supported by mainboard (DDR4 or DDR5)
+                    const ramType = selectedMainboard.name.toLowerCase().includes('ddr5') ? 'DDR5' : 
+                                   selectedMainboard.name.toLowerCase().includes('ddr4') ? 'DDR4' : null;
+                    
+                    // Store RAM type for later use
+                    if (ramType) {
+                      (selectedMainboard as any).detectedRamType = ramType;
                     }
+                  } else {
+                    console.warn('No compatible mainboard found for socket:', cpuSocket);
                   }
                 }
               } catch (err) {
@@ -344,10 +363,12 @@ export default function PCBuilderPage() {
         }
       }
 
-      // Step 3: Select other components
-      const otherComponents = ['gpu', 'memory', 'ssd', 'psu', 'case'];
+      // Step 3: Select other components - ONE per ComponentType
+      const otherComponents = ['cooler', 'gpu', 'memory', 'hdd', 'ssd', 'psu', 'case'];
       const promises = otherComponents.map(async (componentId) => {
         const ratio = ratios[componentId];
+        if (!ratio) return; // Skip if no ratio defined
+        
         const targetPrice = budget * ratio;
         const minPrice = targetPrice * 0.7;
         const maxPrice = targetPrice * 1.3;
@@ -356,21 +377,70 @@ export default function PCBuilderPage() {
         if (!component) return;
 
         try {
+          // Special handling for Memory - filter by RAM type compatibility
+          if (componentId === 'memory' && newSelection['mainboard']) {
+            const mainboard = newSelection['mainboard'];
+            const ramType = (mainboard as any).detectedRamType;
+            
+            const memoryResponse = await productAPI.getProducts({
+              category: component.category,
+              minPrice: Math.floor(minPrice),
+              maxPrice: Math.floor(maxPrice),
+              limit: 100
+            });
+
+            if (memoryResponse.success && memoryResponse.data.products.length > 0) {
+              let compatibleMemory = memoryResponse.data.products;
+              
+              // Filter by RAM type if detected
+              if (ramType) {
+                compatibleMemory = memoryResponse.data.products.filter((mem: Product) => {
+                  return mem.name.toLowerCase().includes(ramType.toLowerCase());
+                });
+              }
+
+              // If no compatible memory in price range, try all memory
+              if (compatibleMemory.length === 0) {
+                const allMemory = await productAPI.getProducts({
+                  category: component.category,
+                  limit: 100
+                });
+                if (allMemory.success && ramType) {
+                  compatibleMemory = allMemory.data.products.filter((mem: Product) => {
+                    return mem.name.toLowerCase().includes(ramType.toLowerCase());
+                  });
+                } else if (allMemory.success) {
+                  compatibleMemory = allMemory.data.products;
+                }
+              }
+
+              if (compatibleMemory.length > 0) {
+                const closest = compatibleMemory.reduce((prev: Product, curr: Product) => {
+                  return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
+                });
+                newSelection[componentId] = closest;
+              }
+            }
+            return;
+          }
+
+          // Standard component selection for other components
           const response = await productAPI.getProducts({
             category: component.category,
             minPrice: Math.floor(minPrice),
             maxPrice: Math.floor(maxPrice),
-            limit: 20
+            limit: 50
           });
 
           if (response.success && response.data.products.length > 0) {
              const products = response.data.products;
+             // Select ONE product closest to target price
              const closest = products.reduce((prev: Product, curr: Product) => {
                return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
              });
              newSelection[componentId] = closest;
           } else {
-             // Fallback: fetch generic list
+             // Fallback: fetch generic list and select ONE
              const fallbackResponse = await productAPI.getProducts({
                category: component.category,
                limit: 50
@@ -392,16 +462,32 @@ export default function PCBuilderPage() {
       await Promise.all(promises);
       setSelectedComponents(newSelection);
 
-      // Show summary of selected components
+      // Show summary of selected components (1 per ComponentType)
       const totalPrice = Object.values(newSelection).reduce((sum, product) => sum + (product?.price || 0), 0);
       const withinBudget = totalPrice <= budget * 1.1; // Allow 10% over budget
+      const componentCount = Object.keys(newSelection).length;
+      
+      // Check compatibility
+      const hasMainboard = !!newSelection['mainboard'];
+      const hasCPU = !!newSelection['cpu'];
+      const hasMemory = !!newSelection['memory'];
+      const ramType = hasMainboard ? (newSelection['mainboard'] as any).detectedRamType : null;
+      
+      let compatibilityMsg = '';
+      if (hasCPU && hasMainboard) {
+        compatibilityMsg += '✅ CPU และ Mainboard มี Socket ที่เข้ากันได้\n';
+      }
+      if (hasMainboard && hasMemory && ramType) {
+        compatibilityMsg += `✅ Mainboard รองรับ RAM ${ramType}\n`;
+      }
       
       alert(
-        `จัดสเปคตามงบประมาณเรียบร้อยแล้ว!\n\n` +
+        `จัดสเปคตามงบประมาณเรียบร้อยแล้ว! (${componentCount} ชิ้น)\n\n` +
         `งบประมาณ: ฿${budget.toLocaleString()}\n` +
         `ยอดรวม: ฿${totalPrice.toLocaleString()}\n` +
         `${withinBudget ? '✅ อยู่ในงบประมาณ' : '⚠️ เกินงบประมาณเล็กน้อย'}\n\n` +
-        `สังเกต: CPU และ Mainboard มี Socket ที่เข้ากันได้`
+        `✅ เลือกอุปกรณ์ละ 1 ชิ้นต่อประเภท\n` +
+        compatibilityMsg
       );
 
     } catch (error) {
