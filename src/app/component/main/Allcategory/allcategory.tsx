@@ -70,17 +70,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   );
 };
 
-interface CategorySectionProps {
-  title: string;
+interface Category {
+  name: string;
   icon: string;
+  key: string;
+}
+
+const categories: Category[] = [
+  { name: "CPU", icon: "/icons/cpu.png", key: "CPU" },
+  { name: "CPU Cooler", icon: "/icons/cooler.png", key: "CPU Cooler" },
+  { name: "Mainboard", icon: "/icons/mainboard.png", key: "Mainboard" },
+  { name: "VGA / Graphic Card", icon: "/icons/gpu.png", key: "VGA" },
+  { name: "Memory", icon: "/icons/ram.png", key: "Memory" },
+  { name: "SSD", icon: "/icons/ssd.png", key: "SSD" },
+  { name: "Harddisk", icon: "/icons/hard-disk.png", key: "Harddisk" },
+  { name: "Power Supply", icon: "/icons/powersupply.png", key: "Power Supply" },
+  { name: "Case", icon: "/icons/computer.png", key: "Case" },
+  { name: "Accessories", icon: "/icons/as.png", key: "Accessories" },
+];
+
+interface CategorySectionProps {
   category: string;
 }
 
-const CategorySection: React.FC<CategorySectionProps> = ({
-  title,
-  icon,
-  category,
-}) => {
+const CategorySection: React.FC<CategorySectionProps> = ({ category }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -90,7 +103,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({
         setLoading(true);
         const response = await productAPI.getProducts({ 
           category: category,
-          limit: 5 
+          limit: 8
         });
         
         if (response.success) {
@@ -106,87 +119,148 @@ const CategorySection: React.FC<CategorySectionProps> = ({
     fetchProducts();
   }, [category]);
 
-  return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <img src={icon} alt={title} className="w-8 h-8" />
-          <h2 className="text-xl font-bold text-gray-800">{title}</h2>
-        </div>
-        <button
-          onClick={() => window.location.href = `/category/${encodeURIComponent(category)}`}
-          className="text-orange-500 hover:text-orange-600 font-medium text-sm flex items-center gap-1"
-        >
-          ดูทั้งหมด
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-80"></div>
+        ))}
       </div>
-      {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-80"></div>
-          ))}
-        </div>
-      ) : products.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          ไม่มีสินค้าในหมวดหมู่นี้
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
-        </div>
-      )}
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="text-center py-12 text-gray-500">
+        ไม่มีสินค้าในหมวดหมู่นี้
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      {products.map((product) => (
+        <ProductCard key={product._id} product={product} />
+      ))}
     </div>
   );
 };
 
 const AllCategory = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>("CPU");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const handleCategoryClick = (categoryKey: string) => {
+    setSelectedCategory(categoryKey);
+  };
+
+  const selectedCategoryData = categories.find(cat => cat.key === selectedCategory);
+
   return (
-    <div className="bg-white w-full">
+    <div className="bg-gray-50 w-full">
       <div className="container mx-auto px-4 py-8">
-        {/* CPU */}
-        <CategorySection title="CPU" icon="/icons/cpu.png" category="CPU" />
+        <div className="flex gap-6">
+          {/* Sidebar */}
+          <div className={`transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-16'}`}>
+            <div className="bg-white rounded-lg shadow-sm sticky top-4">
+              {/* Sidebar Header */}
+              <div className="bg-white text-gray-800 p-4 rounded-t-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {isSidebarOpen && (
+                    <>
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+                      </svg>
+                      <h2 className="font-bold whitespace-nowrap">สินค้า DIY ของ FavorPC</h2>
+                    </>
+                  )}
+                  {!isSidebarOpen && (
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+                    </svg>
+                  )}
+                </div>
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="hover:bg-gray-200 rounded p-1 transition-colors"
+                >
+                  <svg 
+                    className={`w-5 h-5 transition-transform ${isSidebarOpen ? '' : 'rotate-180'}`} 
+                    fill="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                  </svg>
+                </button>
+              </div>
 
-        {/* CPU Cooler */}
-        <CategorySection title="CPU Cooler" icon="/icons/cooler.png" category="CPU Cooler" />
+              {/* Category List */}
+              <div className="p-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.key}
+                    onClick={() => handleCategoryClick(category.key)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors mb-1 ${
+                      selectedCategory === category.key
+                        ? 'bg-red-50 border-l-4 border-red-600 text-red-600'
+                        : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    <img src={category.icon} alt={category.name} className="w-6 h-6 flex-shrink-0" />
+                    {isSidebarOpen && (
+                      <span className="text-sm font-medium text-left">{category.name}</span>
+                    )}
+                  </button>
+                ))}
+                
+                {/* PC Builder Button - Separate */}
+                <button
+                  onClick={() => window.location.href = "/pc-builder"}
+                  className="w-full flex items-center justify-center p-3 rounded-lg transition-colors mb-1 bg-blue-50 border border-blue-600 text-blue-600 hover:bg-blue-100 mt-4"
+                >
+                  {isSidebarOpen && (
+                    <span className="text-sm font-bold">จัดสเปคคอม</span>
+                  )}
+                  {!isSidebarOpen && (
+                    <span className="text-xs font-bold">PC</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
 
-        {/* Mainboard */}
-        <CategorySection title="Mainboard" icon="/icons/mainboard.png" category="Mainboard" />
+          {/* Main Content */}
+          <div className="flex-1">
+            {/* Category Header */}
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-gray-800">{selectedCategoryData?.name || selectedCategory}</h1>
+                <button
+                  onClick={() => window.location.href = `/category/${encodeURIComponent(selectedCategory)}`}
+                  className="text-orange-500 hover:text-orange-600 font-medium text-sm flex items-center gap-1"
+                >
+                  ดูทั้งหมด
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
 
-        {/* VGA / Graphic Card */}
-        <CategorySection title="VGA / Graphic Card" icon="/icons/gpu.png" category="VGA" />
-
-        {/* Memory */}
-        <CategorySection title="Memory" icon="/icons/ram.png" category="Memory" />
-
-        {/* SSD */}
-        <CategorySection title="SSD" icon="/icons/ssd.png" category="SSD" />
-
-        {/* Harddisk */}
-        <CategorySection title="Harddisk" icon="/icons/hard-disk.png" category="Harddisk" />
-
-        {/* Power Supply */}
-        <CategorySection title="Power Supply" icon="/icons/powersupply.png" category="Power Supply" />
-
-        {/* Case */}
-        <CategorySection title="Case" icon="/icons/computer.png" category="Case" />
-
-        {/* Accessories */}
-        <CategorySection title="Accessories" icon="/icons/as.png" category="Accessories" />
+            {/* Products Grid */}
+            <CategorySection category={selectedCategory} />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -72,13 +72,30 @@ export default function AdminProductsPage() {
     try {
       setLoading(true);
       setError('');
+      
+      // ตรวจสอบว่ามี token หรือไม่
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('กรุณาเข้าสู่ระบบก่อน');
+        router.push('/');
+        return;
+      }
+      
       const response = await productAPI.getProducts();
       
       if (response.success) {
         setProducts(response.data.products);
       }
     } catch (err: any) {
-      setError(err.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      // จัดการกับ 401 Unauthorized errors
+      if (err.message?.includes('401') || err.message?.includes('ยืนยันตัวตน') || err.message?.includes('เข้าสู่ระบบ')) {
+        setError('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่อีกครั้ง');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setTimeout(() => router.push('/'), 2000);
+      } else {
+        setError(err.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      }
     } finally {
       setLoading(false);
     }
@@ -171,7 +188,15 @@ export default function AdminProductsPage() {
         fetchProducts();
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาด');
+      // จัดการกับ 401 Unauthorized errors
+      if (err.message?.includes('401') || err.message?.includes('ยืนยันตัวตน') || err.message?.includes('เข้าสู่ระบบ') || err.message?.includes('สิทธิ์')) {
+        alert('เซสชันหมดอายุหรือไม่มีสิทธิ์เข้าถึง กรุณาเข้าสู่ระบบใหม่');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/');
+      } else {
+        alert(err.message || 'เกิดข้อผิดพลาด');
+      }
     }
   };
 
@@ -188,7 +213,15 @@ export default function AdminProductsPage() {
         fetchProducts();
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาด');
+      // จัดการกับ 401 Unauthorized errors
+      if (err.message?.includes('401') || err.message?.includes('ยืนยันตัวตน') || err.message?.includes('เข้าสู่ระบบ') || err.message?.includes('สิทธิ์')) {
+        alert('เซสชันหมดอายุหรือไม่มีสิทธิ์เข้าถึง กรุณาเข้าสู่ระบบใหม่');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/');
+      } else {
+        alert(err.message || 'เกิดข้อผิดพลาด');
+      }
     }
   };
 
@@ -425,9 +458,12 @@ export default function AdminProductsPage() {
                     >
                       <option value="">-- เลือกหมวดหมู่ --</option>
                       <option value="CPU">CPU</option>
+                      <option value="CPU Cooler">CPU Cooler</option>
                       <option value="Mainboard">Mainboard</option>
                       <option value="VGA">VGA</option>
-                      <option value="RAM">RAM</option>
+                      <option value="Memory">Memory</option>
+                      <option value="Harddisk">Harddisk</option>
+                      <option value="SSD">SSD</option>
                       <option value="Power Supply">Power Supply</option>
                       <option value="Case">Case</option>
                     </select>

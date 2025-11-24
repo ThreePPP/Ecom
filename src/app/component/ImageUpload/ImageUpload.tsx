@@ -49,7 +49,17 @@ export default function ImageUpload({ onUploadSuccess, currentImage, label = '�
         onUploadSuccess(response.data.url);
       }
     } catch (err: any) {
-      setError(err.message || 'เกิดข้อผิดพลาดในการอัพโหลด');
+      // จัดการกับ 401 Unauthorized errors
+      if (err.message?.includes('401') || err.message?.includes('ยืนยันตัวตน') || err.message?.includes('เข้าสู่ระบบ')) {
+        setError('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } else {
+        setError(err.message || 'เกิดข้อผิดพลาดในการอัพโหลด');
+      }
       setPreview(currentImage || '');
     } finally {
       setUploading(false);

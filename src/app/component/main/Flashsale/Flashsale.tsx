@@ -11,6 +11,7 @@ interface Product {
   price: number;
   oldPrice?: number;
   originalPrice?: number;
+  discount?: number;
   images?: string[];
   image?: string;
   category?: string;
@@ -69,6 +70,68 @@ const useCountdown = (endTime?: string) => {
   }, [endTime]);
 
   return timeLeft;
+};
+
+// Product Card Component
+interface ProductCardProps {
+  product: Product;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const productCountdown = useCountdown(product.flashSaleEndTime);
+  
+  // Calculate discount percentage
+  const originalPrice = product.originalPrice || product.oldPrice || product.price * 1.2;
+  const discountPercent = product.discount || Math.round(((originalPrice - product.price) / originalPrice) * 100);
+  
+  return (
+    <div
+      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all flex-shrink-0 cursor-pointer"
+      style={{ width: '240px' }}
+      onClick={() => window.location.href = `/products/${product._id}`}
+    >
+      {/* Discount Badge */}
+      <div className="relative">
+        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+          -{discountPercent}%
+        </div>
+        
+        {/* Product Image */}
+        <div className="w-full aspect-square bg-white flex items-center justify-center overflow-hidden p-4">
+          <img
+            src={product.images?.[0] || product.image || '/placeholder.jpg'}
+            alt={product.name}
+            className="w-full h-full object-contain"
+          />
+        </div>
+      </div>
+
+      {/* Product Info */}
+      <div className="p-3">
+        {/* Product Name */}
+        <h3 className="text-xs text-gray-700 mb-2 line-clamp-2 h-8">
+          {product.name}
+        </h3>
+
+        {/* Countdown Button */}
+        {!productCountdown.isExpired && (
+          <button className="w-full bg-red-600 text-white text-xs py-2 px-3 rounded-md mb-2 font-medium">
+            เหลืออีก {productCountdown.days}D {productCountdown.hours}:{productCountdown.minutes.toString().padStart(2, '0')}:{productCountdown.seconds.toString().padStart(2, '0')}
+          </button>
+        )}
+
+        {/* Price Section */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-red-600 font-bold text-lg">
+            ฿{product.price.toLocaleString()}
+          </span>
+          <span className="text-gray-400 line-through text-xs">
+            ฿{originalPrice.toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const Flashsale = () => {
@@ -158,7 +221,7 @@ const Flashsale = () => {
 
   if (loading) {
     return (
-      <div className="bg-white px-10 py-8">
+      <div className="bg-gray-50 px-10 py-8">
         <div className="animate-pulse">
           <div className="h-64 bg-gray-200 rounded-2xl"></div>
         </div>
@@ -168,7 +231,7 @@ const Flashsale = () => {
 
   if (flashSaleData.length === 0) {
     return (
-      <div className="bg-white px-10 py-8">
+      <div className="bg-gray-50 px-10 py-8">
         <div className="text-center py-8 text-gray-500">
           ไม่มีสินค้า Flash Sale ในขณะนี้
         </div>
@@ -177,80 +240,36 @@ const Flashsale = () => {
   }
 
   return (
-    <div id="flashsale-section" className="bg-white px-10 py-8">
-      {/* Flash Sale Header with Gradient Background */}
-      <div className="relative bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 rounded-3xl px-8 py-12 mb-8 overflow-hidden">
-        {/* Decorative Elements */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className="absolute top-4 left-20 w-32 h-32 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-4 right-20 w-40 h-40 bg-white rounded-full blur-3xl"></div>
-        </div>
-        
-        <div className="relative z-10">
-          {/* Main Content: Logo, Time Slots and Countdown */}
-          <div className="flex items-center gap-12">
-            {/* Flash Sale Title */}
-            <div className="flex-shrink-0">
-              <div className="relative">
-                <img 
-                  src="/Banners/flashsale.png" 
-                  alt="Flash Sale" 
-                  className="w-80 h-auto drop-shadow-2xl"
-                />
-              </div>
-            </div>
-
-            {/* Time Slots and Countdown (Right side) */}
-            <div className="flex flex-col gap-6 flex-1">
-              {/* Time Slots */}
-              <div className="flex items-center gap-8">
-                <span className="text-white font-bold text-2xl">ช่วงเวลา:</span>
-                <button className="bg-white text-gray-800 px-8 py-4 rounded-xl font-bold hover:shadow-lg transition-all">
-                  <div className="text-3xl">10:00</div>
-                  <div className="text-sm text-gray-500">จบแล้ว</div>
-                </button>
-                <button className="bg-white text-gray-800 px-8 py-4 rounded-xl font-bold hover:shadow-lg transition-all">
-                  <div className="text-3xl">14:00</div>
-                  <div className="text-sm text-gray-500">จบแล้ว</div>
-                </button>
-                <button className="bg-blue-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg">
-                  <div className="text-3xl">18:00</div>
-                  <div className="text-sm">กำลังดำเนินอยู่</div>
-                </button>
-              </div>
-
-              {/* Countdown Timer */}
-              {!countdown.isExpired && (
-                <div className="flex items-center gap-6">
-                  <span className="text-white font-bold text-2xl">จบลงใน :</span>
-                  <div className="flex gap-4">
-                    {countdown.hours > 0 && (
-                      <>
-                        <div className="bg-black text-white px-6 py-4 rounded-lg text-center min-w-[90px]">
-                          <div className="text-5xl font-bold">{countdown.hours.toString().padStart(2, '0')}</div>
-                        </div>
-                        <span className="text-white text-5xl font-bold self-center">:</span>
-                      </>
-                    )}
-                    <div className="bg-black text-white px-6 py-4 rounded-lg text-center min-w-[90px]">
-                      <div className="text-5xl font-bold">{countdown.minutes.toString().padStart(2, '0')}</div>
-                    </div>
-                    <span className="text-white text-5xl font-bold self-center">:</span>
-                    <div className="bg-black text-white px-6 py-4 rounded-lg text-center min-w-[90px]">
-                      <div className="text-5xl font-bold">{countdown.seconds.toString().padStart(2, '0')}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* View All Button */}
-            <div className="flex-shrink-0">
-              <button className="bg-white text-gray-800 px-6 py-3 rounded-full font-bold hover:shadow-lg transition-all">
-                ดูทั้งหมด →
-              </button>
-            </div>
+    <div id="flashsale-section" className="bg-gray-50 px-10 py-8">
+      {/* Flash Sale Header */}
+      <div className="relative bg-white rounded-2xl px-8 py-6 mb-8 shadow-sm border border-gray-200">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <img src="/icons/bolt.png" alt="Flash Sale" className="w-8 h-8" />
+            <h2 className="text-red-600 text-2xl font-bold">Flash Sale</h2>
           </div>
+
+          {/* Countdown Timer */}
+          {!countdown.isExpired && (
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                <div className="text-2xl font-bold text-gray-800">{countdown.days}</div>
+                <div className="text-xs text-gray-500">วัน</div>
+              </div>
+              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                <div className="text-2xl font-bold text-gray-800">{countdown.hours.toString().padStart(2, '0')}</div>
+                <div className="text-xs text-gray-500">ชั่วโมง</div>
+              </div>
+              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                <div className="text-2xl font-bold text-gray-800">{countdown.minutes.toString().padStart(2, '0')}</div>
+                <div className="text-xs text-gray-500">นาที</div>
+              </div>
+              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                <div className="text-2xl font-bold text-gray-800">{countdown.seconds.toString().padStart(2, '0')}</div>
+                <div className="text-xs text-gray-500">วินาที</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -289,65 +308,11 @@ const Flashsale = () => {
             ref={scrollContainerRef}
             className="flex gap-4 transition-transform duration-700 ease-in-out"
             style={{ 
-              transform: `translateX(-${currentIndex * 20}%)`
+              transform: `translateX(-${currentIndex * 20.8}%)`
             }}
           >
             {products.map((product) => (
-              <div
-                key={product._id}
-                className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-xl transition-all flex-shrink-0 cursor-pointer"
-                style={{ width: '220px' }}
-                onClick={() => window.location.href = `/products/${product._id}`}
-              >
-                {/* Flash Sale Badge */}
-                <div className="mb-2">
-                  <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full inline-flex items-center gap-1">
-                    ⚡ Flash Sale
-                  </span>
-                </div>
-                
-                {/* Product Image */}
-                <div className="w-full aspect-square bg-gray-50 rounded-lg flex items-center justify-center mb-3 overflow-hidden">
-                  <img
-                    src={product.images?.[0] || product.image || '/placeholder.jpg'}
-                    alt={product.name}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-
-                {/* Brand/Category */}
-                <div className="text-xs text-gray-500 uppercase font-semibold mb-1">
-                  {product.category || 'สินค้า'}
-                </div>
-
-                {/* Product Name */}
-                <h3 className="text-sm font-medium text-gray-900 mb-2 line-clamp-2 h-10">
-                  {product.name}
-                </h3>
-
-                {/* Price */}
-                <div className="mb-3">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-gray-400 line-through text-xs">
-                      ฿{(product.price * 1.2).toLocaleString()}
-                    </span>
-                    <span className="text-red-600 font-bold text-lg">
-                      ฿{product.price.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Product Detail Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.location.href = `/products/${product._id}`;
-                  }}
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold text-sm"
-                >
-                  รายละเอียดสินค้า
-                </button>
-              </div>
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </div>

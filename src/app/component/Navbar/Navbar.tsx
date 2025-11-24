@@ -58,19 +58,18 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   return (
     <div>
       {/* Main Navbar */}
-      <div className={`flex items-center px-10 py-4 bg-gradient-to-r from-blue-900 to-blue-500 text-white transition-all duration-500 ease-in-out ${
+      <div className={`flex items-center px-10 py-4 bg-gradient-to-r from-white to-white text-gray-800 transition-all duration-500 ease-in-out ${
         isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-2xl transform scale-100' : ''
       }`}>
-        <a href="/"><img src="/Logo/logo_W.png" alt="" className='h-20 w-58'/></a>
+        <a href="/"><img src="/Logo/logo_B.png" alt="" className='h-20 w-58'/></a>
       <form className="flex flex-1 max-w-3xl mx-auto bg-white rounded-full">
         <input
           type="text"
-          placeholder="Search Products, Categories, Brands"
-          className="flex-1 px-5 py-2 rounded-l-full text-gray-800 focus:outline-none"
+          placeholder="Search..."
+          className="flex-1 px-5 py-2 rounded-l-full bg-gray-100 text-gray-800 focus:outline-none"
         />
-        <button type="submit" className="flex items-center gap-2 px-6 py-2 bg-blue-900 text-white rounded-r-full font-semibold border-l border-blue-800 hover:bg-blue-800">
+        <button type="submit" className="flex items-center gap-2 px-6 py-2 bg-gray-700 text-white rounded-r-full font-semibold  border-gray-700 hover:bg-[#99ff33] hover:text-gray-700 transition-colors">
           <FaSearch />
-          Search
         </button>
       </form>
       {/* เมนูด้านขวา สามารถเพิ่มตามต้องการ */}
@@ -79,7 +78,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         <li>
           <a 
             href="/pc-builder"
-            className="flex items-center gap-2 px-3 py-2 rounded-full border border-white hover:bg-blue-800 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-full border border-white hover:bg-[#99ff33] transition-colors"
           >
             <FaDesktop size={18} />
             <span className="font-medium">จัดสเปคคอม</span>
@@ -89,7 +88,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         <li className="relative">
           <a 
             href="/compare"
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-blue-800 relative"
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-[#99ff33] relative"
           >
             <FaExchangeAlt size={20} />
             {getCompareCount() > 0 && (
@@ -103,7 +102,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         <li className="relative">
           <button 
             onClick={() => setCartModalOpen(true)}
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-blue-800 relative"
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-[#99ff33] relative"
           >
             <FaShoppingCart size={20} />
             {getTotalItems() > 0 && (
@@ -118,7 +117,8 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
           {isAuthenticated ? (
             <>
               <button
-                className="flex items-center gap-2 px-5 py-2 bg-blue-900 rounded-full border border-white hover:bg-blue-800 font-semibold"
+                className="flex items-center gap-2 px-5 py-2 rounded-full border border-white font-semibold transition-colors"
+                style={{ backgroundColor: '#99ff33' }}
                 onClick={() => setDropdownOpen(!isDropdownOpen)}
               >
                 <FaUserCircle size={20} />
@@ -206,7 +206,8 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
             </>
           ) : (
             <button
-              className="flex items-center px-5 py-2 bg-blue-900 rounded-full border border-white hover:bg-blue-800 font-semibold"
+              className="flex items-center px-5 py-2 rounded-full border border-white hover:bg-[#ccff66] font-semibold transition-colors"
+              style={{ backgroundColor: '#ccff66' }}
               onClick={() => setLoginModalOpen(true)}
             >
               เข้าสู่ระบบ
@@ -240,7 +241,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
               }}
               className="flex items-center space-x-2 cursor-pointer hover:text-blue-600"
             >
-              <div className="w-4 h-4 bg-blue-600 rounded-sm flex items-center justify-center">
+              <div className="w-4 h-4 bg-gray-600 rounded-sm flex items-center justify-center">
                 <div className="grid grid-cols-2 gap-px">
                   <div className="w-1 h-1 bg-white rounded-xs"></div>
                   <div className="w-1 h-1 bg-white rounded-xs"></div>
@@ -248,7 +249,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
                   <div className="w-1 h-1 bg-white rounded-xs"></div>
                 </div>
               </div>
-              <span className="font-medium">Categories</span>
+              <span className="font-medium">หมวดหมู่สินค้า</span>
               <svg 
                 className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} 
                 fill="none" 
@@ -278,8 +279,8 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <a href="#" className="hover:text-blue-600 transition-colors">คู่มือการช็อปปิ้ง</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">บริการหลังการขาย</a>
+            <a href="#" className="hover:text-blue-600 transition-colors">คู่มือการช็อปปิ้งและบริการหลังการขาย</a>
+            <a href="/contact" className="hover:text-blue-600 transition-colors">ติดต่อเรา</a>
           </nav>
         </div>
       </div>
@@ -309,6 +310,71 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         <div>
           {/* Use banner images from public/Banners folder */}
           <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/who1.png"]} height="h-150" />
+        </div>
+      )}
+
+      {/* Promotional Contact Section - Below Banner */}
+      {showBanner && (
+        <div className="bg-white py-8 px-10">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between gap-8">
+              {/* Logo Section */}
+              <div className="flex-shrink-0">
+                <img src="/Logo/logo_B.png" alt="Logo" className="h-32 w-auto" />
+              </div>
+
+              {/* Content Section */}
+              <div className="flex-1">
+                <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                  ร้านขายอะไหล่คอมพิวเตอร์มือสอง <span className="text-blue-600">favorpc.top</span>
+                </h2>
+                <p className="text-gray-600 leading-relaxed mb-4">
+                  ศูนย์รวมอะไหล่คอมพิวเตอร์มือสอง คุ้มค่า คุ้มราคา
+จำหน่ายอะไหล่คอมพิวเตอร์มือสองทุกชนิด ไม่ว่าจะเป็น CPU, GPU, RAM, SSD, Power Supply, เคส และอุปกรณ์ต่าง ๆ คุณภาพดี ผ่านการตรวจเช็กและทดสอบทุกชิ้นจากทีมงานมืออาชีพ 
+ใช้งานได้จริง มั่นใจได้ในคุณภาพเรามีบริการให้คำปรึกษาการอัปเกรดคอมพิวเตอร์แบบเป็นกันเอง ช่วยเลือกสเปคให้เหมาะกับงบของคุณ ไม่ว่าจะใช้งานทั่วไป เล่นเกม หรือทำงานหนัก 
+ก็จัดให้ตามต้องการได้ไม่ว่าคุณจะอยากอัปเกรดคอม หรือตามหาอะไหล่คุณภาพดีในราคาถูก มาคุยกับเราได้ที่ favorpc.top ยินดีให้บริการ พร้อมมอบประสบการณ์ช้อปปิ้งที่ง่าย รวดเร็ว 
+สบายใจ เหมือนมีเพื่อนที่รู้เรื่องคอมช่วยดูแล
+                </p>
+
+                {/* Contact Buttons */}
+                <div className="flex gap-4">
+                  <a
+                    href="https://line.me/ti/p/~rakhmor"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors shadow-md"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                    </svg>
+                    แอดไลน์
+                  </a>
+
+                  <a
+                    href="https://www.facebook.com/rakhmor"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    แชทผ่านเฟสบุ๊ค
+                  </a>
+
+                  <a
+                    href="/contact"
+                    className="flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-md"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                    </svg>
+                    ติดต่อเรา
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

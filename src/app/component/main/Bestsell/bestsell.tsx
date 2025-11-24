@@ -39,7 +39,7 @@ const Bestsell = () => {
   }, []);
 
   return (
-    <div className="bg-white px-10 py-6">
+    <div className="bg-gray-50 px-10 py-6">
       {/* Header Section with Categories */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-2">

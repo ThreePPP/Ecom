@@ -36,6 +36,10 @@ const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
   const data = await response.json();
 
   if (!response.ok) {
+    // ให้ข้อมูล error ที่ชัดเจนขึ้นสำหรับ 401 errors
+    if (response.status === 401) {
+      throw new Error(data.message || 'การยืนยันตัวตนไม่ถูกต้อง กรุณาเข้าสู่ระบบใหม่');
+    }
     throw new Error(data.message || 'Something went wrong');
   }
 
@@ -272,6 +276,11 @@ export const uploadAPI = {
   // อัพโหลดรูปเดี่ยว
   uploadImage: async (file: File) => {
     const token = getToken();
+    
+    if (!token) {
+      throw new Error('กรุณาเข้าสู่ระบบก่อนอัพโหลดรูปภาพ');
+    }
+    
     const formData = new FormData();
     formData.append('image', file);
 
@@ -286,6 +295,9 @@ export const uploadAPI = {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
+      }
       throw new Error(data.message || 'Upload failed');
     }
 
@@ -295,6 +307,11 @@ export const uploadAPI = {
   // อัพโหลดหลายรูป (สูงสุด 10 รูป)
   uploadMultipleImages: async (files: File[]) => {
     const token = getToken();
+    
+    if (!token) {
+      throw new Error('กรุณาเข้าสู่ระบบก่อนอัพโหลดรูปภาพ');
+    }
+    
     const formData = new FormData();
     
     files.forEach((file) => {
@@ -312,6 +329,9 @@ export const uploadAPI = {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
+      }
       throw new Error(data.message || 'Upload failed');
     }
 

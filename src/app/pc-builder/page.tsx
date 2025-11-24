@@ -586,11 +586,11 @@ export default function PCBuilderPage() {
             <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-sm p-4 h-fit sticky top-24">
               <div className="flex justify-between items-center mb-4 border-b pb-4">
                 <h2 className="text-lg font-bold text-gray-800">สรุปยอดรวม</h2>
-                <p className="text-xl font-bold text-blue-600">฿{calculateTotal().toLocaleString()} .-</p>
+                <p className="text-xl font-bold text-gray-800">฿{calculateTotal().toLocaleString()} .-</p>
               </div>
               <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
                  <span>จัดส่งทันทีภายใน 5 ชั่วโมง:</span>
-                 <span className="text-blue-500 font-bold">ฟรี</span>
+                 <span className="text-red-600 font-bold">ฟรี</span>
               </div>
               <button 
                 onClick={() => {
@@ -607,7 +607,7 @@ export default function PCBuilderPage() {
                   });
                   alert('เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว');
                 }}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-full transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-full transition-colors flex items-center justify-center gap-2"
               >
                 <FaShoppingCart /> สั่งซื้อสเปคนี้
               </button>
@@ -615,16 +615,16 @@ export default function PCBuilderPage() {
 
             {/* Right Content - Spec Details */}
             <div className="w-full lg:w-3/4">
-              <div className="bg-blue-500 rounded-t-lg p-4 flex justify-between items-center">
+              <div className="bg-gray-800 rounded-t-lg p-4 flex justify-between items-center">
                  <h2 className="text-xl font-bold text-white">สเปคคอมฯ ที่คุณเลือก</h2>
                  <button 
                    onClick={() => setShowSummary(false)}
-                   className="bg-white text-blue-600 px-4 py-1 rounded-full text-sm font-bold hover:bg-gray-100 flex items-center gap-2"
+                   className="bg-white text-gray-800 px-4 py-1 rounded-full text-sm font-bold hover:bg-gray-100 flex items-center gap-2"
                  >
                    <FaEdit /> แก้ไข
                  </button>
               </div>
-              <div className="bg-blue-500 p-4 pt-0 rounded-b-lg">
+              <div className="bg-gray-800 p-4 pt-0 rounded-b-lg">
                  <div className="bg-white rounded-lg p-6">
                     <h3 className="text-lg font-bold text-gray-800 mb-4">รายละเอียดสเปคคอมฯ</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
