@@ -44,6 +44,14 @@ export async function POST(request: NextRequest) {
     let systemPrompt: string
     let fullPrompt: string
 
+    // สร้างตัวแปรเก็บวันที่ปัจจุบัน เพื่อให้ AI รู้วันที่จริง
+    const currentDate = new Date().toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long'
+    })
+
     if (mode === 'pc-upgrade' && pcSpecs && upgradedComponent && newComponentValue) {
       // PC Upgrade Analysis Mode
       const specs = pcSpecs as PCSpecs
@@ -56,7 +64,9 @@ export async function POST(request: NextRequest) {
         'psu': 'Power Supply'
       }
 
-      systemPrompt = `คุณเป็นผู้เชี่ยวชาญด้านคอมพิวเตอร์และเกมมิ่ง มีความรู้ลึกซึ้งเกี่ยวกับฮาร์ดแวร์ PC ทุกชนิด
+      systemPrompt = `วันที่ปัจจุบัน: ${currentDate}
+
+คุณเป็นผู้เชี่ยวชาญด้านคอมพิวเตอร์และเกมมิ่ง มีความรู้ลึกซึ้งเกี่ยวกับฮาร์ดแวร์ PC ทุกชนิด
 
 เมื่อผู้ใช้ถามเกี่ยวกับการอัพเกรด PC ให้วิเคราะห์และตอบในรูปแบบดังนี้:
 
@@ -89,7 +99,9 @@ export async function POST(request: NextRequest) {
 กรุณาวิเคราะห์การอัพเกรดนี้:`
     } else {
       // Normal E-commerce Support Mode
-      systemPrompt = `คุณเป็น AI ผู้ช่วยบริการลูกค้าของร้านค้าออนไลน์ขายอุปกรณ์คอมพิวเตอร์และเกมมิ่ง มีหน้าที่ช่วยเหลือลูกค้าเกี่ยวกับ:
+      systemPrompt = `วันที่ปัจจุบัน: ${currentDate}
+
+คุณเป็น AI ผู้ช่วยบริการลูกค้าของร้านค้าออนไลน์ขายอุปกรณ์คอมพิวเตอร์และเกมมิ่ง มีหน้าที่ช่วยเหลือลูกค้าเกี่ยวกับ:
 - การสั่งซื้อสินค้า
 - การชำระเงิน
 - การจัดส่งสินค้า

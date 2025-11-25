@@ -227,16 +227,19 @@ const ChatBot: React.FC = () => {
               setSelectedComponent(selectedKey)
               setChatMode('upgrade-analyze')
               
+              // Store original specs before updating
+              const originalSpecs = { ...pcSpecs }
+              
               // Update specs with new component
               const updatedSpecs = { ...pcSpecs, [selectedKey]: newValue }
               setPcSpecs(updatedSpecs)
 
-              // Call Gemini API for analysis
+              // Call Gemini API for analysis - send ORIGINAL specs so API can show "from X to Y"
               const response = await axios.post('/api/chat', {
                 message: userMessage,
                 history: messages.slice(-10).map(m => ({ text: m.text, isBot: m.isBot })),
                 mode: 'pc-upgrade',
-                pcSpecs: updatedSpecs,
+                pcSpecs: originalSpecs,
                 upgradedComponent: selectedKey,
                 newComponentValue: newValue
               })
@@ -293,16 +296,19 @@ const ChatBot: React.FC = () => {
           'psu': 'Power Supply'
         }
 
+        // Store original specs before updating
+        const originalSpecs = { ...pcSpecs }
+        
         // Update specs with new component
         const updatedSpecs = { ...pcSpecs, [selectedComponent]: newComponent }
         setPcSpecs(updatedSpecs)
 
-        // Call Gemini API for analysis
+        // Call Gemini API for analysis - send ORIGINAL specs so API can show "from X to Y"
         const response = await axios.post('/api/chat', {
           message: userMessage,
           history: messages.slice(-10).map(m => ({ text: m.text, isBot: m.isBot })),
           mode: 'pc-upgrade',
-          pcSpecs: updatedSpecs,
+          pcSpecs: originalSpecs,
           upgradedComponent: selectedComponent,
           newComponentValue: newComponent
         })
