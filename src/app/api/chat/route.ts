@@ -1,8 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
-
-// Initialize the Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 interface PCSpecs {
   cpu: string
@@ -11,6 +7,12 @@ interface PCSpecs {
   ram: string
   gpu: string
   psu: string
+}
+
+interface OpenRouterMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+  reasoning_details?: any
 }
 
 export async function POST(request: NextRequest) {
@@ -24,22 +26,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      console.error('GEMINI_API_KEY is not configured')
+    if (!process.env.OPENROUTER_API_KEY) {
+      console.error('OPENROUTER_API_KEY is not configured')
       return NextResponse.json(
-        { error: 'Gemini API key not configured' },
+        { error: 'OpenRouter API key not configured' },
         { status: 500 }
       )
     }
-
-    // Get the Gemini Pro model with configuration
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-lite',
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 2048,
-      }
-    })
 
     let systemPrompt: string
     let fullPrompt: string
@@ -127,14 +120,82 @@ ${conversationHistory ? `บทสนทนาก่อนหน้า:\n${conve
 ผู้ช่วย:`
     }
 
-    // Generate response
-    const result = await model.generateContent(fullPrompt)
-    const response = await result.response
-    const text = response.text()
+    // Build messages array for OpenRouter
+    const messages: OpenRouterMessage[] = [
+      {
+        role: 'system',
+        content: mode === 'pc-upgrade' ? fullPrompt.split('\n\nสเปค PC')[0] : fullPrompt.split('\n\nลูกค้า:')[0]
+      }
+    ]
+
+    // Add conversation history if in normal mode
+    if (mode !== 'pc-upgrade' && history && history.length > 0) {
+      history.forEach((msg: { text: string; isBot: boolean }) => {
+        messages.push({
+          role: msg.isBot ? 'assistant' : 'user',
+          content: msg.text
+        })
+      })
+    }
+
+    // Add the current user message
+    if (mode === 'pc-upgrade') {
+      const specs = pcSpecs as PCSpecs
+      const componentNames: { [key: string]: string } = {
+        'cpu': 'CPU',
+        'motherboard': 'Motherboard',
+        'cpuCooler': 'CPU Cooler',
+        'ram': 'RAM',
+        'gpu': 'การ์ดจอ (GPU)',
+        'psu': 'Power Supply'
+      }
+      messages.push({
+        role: 'user',
+        content: `สเปค PC ปัจจุบันของลูกค้า:
+- CPU: ${specs.cpu}
+- Motherboard: ${specs.motherboard}
+- CPU Cooler: ${specs.cpuCooler}
+- RAM: ${specs.ram}
+- GPU: ${specs.gpu}
+- PSU: ${specs.psu}
+
+ลูกค้าต้องการเปลี่ยน ${componentNames[upgradedComponent]}: จาก "${specs[upgradedComponent as keyof PCSpecs]}" เป็น "${newComponentValue}"
+
+กรุณาวิเคราะห์การอัพเกรดนี้:`
+      })
+    } else {
+      messages.push({
+        role: 'user',
+        content: message
+      })
+    }
+
+    // First API call with reasoning
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "x-ai/grok-4.1-fast:free",
+        "messages": messages,
+        "reasoning": { "enabled": true }
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('OpenRouter API error:', errorData)
+      throw new Error(errorData.error?.message || 'OpenRouter API request failed')
+    }
+
+    const result = await response.json()
+    const text = result.choices[0]?.message?.content || ''
 
     return NextResponse.json({ response: text })
   } catch (error: any) {
-    console.error('Gemini API error:', error)
+    console.error('OpenRouter API error:', error)
     console.error('Error details:', error?.message || error)
     return NextResponse.json(
       { 
