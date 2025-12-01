@@ -1,8 +1,10 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
-import { FaComments, FaTimes, FaPaperPlane, FaDesktop, FaQuestionCircle, FaShoppingCart } from 'react-icons/fa'
+import { FaComments, FaTimes, FaPaperPlane, FaDesktop, FaShoppingCart } from 'react-icons/fa'
 import axios from 'axios'
+import { orderAPI } from '@/app/lib/api'
+import { authAPI } from '@/app/lib/api'
 
 interface PCSpecs {
   cpu: string
@@ -27,14 +29,13 @@ const ChatBot: React.FC = () => {
       isBot: true,
       options: [
         { id: 'upgrade', label: '🖥️ อัพเกรด/เปลี่ยนชิ้นส่วน PC', icon: <FaDesktop /> },
-        { id: 'order', label: '🛒 สอบถามการสั่งซื้อ', icon: <FaShoppingCart /> },
-        { id: 'other', label: '❓ สอบถามอื่นๆ', icon: <FaQuestionCircle /> }
+        { id: 'order', label: '🛒 สอบถามการสั่งซื้อ', icon: <FaShoppingCart /> }
       ]
     }
   ])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [chatMode, setChatMode] = useState<'normal' | 'upgrade-collect' | 'upgrade-select' | 'upgrade-analyze'>('normal')
+  const [chatMode, setChatMode] = useState<'normal' | 'upgrade-collect' | 'upgrade-select' | 'upgrade-analyze' | 'order-inquiry'>('normal')
   const [pcSpecs, setPcSpecs] = useState<PCSpecs>({
     cpu: '',
     motherboard: '',
@@ -73,22 +74,94 @@ const ChatBot: React.FC = () => {
         ...prev,
         { text: '🖥️ อัพเกรด/เปลี่ยนชิ้นส่วน PC', isBot: false },
         { 
-          text: 'เยี่ยมเลยครับ! 💻 ผมจะช่วยวิเคราะห์สเปค PC ของคุณ\n\nมาเริ่มกันเลยครับ!\n\n1️⃣ CPU: กรุณาพิมพ์ชื่อรุ่น CPU ของคุณ\n(เช่น Intel i5-12400F, AMD Ryzen 5 5600X)',
+          text: 'เยี่ยมเลยครับ! 💻 ผมจะช่วยวิเคราะห์สเปค PC ของคุณ\n\n📋 ตัวอย่างการกรอกสเปค:\n1️⃣ CPU: Intel i5-12400F\n2️⃣ Motherboard: MSI B660M Pro\n3️⃣ CPU Cooler: ID-Cooling SE-214-XT\n4️⃣ RAM: 16GB DDR4 3200MHz\n5️⃣ GPU: RTX 3060\n6️⃣ PSU: 650W 80+ Bronze\n\n🚀 มาเริ่มกันเลยครับ!\nกรุณาพิมพ์สเปคของคุณทีละรายการ เริ่มจาก:\n\n1️⃣ CPU: พิมพ์ชื่อรุ่น CPU ของคุณ\n\n💡 พิมพ์ 0 เพื่อยกเลิก',
           isBot: true 
         }
       ])
     } else if (optionId === 'order') {
-      setMessages(prev => [
-        ...prev,
-        { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
-        { text: 'ยินดีช่วยเหลือเรื่องการสั่งซื้อครับ! คุณต้องการสอบถามเรื่องอะไรครับ? เช่น สถานะออเดอร์ การชำระเงิน การจัดส่ง หรือการคืนสินค้า', isBot: true }
-      ])
-    } else {
-      setMessages(prev => [
-        ...prev,
-        { text: '❓ สอบถามอื่นๆ', isBot: false },
-        { text: 'ได้เลยครับ! มีอะไรให้ช่วยไหมครับ? สามารถพิมพ์คำถามได้เลยครับ', isBot: true }
-      ])
+      setChatMode('order-inquiry')
+      setIsLoading(true)
+      
+      // Check if user is authenticated
+      if (!authAPI.isAuthenticated()) {
+        setMessages(prev => [
+          ...prev,
+          { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
+          { 
+            text: '⚠️ กรุณาเข้าสู่ระบบก่อนเพื่อดูคำสั่งซื้อของคุณครับ\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก', 
+            isBot: true 
+          }
+        ])
+        setIsLoading(false)
+        return
+      }
+      
+      try {
+        const response = await orderAPI.getMyOrders()
+        
+        if (response.success && response.data.orders.length > 0) {
+          const orders = response.data.orders
+          
+          // Status text mapping
+          const getStatusText = (status: string) => {
+            const texts: Record<string, string> = {
+              pending: '⏳ รอดำเนินการ',
+              processing: '🔄 กำลังดำเนินการ',
+              shipped: '🚚 จัดส่งแล้ว',
+              delivered: '✅ สำเร็จ',
+              cancelled: '❌ ยกเลิก',
+            }
+            return texts[status] || status
+          }
+          
+          // Format orders list
+          let ordersList = '📦 คำสั่งซื้อของคุณ:\n\n'
+          orders.slice(0, 5).forEach((order: any, index: number) => {
+            const date = new Date(order.createdAt).toLocaleDateString('th-TH', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
+            })
+            ordersList += `${index + 1}. #${order.orderNumber}\n`
+            ordersList += `   💰 ฿${order.total.toLocaleString()}\n`
+            ordersList += `   📅 ${date}\n`
+            ordersList += `   ${getStatusText(order.orderStatus)}\n\n`
+          })
+          
+          if (orders.length > 5) {
+            ordersList += `📋 และอีก ${orders.length - 5} รายการ...\n\n`
+          }
+          
+          ordersList += '🔍 พิมพ์เลขคำสั่งซื้อเพื่อดูรายละเอียด\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก'
+          
+          setMessages(prev => [
+            ...prev,
+            { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
+            { text: ordersList, isBot: true }
+          ])
+        } else {
+          setMessages(prev => [
+            ...prev,
+            { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
+            { 
+              text: '📭 คุณยังไม่มีคำสั่งซื้อครับ\n\nลองเลือกสินค้าและสั่งซื้อกันนะครับ! 🛍️\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก', 
+              isBot: true 
+            }
+          ])
+        }
+      } catch (error) {
+        console.error('Error fetching orders:', error)
+        setMessages(prev => [
+          ...prev,
+          { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
+          { 
+            text: '❌ ไม่สามารถดึงข้อมูลคำสั่งซื้อได้ กรุณาลองใหม่อีกครั้งครับ\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก', 
+            isBot: true 
+          }
+        ])
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -165,6 +238,30 @@ const ChatBot: React.FC = () => {
     try {
       // Handle different chat modes
       if (chatMode === 'upgrade-collect') {
+        // Check for cancel command
+        if (userMessage === '0') {
+          setChatMode('normal')
+          setCurrentSpecStep(0)
+          setPcSpecs({
+            cpu: '',
+            motherboard: '',
+            cpuCooler: '',
+            ram: '',
+            gpu: '',
+            psu: ''
+          })
+          setMessages([...newMessages, {
+            text: '❌ ยกเลิกการวิเคราะห์สเปค PC แล้วครับ\n\nมีอะไรให้ช่วยเหลืออื่นไหมครับ?',
+            isBot: true,
+            options: [
+              { id: 'upgrade', label: '🖥️ อัพเกรด/เปลี่ยนชิ้นส่วน PC', icon: <FaDesktop /> },
+              { id: 'order', label: '🛒 สอบถามการสั่งซื้อ', icon: <FaShoppingCart /> }
+            ]
+          }])
+          setIsLoading(false)
+          return
+        }
+
         // Step-by-step spec collection
         const currentStep = specSteps[currentSpecStep - 1]
         
@@ -178,7 +275,7 @@ const ChatBot: React.FC = () => {
             const nextStep = currentSpecStep + 1
             setCurrentSpecStep(nextStep)
             setMessages([...newMessages, {
-              text: `✅ บันทึก ${currentStep.name}: ${userMessage}\n\n${getNextStepMessage(nextStep)}`,
+              text: `✅ บันทึก ${currentStep.name}: ${userMessage}\n\n${getNextStepMessage(nextStep)}\n\n💡 พิมพ์ 0 เพื่อยกเลิก`,
               isBot: true
             }])
           } else {
@@ -249,11 +346,11 @@ const ChatBot: React.FC = () => {
               if (data.response) {
                 setChatMode('normal')
                 setMessages([...newMessages, {
-                  text: data.response,
+                  text: data.response + '\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก',
                   isBot: true,
                   options: [
                     { id: 'upgrade', label: '🔄 วิเคราะห์ชิ้นส่วนอื่น', icon: <FaDesktop /> },
-                    { id: 'other', label: '❓ สอบถามเพิ่มเติม', icon: <FaQuestionCircle /> }
+                    { id: 'order', label: '🛒 สอบถามการสั่งซื้อ', icon: <FaShoppingCart /> }
                   ]
                 }])
               } else {
@@ -318,16 +415,105 @@ const ChatBot: React.FC = () => {
         if (data.response) {
           setChatMode('normal')
           setMessages([...newMessages, {
-            text: data.response,
+            text: data.response + '\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก',
             isBot: true,
             options: [
               { id: 'upgrade', label: '🔄 วิเคราะห์ชิ้นส่วนอื่น', icon: <FaDesktop /> },
-              { id: 'other', label: '❓ สอบถามเพิ่มเติม', icon: <FaQuestionCircle /> }
+              { id: 'order', label: '🛒 สอบถามการสั่งซื้อ', icon: <FaShoppingCart /> }
             ]
           }])
         } else {
           setMessages([...newMessages, {
             text: 'ขออภัยครับ ไม่สามารถวิเคราะห์ได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง',
+            isBot: true
+          }])
+        }
+        setIsLoading(false)
+        return
+      }
+
+      // Check for cancel/back to menu command in normal mode or order-inquiry mode
+      if (userMessage === '0') {
+        setChatMode('normal')
+        setMessages([...newMessages, {
+          text: '🏠 กลับมาที่เมนูหลักแล้วครับ\n\nมีอะไรให้ช่วยเหลือไหมครับ?',
+          isBot: true,
+          options: [
+            { id: 'upgrade', label: '🖥️ อัพเกรด/เปลี่ยนชิ้นส่วน PC', icon: <FaDesktop /> },
+            { id: 'order', label: '🛒 สอบถามการสั่งซื้อ', icon: <FaShoppingCart /> }
+          ]
+        }])
+        setIsLoading(false)
+        return
+      }
+
+      // Handle order inquiry mode - user typing order number to see details
+      if (chatMode === 'order-inquiry') {
+        try {
+          const response = await orderAPI.getMyOrders()
+          
+          if (response.success) {
+            const orders = response.data.orders
+            // Find order by order number (partial match)
+            const foundOrder = orders.find((order: any) => 
+              order.orderNumber.toLowerCase().includes(userMessage.toLowerCase()) ||
+              userMessage.toLowerCase().includes(order.orderNumber.toLowerCase())
+            )
+            
+            if (foundOrder) {
+              const getStatusText = (status: string) => {
+                const texts: Record<string, string> = {
+                  pending: '⏳ รอดำเนินการ',
+                  processing: '🔄 กำลังดำเนินการ',
+                  shipped: '🚚 จัดส่งแล้ว',
+                  delivered: '✅ สำเร็จ',
+                  cancelled: '❌ ยกเลิก',
+                }
+                return texts[status] || status
+              }
+              
+              const getPaymentStatusText = (status: string) => {
+                const texts: Record<string, string> = {
+                  pending: '⏳ รอชำระเงิน',
+                  paid: '✅ ชำระแล้ว',
+                  failed: '❌ ชำระไม่สำเร็จ',
+                }
+                return texts[status] || status
+              }
+              
+              const date = new Date(foundOrder.createdAt).toLocaleDateString('th-TH', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })
+              
+              let orderDetail = `📦 รายละเอียดคำสั่งซื้อ #${foundOrder.orderNumber}\n\n`
+              orderDetail += `📅 วันที่สั่ง: ${date}\n`
+              orderDetail += `💰 ยอดรวม: ฿${foundOrder.total.toLocaleString()}\n`
+              orderDetail += `📊 สถานะ: ${getStatusText(foundOrder.orderStatus)}\n`
+              orderDetail += `💳 การชำระเงิน: ${getPaymentStatusText(foundOrder.paymentStatus)}\n\n`
+              
+              orderDetail += `🛍️ สินค้า (${foundOrder.items.length} รายการ):\n`
+              foundOrder.items.forEach((item: any, idx: number) => {
+                orderDetail += `   ${idx + 1}. ${item.name || 'สินค้า'} x${item.quantity}\n`
+              })
+              
+              orderDetail += `\n🔗 ดูรายละเอียดเพิ่มเติมได้ที่: /orders/${foundOrder._id}\n\n`
+              orderDetail += '💡 พิมพ์ 0 เพื่อกลับเมนูหลัก'
+              
+              setMessages([...newMessages, { text: orderDetail, isBot: true }])
+            } else {
+              setMessages([...newMessages, {
+                text: `❌ ไม่พบคำสั่งซื้อ "${userMessage}"\n\nกรุณาตรวจสอบหมายเลขคำสั่งซื้ออีกครั้ง\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก`,
+                isBot: true
+              }])
+            }
+          }
+        } catch (error) {
+          setMessages([...newMessages, {
+            text: '❌ ไม่สามารถดึงข้อมูลคำสั่งซื้อได้ กรุณาลองใหม่อีกครั้ง\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก',
             isBot: true
           }])
         }
