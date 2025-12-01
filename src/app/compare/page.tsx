@@ -20,7 +20,7 @@ export default function ComparePage() {
       name: product.name,
       price: Number(product.price) || 0,
       oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
-      image: product.images?.[0] || product.image || '/placeholder.jpg',
+      image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
       images: product.images
     });
     alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);

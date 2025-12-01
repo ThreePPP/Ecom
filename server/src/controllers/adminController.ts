@@ -2,6 +2,8 @@ import { Response } from 'express';
 import User from '../models/User';
 import Product from '../models/Product';
 import Order from '../models/Order';
+import CoinTransaction from '../models/CoinTransaction';
+import AdminNotification from '../models/AdminNotification';
 import { AuthRequest } from '../middleware/auth';
 
 // @desc    Get admin dashboard stats
@@ -43,11 +45,43 @@ export const getAdminStats = async (req: AuthRequest, res: Response): Promise<vo
 // @access  Private/Admin
 export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 }).lean();
+
+    // Get coin transaction summary for each user
+    const usersWithCoinInfo = await Promise.all(
+      users.map(async (user) => {
+        // Count total spent coins
+        const spentResult = await CoinTransaction.aggregate([
+          { $match: { userId: user._id, type: 'spend' } },
+          { $group: { _id: null, total: { $sum: { $abs: '$amount' } } } },
+        ]);
+
+        // Count total earned/topup coins
+        const earnedResult = await CoinTransaction.aggregate([
+          { $match: { userId: user._id, type: { $in: ['earn', 'topup'] } } },
+          { $group: { _id: null, total: { $sum: '$amount' } } },
+        ]);
+
+        // Get last transaction date
+        const lastTransaction = await CoinTransaction.findOne({ userId: user._id })
+          .sort({ createdAt: -1 })
+          .select('createdAt type amount')
+          .lean();
+
+        return {
+          ...user,
+          coinStats: {
+            totalSpent: spentResult[0]?.total || 0,
+            totalEarned: earnedResult[0]?.total || 0,
+            lastTransaction: lastTransaction || null,
+          },
+        };
+      })
+    );
 
     res.status(200).json({
       success: true,
-      data: { users },
+      data: { users: usersWithCoinInfo },
     });
   } catch (error: any) {
     console.error('Get all users error:', error);
@@ -113,6 +147,99 @@ export const deleteUser = async (req: AuthRequest, res: Response): Promise<void>
     });
   } catch (error: any) {
     console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Get admin notifications
+// @route   GET /api/admin/notifications
+// @access  Private/Admin
+export const getAdminNotifications = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { page = 1, limit = 20, unreadOnly } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const query = unreadOnly === 'true' ? { isRead: false } : {};
+
+    const notifications = await AdminNotification.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean();
+
+    const total = await AdminNotification.countDocuments(query);
+    const unreadCount = await AdminNotification.countDocuments({ isRead: false });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        notifications,
+        unreadCount,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit)),
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Get admin notifications error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Mark notification as read
+// @route   PATCH /api/admin/notifications/:id/read
+// @access  Private/Admin
+export const markNotificationAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const notification = await AdminNotification.findByIdAndUpdate(
+      req.params.id,
+      { isRead: true },
+      { new: true }
+    );
+
+    if (!notification) {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบการแจ้งเตือน',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: { notification },
+    });
+  } catch (error: any) {
+    console.error('Mark notification as read error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Mark all notifications as read
+// @route   PATCH /api/admin/notifications/read-all
+// @access  Private/Admin
+export const markAllNotificationsAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    await AdminNotification.updateMany({ isRead: false }, { isRead: true });
+
+    res.status(200).json({
+      success: true,
+      message: 'อ่านการแจ้งเตือนทั้งหมดแล้ว',
+    });
+  } catch (error: any) {
+    console.error('Mark all notifications as read error:', error);
     res.status(500).json({
       success: false,
       message: 'เกิดข้อผิดพลาด',

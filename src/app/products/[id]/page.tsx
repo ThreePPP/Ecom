@@ -20,6 +20,8 @@ interface Product {
   discount?: number;
   images?: string[];
   image?: string;
+  coverImage?: string;
+  detailCoverImage?: string;
   category?: string;
   brand?: string;
   condition?: string;
@@ -78,7 +80,7 @@ const ProductDetailPage = () => {
           name: product.name,
           price: Number(product.price) || 0,
           oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
-          image: product.images?.[0] || product.image || '/placeholder.jpg',
+          image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
           images: product.images
         });
       }
@@ -121,7 +123,10 @@ const ProductDetailPage = () => {
     );
   }
 
-  const images = product.images && product.images.length > 0 
+  // ใช้ detailCoverImage ถ้ามี ถ้าไม่มีใช้ images array
+  const images = product.detailCoverImage
+    ? [product.detailCoverImage, ...(product.images?.filter(img => img !== product.detailCoverImage) || [])]
+    : product.images && product.images.length > 0 
     ? product.images 
     : product.image 
     ? [product.image] 

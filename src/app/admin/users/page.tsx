@@ -1,10 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { adminAPI } from '../../lib/api';
+import { adminAPI, coinAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
+import { FaCoins, FaPlus } from 'react-icons/fa';
+
+interface CoinStats {
+  totalSpent: number;
+  totalEarned: number;
+  lastTransaction: {
+    createdAt: string;
+    type: 'earn' | 'spend' | 'topup';
+    amount: number;
+  } | null;
+}
 
 interface User {
   _id: string;
@@ -14,17 +25,38 @@ interface User {
   phoneNumber: string;
   role: 'user' | 'admin';
   isVerified: boolean;
+  coins: number;
+  coinStats?: CoinStats;
   createdAt: string;
 }
 
 export default function AdminUsersPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const highlightUserId = searchParams.get('highlight');
   const { isAdmin, loading: authLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<'all' | 'user' | 'admin'>('all');
+  const highlightedRef = useRef<HTMLTableRowElement>(null);
+  
+  // Add coins modal state
+  const [showAddCoinsModal, setShowAddCoinsModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [addCoinsAmount, setAddCoinsAmount] = useState('');
+  const [addCoinsDescription, setAddCoinsDescription] = useState('');
+  const [addingCoins, setAddingCoins] = useState(false);
+
+  // Scroll to highlighted user
+  useEffect(() => {
+    if (highlightUserId && highlightedRef.current && !loading) {
+      setTimeout(() => {
+        highlightedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  }, [highlightUserId, loading]);
 
   useEffect(() => {
     if (!authLoading && !isAdmin) {
@@ -87,6 +119,43 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleOpenAddCoinsModal = (user: User) => {
+    setSelectedUser(user);
+    setAddCoinsAmount('');
+    setAddCoinsDescription('');
+    setShowAddCoinsModal(true);
+  };
+
+  const handleAddCoins = async () => {
+    if (!selectedUser) return;
+    
+    const amount = parseInt(addCoinsAmount);
+    if (!amount || amount <= 0) {
+      alert('กรุณาระบุจำนวน coins ที่ถูกต้อง');
+      return;
+    }
+
+    try {
+      setAddingCoins(true);
+      const response = await coinAPI.adminAddCoins({
+        userId: selectedUser._id,
+        amount,
+        description: addCoinsDescription || undefined,
+      });
+      
+      if (response.success) {
+        alert(response.message || 'เพิ่ม coins สำเร็จ');
+        setShowAddCoinsModal(false);
+        setSelectedUser(null);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      alert(err.message || 'เกิดข้อผิดพลาดในการเพิ่ม coins');
+    } finally {
+      setAddingCoins(false);
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     const matchSearch = 
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -138,7 +207,7 @@ export default function AdminUsersPage() {
                 placeholder="ค้นหาชื่อ หรือ อีเมล..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
               />
             </div>
             <div>
@@ -148,7 +217,7 @@ export default function AdminUsersPage() {
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value as 'all' | 'user' | 'admin')}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
               >
                 <option value="all">ทั้งหมด</option>
                 <option value="user">ผู้ใช้ทั่วไป</option>
@@ -181,6 +250,9 @@ export default function AdminUsersPage() {
                     เบอร์โทร
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    🪙 Coins
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     สิทธิ์
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -197,23 +269,38 @@ export default function AdminUsersPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                       ไม่พบข้อมูลผู้ใช้
                     </td>
                   </tr>
                 ) : (
                   filteredUsers.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50">
+                    <tr 
+                      key={user._id} 
+                      ref={user._id === highlightUserId ? highlightedRef : null}
+                      className={`hover:bg-gray-50 transition-all duration-500 ${
+                        user._id === highlightUserId 
+                          ? 'bg-yellow-100 ring-2 ring-yellow-400 ring-inset animate-pulse' 
+                          : ''
+                      }`}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
-                            <div className="h-10 w-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-medium">
+                            <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-medium ${
+                              user._id === highlightUserId ? 'bg-yellow-500' : 'bg-orange-500'
+                            }`}>
                               {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                             </div>
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
                               {user.firstName} {user.lastName}
+                              {user._id === highlightUserId && (
+                                <span className="ml-2 px-2 py-0.5 bg-yellow-500 text-white text-xs rounded-full">
+                                  📍 ลูกค้าที่แจ้งเตือน
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -223,6 +310,32 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{user.phoneNumber || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-yellow-500 font-bold">{(user.coins || 0).toLocaleString()}</span>
+                            <span className="text-xs text-gray-400">coins</span>
+                            <button
+                              onClick={() => handleOpenAddCoinsModal(user)}
+                              className="p-1 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors"
+                              title="เพิ่ม coins"
+                            >
+                              <FaPlus size={10} />
+                            </button>
+                          </div>
+                          {user.coinStats && (
+                            <div className="text-xs space-y-0.5">
+                              <div className="text-green-600">+{user.coinStats.totalEarned.toLocaleString()} สะสม</div>
+                              <div className="text-red-600">-{user.coinStats.totalSpent.toLocaleString()} ใช้ไป</div>
+                              {user.coinStats.lastTransaction && (
+                                <div className="text-gray-400 text-[10px]">
+                                  ล่าสุด: {new Date(user.coinStats.lastTransaction.createdAt).toLocaleDateString('th-TH')}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
@@ -282,6 +395,123 @@ export default function AdminUsersPage() {
           แสดง {filteredUsers.length} จาก {users.length} ผู้ใช้
         </div>
       </div>
+
+      {/* Add Coins Modal */}
+      {showAddCoinsModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <FaCoins className="text-white text-xl" />
+                </div>
+                <div className="text-white">
+                  <h3 className="text-lg font-bold">เพิ่ม Coins</h3>
+                  <p className="text-sm opacity-90">
+                    {selectedUser.firstName} {selectedUser.lastName}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {/* Current Balance */}
+              <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                <span className="text-gray-600">ยอด Coins ปัจจุบัน</span>
+                <span className="text-2xl font-bold text-yellow-500">
+                  {(selectedUser.coins || 0).toLocaleString()}
+                </span>
+              </div>
+
+              {/* Amount Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  จำนวน Coins ที่ต้องการเพิ่ม <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={addCoinsAmount}
+                  onChange={(e) => setAddCoinsAmount(e.target.value)}
+                  placeholder="เช่น 100, 500, 1000"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-lg text-black"
+                />
+              </div>
+
+              {/* Quick Amount Buttons */}
+              <div className="flex flex-wrap gap-2">
+                {[50, 100, 200, 500, 1000].map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => setAddCoinsAmount(amount.toString())}
+                    className="px-3 py-1.5 bg-gray-100 hover:bg-orange-100 hover:text-orange-600 rounded-lg text-sm font-medium transition-colors text-black"
+                  >
+                    +{amount}
+                  </button>
+                ))}
+              </div>
+
+              {/* Description Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  หมายเหตุ (ไม่บังคับ)
+                </label>
+                <input
+                  type="text"
+                  value={addCoinsDescription}
+                  onChange={(e) => setAddCoinsDescription(e.target.value)}
+                  placeholder="เช่น โบนัสพิเศษ, ชดเชย..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
+                />
+              </div>
+
+              {/* Preview */}
+              {addCoinsAmount && parseInt(addCoinsAmount) > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">ยอดหลังเพิ่ม</span>
+                    <span className="text-xl font-bold text-green-600">
+                      {((selectedUser.coins || 0) + parseInt(addCoinsAmount)).toLocaleString()} coins
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 flex gap-3">
+              <button
+                onClick={() => {
+                  setShowAddCoinsModal(false);
+                  setSelectedUser(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleAddCoins}
+                disabled={addingCoins || !addCoinsAmount || parseInt(addCoinsAmount) <= 0}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {addingCoins ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    กำลังเพิ่ม...
+                  </>
+                ) : (
+                  <>
+                    <FaCoins />
+                    เพิ่ม Coins
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

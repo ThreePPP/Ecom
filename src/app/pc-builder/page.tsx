@@ -15,6 +15,7 @@ interface Product {
   price: number;
   images?: string[];
   image?: string;
+  coverImage?: string;
   category: string;
   brand?: string;
   specifications?: Record<string, string> | Map<string, string>;
@@ -600,8 +601,8 @@ export default function PCBuilderPage() {
                         id: product._id,
                         name: product.name,
                         price: product.price,
-                        image: product.images?.[0] || product.image || '/placeholder.jpg',
-                        images: product.images || [product.image || '/placeholder.jpg']
+                        image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
+                        images: product.images || (product.image ? [product.image] : ['/placeholder.jpg'])
                       });
                     }
                   });
@@ -634,7 +635,7 @@ export default function PCBuilderPage() {
                           return (
                              <div key={comp.id} className="border rounded-lg p-4 flex gap-4 items-center">
                                 <div className="w-20 h-20 bg-gray-100 rounded p-2 flex-shrink-0 flex items-center justify-center">
-                                   <img src={product.images?.[0] || product.image || '/placeholder.jpg'} className="w-full h-full object-contain" />
+                                   <img src={product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg'} className="w-full h-full object-contain" />
                                 </div>
                                 <div>
                                    <span className="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full mb-1 inline-block">{comp.name}</span>
@@ -933,7 +934,7 @@ export default function PCBuilderPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {filteredProducts.map((product) => {
                     const isSelected = selectedComponents[activeComponentId]?._id === product._id;
-                    const imageUrl = product.images?.[0] || product.image || '/placeholder.jpg';
+                    const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
 
                     return (
                       <div 

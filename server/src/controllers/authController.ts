@@ -60,6 +60,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           email: user.email,
           phoneNumber: user.phoneNumber,
           role: user.role,
+          coins: user.coins || 0,
         },
         token,
       },
@@ -125,6 +126,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
           email: user.email,
           phoneNumber: user.phoneNumber,
           role: user.role,
+          coins: user.coins || 0,
         },
         token,
       },
@@ -157,6 +159,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
           dateOfBirth: user.dateOfBirth,
           role: user.role,
           isVerified: user.isVerified,
+          coins: user.coins || 0,
         },
       },
     });

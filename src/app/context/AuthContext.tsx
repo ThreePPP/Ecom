@@ -10,6 +10,7 @@ interface User {
   email: string;
   phoneNumber: string;
   role: string;
+  coins: number;
 }
 
 interface AuthContextType {
@@ -17,6 +18,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
 }
@@ -55,6 +57,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.location.href = '/';
   };
 
+  const refreshUser = async () => {
+    try {
+      const response = await authAPI.getMe();
+      if (response.success && response.data.user) {
+        const updatedUser = response.data.user;
+        setUser(updatedUser);
+        // Update localStorage too
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -62,6 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         login,
         logout,
+        refreshUser,
         isAuthenticated: !!user,
         isAdmin: user?.role === 'admin',
       }}

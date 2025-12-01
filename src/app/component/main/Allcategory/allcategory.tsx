@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { productAPI } from "@/app/lib/api";
+import { useCart } from "@/app/context/CartContext";
 
 interface Product {
   _id: string;
@@ -9,15 +10,18 @@ interface Product {
   price: number;
   images?: string[];
   image?: string;
+  coverImage?: string;
   condition?: string;
 }
 
 interface ProductCardProps {
   product: Product;
+  onAddToCart: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const imageUrl = product.images?.[0] || product.image || '/placeholder.jpg';
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+  // ใช้รูปหน้าปก ถ้าไม่มีให้ใช้รูปแรกจาก images หรือ image เดิม
+  const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
   
   // กำหนดสีและไอคอนตามสภาพสินค้า
   const getConditionBadge = () => {
@@ -67,8 +71,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            // Add to cart logic here
-            alert(`เพิ่ม "${product.name}" ลงในตะกร้าแล้ว!`);
+            onAddToCart(product);
           }}
           className="w-full bg-gray-700 hover:bg-[#99ff33] text-white hover:text-gray-800 text-sm py-2 rounded-xl transition-colors font-medium"
         >
@@ -100,9 +103,10 @@ const categories: Category[] = [
 
 interface CategorySectionProps {
   category: string;
+  onAddToCart: (product: Product) => void;
 }
 
-const CategorySection: React.FC<CategorySectionProps> = ({ category }) => {
+const CategorySection: React.FC<CategorySectionProps> = ({ category, onAddToCart }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -149,18 +153,30 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
       {products.map((product) => (
-        <ProductCard key={product._id} product={product} />
+        <ProductCard key={product._id} product={product} onAddToCart={onAddToCart} />
       ))}
     </div>
   );
 };
 
 const AllCategory = () => {
+  const { addToCart } = useCart();
   const [selectedCategory, setSelectedCategory] = useState<string>("CPU");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleCategoryClick = (categoryKey: string) => {
     setSelectedCategory(categoryKey);
+  };
+
+  const handleAddToCart = (product: Product) => {
+    addToCart({
+      id: product._id,
+      name: product.name,
+      price: Number(product.price) || 0,
+      image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
+      images: product.images
+    });
+    alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);
   };
 
   const selectedCategoryData = categories.find(cat => cat.key === selectedCategory);
@@ -267,7 +283,7 @@ const AllCategory = () => {
             </div>
 
             {/* Products Grid */}
-            <CategorySection category={selectedCategory} />
+            <CategorySection category={selectedCategory} onAddToCart={handleAddToCart} />
           </div>
         </div>
       </div>

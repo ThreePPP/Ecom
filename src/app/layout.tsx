@@ -21,9 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-auto">
       <body
-        className={`${prompt.variable} antialiased`}
+        className={`${prompt.variable} antialiased min-h-screen`}
       >
         <ClientProvider>
           {children}

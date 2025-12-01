@@ -18,6 +18,7 @@ interface Product {
   stock: number;
   images?: string[];
   image?: string;
+  coverImage?: string;
   condition?: string;
   description: string;
   rating?: number;
@@ -972,7 +973,7 @@ export default function CategoryPage() {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {filteredProducts.map((product) => {
-                  const imageUrl = product.images?.[0] || product.image || '/placeholder.jpg';
+                  const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
                   return (
                     <div
                       key={product._id}

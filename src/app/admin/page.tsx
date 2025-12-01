@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
+import AdminNotificationBell from "@/app/component/Admin/AdminNotificationBell";
 import { 
   FaUsers, 
   FaBox, 
@@ -142,13 +143,16 @@ export default function AdminPage() {
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
               <p className="text-blue-100 mt-1">ยินดีต้อนรับ, {user?.firstName}</p>
             </div>
-            <a
-              href="/"
-              className="flex items-center gap-2 bg-white text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-50 font-semibold"
-            >
-              <FaHome />
-              กลับหน้าแรก
-            </a>
+            <div className="flex items-center gap-4">
+              <AdminNotificationBell />
+              <a
+                href="/"
+                className="flex items-center gap-2 bg-white text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-50 font-semibold"
+              >
+                <FaHome />
+                กลับหน้าแรก
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,311 @@
+import { Request, Response } from 'express';
+import CoinTransaction from '../models/CoinTransaction';
+import User from '../models/User';
+import AdminNotification from '../models/AdminNotification';
+
+// Get coin transactions for user
+export const getCoinTransactions = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?._id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'กรุณาเข้าสู่ระบบ',
+      });
+    }
+
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const transactions = await CoinTransaction.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean();
+
+    const total = await CoinTransaction.countDocuments({ userId });
+
+    // Get user's current coin balance
+    const user = await User.findById(userId).select('coins');
+
+    res.status(200).json({
+      success: true,
+      data: {
+        transactions,
+        currentBalance: user?.coins || 0,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit)),
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching coin transactions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการดึงข้อมูลรายการ',
+      error: error.message,
+    });
+  }
+};
+
+// Add coins (for topup or earn)
+export const addCoins = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?._id;
+    const { amount, type, description, orderId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'กรุณาเข้าสู่ระบบ',
+      });
+    }
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'จำนวนคอยน์ต้องมากกว่า 0',
+      });
+    }
+
+    // Update user's coin balance
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบผู้ใช้',
+      });
+    }
+
+    const newBalance = (user.coins || 0) + amount;
+    user.coins = newBalance;
+    await user.save();
+
+    // Create transaction record
+    const transaction = new CoinTransaction({
+      userId,
+      type: type || 'topup',
+      amount,
+      description: description || 'เติมเงิน',
+      orderId,
+      balanceAfter: newBalance,
+    });
+
+    await transaction.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'เพิ่มคอยน์สำเร็จ',
+      data: {
+        transaction,
+        newBalance,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error adding coins:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการเพิ่มคอยน์',
+      error: error.message,
+    });
+  }
+};
+
+// Spend coins
+export const spendCoins = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?._id;
+    const { amount, description, orderId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'กรุณาเข้าสู่ระบบ',
+      });
+    }
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'จำนวนคอยน์ต้องมากกว่า 0',
+      });
+    }
+
+    // Check user's coin balance
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบผู้ใช้',
+      });
+    }
+
+    if ((user.coins || 0) < amount) {
+      return res.status(400).json({
+        success: false,
+        message: 'คอยน์ไม่เพียงพอ',
+      });
+    }
+
+    const newBalance = (user.coins || 0) - amount;
+    user.coins = newBalance;
+    await user.save();
+
+    // Create transaction record
+    const transaction = new CoinTransaction({
+      userId,
+      type: 'spend',
+      amount: -amount,
+      description: description || 'ใช้คอยน์',
+      orderId,
+      balanceAfter: newBalance,
+    });
+
+    await transaction.save();
+
+    // Create admin notification for coin redemption
+    const notification = new AdminNotification({
+      type: 'coin_redeem',
+      title: '🪙 มีการแลก Coins',
+      message: `${user.firstName} ${user.lastName} ได้แลก ${amount.toLocaleString()} coins`,
+      data: {
+        userId: user._id,
+        userName: `${user.firstName} ${user.lastName}`,
+        userEmail: user.email,
+        amount: amount,
+      },
+    });
+    await notification.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'ใช้คอยน์สำเร็จ',
+      data: {
+        transaction,
+        newBalance,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error spending coins:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการใช้คอยน์',
+      error: error.message,
+    });
+  }
+};
+
+// Get coin summary
+export const getCoinSummary = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?._id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'กรุณาเข้าสู่ระบบ',
+      });
+    }
+
+    const user = await User.findById(userId).select('coins');
+
+    // Calculate total earned and spent
+    const earnedResult = await CoinTransaction.aggregate([
+      { $match: { userId: user?._id, type: { $in: ['earn', 'topup'] } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+
+    const spentResult = await CoinTransaction.aggregate([
+      { $match: { userId: user?._id, type: 'spend' } },
+      { $group: { _id: null, total: { $sum: { $abs: '$amount' } } } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        currentBalance: user?.coins || 0,
+        totalEarned: earnedResult[0]?.total || 0,
+        totalSpent: spentResult[0]?.total || 0,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching coin summary:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการดึงข้อมูลสรุป',
+      error: error.message,
+    });
+  }
+};
+
+// Admin: Add coins to any user
+export const adminAddCoins = async (req: Request, res: Response) => {
+  try {
+    const { userId, amount, description } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'กรุณาระบุ User ID',
+      });
+    }
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'จำนวนคอยน์ต้องมากกว่า 0',
+      });
+    }
+
+    // Find user and update coin balance
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบผู้ใช้',
+      });
+    }
+
+    const newBalance = (user.coins || 0) + amount;
+    user.coins = newBalance;
+    await user.save();
+
+    // Create transaction record
+    const transaction = new CoinTransaction({
+      userId,
+      type: 'topup',
+      amount,
+      description: description || 'เติมคอยน์โดยแอดมิน',
+      balanceAfter: newBalance,
+    });
+
+    await transaction.save();
+
+    res.status(201).json({
+      success: true,
+      message: `เพิ่ม ${amount.toLocaleString()} coins ให้ ${user.firstName} ${user.lastName} สำเร็จ`,
+      data: {
+        transaction,
+        newBalance,
+        user: {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          coins: newBalance,
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Error admin adding coins:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการเพิ่มคอยน์',
+      error: error.message,
+    });
+  }
+};

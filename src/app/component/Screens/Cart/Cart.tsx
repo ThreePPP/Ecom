@@ -69,6 +69,11 @@ const CartPage = () => {
   // Payment method state
   const [paymentMethod, setPaymentMethod] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+  
+  // Success modal state
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderNumber, setOrderNumber] = useState("");
+  const [orderTotal, setOrderTotal] = useState(0);
 
   // Fetch saved addresses when component mounts
   useEffect(() => {
@@ -132,14 +137,12 @@ const CartPage = () => {
   // Get items to display (selected items or all if none selected)
   const displayItems = selectedItemIds.length > 0 ? getSelectedItems() : cart;
 
-  // Calculate subtotal, VAT, and total based on displayed items
+  // Calculate subtotal and total based on displayed items
   const subtotal = displayItems.reduce((total, item) => {
     const price = Number(item.price) || 0;
     return total + price * item.quantity;
   }, 0);
-  const vatRate = 0.07; // 7% VAT
-  const vat = subtotal * vatRate;
-  const total = subtotal + vat - discount;
+  const total = subtotal - discount;
 
   // Handle promo code
   const handleApplyPromo = () => {
@@ -254,7 +257,6 @@ const CartPage = () => {
         },
         paymentMethod: paymentMethod,
         subtotal: subtotal,
-        vat: vat,
         discount: discount,
         total: total,
       };
@@ -271,14 +273,16 @@ const CartPage = () => {
       const result = await response.json();
 
       if (result.success) {
-        alert(`สั่งซื้อสำเร็จ!\nเลขที่คำสั่งซื้อ: ${result.data.order.orderNumber}\nยอดชำระ: ฿${total.toLocaleString()}`);
+        // Store order details
+        setOrderNumber(result.data.order.orderNumber);
+        setOrderTotal(total);
         
         // Clear cart and selected items
         displayItems.forEach(item => removeFromCart(item.id));
         clearSelectedItems();
         
-        // Redirect to orders page
-        router.push('/orders');
+        // Show success modal
+        setShowSuccessModal(true);
       } else {
         alert(`เกิดข้อผิดพลาด: ${result.message || 'ไม่สามารถสร้างคำสั่งซื้อได้'}`);
       }
@@ -443,7 +447,7 @@ const CartPage = () => {
                                     className="text-gray-600"
                                   />
                                 </button>
-                                <span className="px-6 py-2 font-bold text-lg border-x-2 border-gray-300">
+                                <span className="px-6 py-2 font-bold text-lg border-x-2 border-gray-300 text-gray-800">
                                   {item.quantity}
                                 </span>
                                 <button
@@ -827,10 +831,10 @@ const CartPage = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {/* PromptPay QR Code */}
+                    {/* Bank Transfer */}
                     <label
                       className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "qrcode"
+                        paymentMethod === "bank_transfer"
                           ? "border-red-500 bg-red-50 shadow-md"
                           : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
                       }`}
@@ -838,8 +842,8 @@ const CartPage = () => {
                       <input
                         type="radio"
                         name="payment"
-                        value="qrcode"
-                        checked={paymentMethod === "qrcode"}
+                        value="bank_transfer"
+                        checked={paymentMethod === "bank_transfer"}
                         onChange={(e) => setPaymentMethod(e.target.value)}
                         className="w-5 h-5 text-red-600 cursor-pointer"
                       />
@@ -850,15 +854,16 @@ const CartPage = () => {
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
-                            <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z" />
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                            <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
                           </svg>
                         </div>
                         <div>
                           <span className="font-semibold text-gray-800 block">
-                            ชำระผ่าน QR Code
+                            โอนเงินผ่านธนาคาร
                           </span>
                           <span className="text-xs text-gray-500">
-                            สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)
+                            โอนเงินผ่านบัญชีธนาคาร
                           </span>
                         </div>
                       </div>
@@ -922,20 +927,6 @@ const CartPage = () => {
                     <span>ค่าสินค้า:</span>
                     <span>฿{subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>ราคาค่าส่งสินค้า:</span>
-                    <span className="text-red-600">฿0.00</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>ภาษี VAT 7%:</span>
-                    <span>
-                      ฿
-                      {vat.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </span>
-                  </div>
                   {discount > 0 && (
                     <div className="flex justify-between text-green-600 font-semibold">
                       <span>ส่วนลด ({appliedPromo}):</span>
@@ -958,7 +949,7 @@ const CartPage = () => {
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 mt-1">
-                    ยอดรวม (รวมภาษีมูลค่าเพิ่ม)
+                    ยอดรวมทั้งหมด
                   </p>
                 </div>
 
@@ -1082,6 +1073,94 @@ const CartPage = () => {
           )}
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+            {/* Success Icon */}
+            <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-t-2xl p-8 text-center">
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">สั่งซื้อสำเร็จ!</h2>
+              <p className="text-green-50">เลขที่คำสั่งซื้อ: {orderNumber}</p>
+            </div>
+
+            {/* Payment Details */}
+            <div className="p-6">
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+                <h3 className="font-bold text-blue-900 text-lg mb-3 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                    <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
+                  </svg>
+                  ข้อมูลการชำระเงิน
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">ชื่อบัญชี:</span>
+                    <span className="font-semibold text-gray-900">FavorPC</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">ธนาคาร:</span>
+                    <span className="font-semibold text-gray-900">กสิกรไทย</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">เลขที่บัญชี:</span>
+                    <span className="font-semibold text-blue-600">123-4-56789-0</span>
+                  </div>
+                  <div className="border-t border-blue-200 pt-2 mt-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-900 font-semibold">ยอดชำระ:</span>
+                      <span className="text-2xl font-bold text-red-600">฿{orderTotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-yellow-800 flex items-start gap-2">
+                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+                  </svg>
+                  <span>กรุณาโอนเงินภายใน 24 ชั่วโมง และแจ้งหลักฐานการโอนเงินที่หน้าคำสั่งซื้อ</span>
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    router.push('/orders');
+                  }}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  คำสั่งซื้อของฉัน
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    router.push('/');
+                  }}
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  กลับหน้าหลัก
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

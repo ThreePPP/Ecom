@@ -22,6 +22,7 @@ export interface IUser extends Document {
   dateOfBirth: Date;
   role: 'user' | 'admin';
   isVerified: boolean;
+  coins: number;
   shippingAddresses: IShippingAddress[];
   createdAt: Date;
   updatedAt: Date;
@@ -71,6 +72,11 @@ const userSchema = new Schema<IUser>(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    coins: {
+      type: Number,
+      default: 0,
+      min: [0, 'จำนวนเหรียญต้องไม่ติดลบ'],
     },
     shippingAddresses: [
       {

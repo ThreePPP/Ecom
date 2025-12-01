@@ -12,6 +12,7 @@ import orderRoutes from './routes/orderRoutes';
 import adminRoutes from './routes/adminRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import addressRoutes from './routes/addressRoutes';
+import coinRoutes from './routes/coinRoutes';
 
 // Load environment variables from root directory
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -41,6 +42,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes); // Admin routes
 app.use('/api/upload', uploadRoutes); // Upload routes
 app.use('/api/addresses', addressRoutes); // Shipping address routes
+app.use('/api/coins', coinRoutes); // Coin system routes
 
 // Health check route
 app.get('/api/health', (req: Request, res: Response) => {

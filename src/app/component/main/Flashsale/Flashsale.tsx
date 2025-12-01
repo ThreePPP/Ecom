@@ -14,6 +14,7 @@ interface Product {
   discount?: number;
   images?: string[];
   image?: string;
+  coverImage?: string;
   category?: string;
   condition?: string;
   flashSaleEndTime?: string;
@@ -117,7 +118,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Product Image */}
         <div className="w-full aspect-square bg-white flex items-center justify-center overflow-hidden p-4">
           <img
-            src={product.images?.[0] || product.image || '/placeholder.jpg'}
+            src={product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg'}
             alt={product.name}
             className="w-full h-full object-contain"
           />
@@ -218,7 +219,7 @@ const Flashsale = () => {
       name: product.name,
       price: Number(product.price) || 0,
       oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
-      image: product.images?.[0] || product.image || '/placeholder.jpg',
+      image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
       images: product.images
     });
     alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);

@@ -66,9 +66,14 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     const shippingFee = 0; // Free shipping
     const total = clientTotal || (subtotal + vat + shippingFee - discount);
 
+    // Generate order number
+    const orderCount = await Order.countDocuments();
+    const orderNumber = `ORD-${Date.now()}-${String(orderCount + 1).padStart(5, '0')}`;
+
     // Create order
     const order = await Order.create({
       user: req.user._id,
+      orderNumber,
       items: orderItems,
       shippingAddress,
       paymentMethod,

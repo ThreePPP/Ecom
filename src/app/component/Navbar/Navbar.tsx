@@ -27,7 +27,22 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   const dropdownRef = useRef<HTMLLIElement>(null)
   const { getTotalItems } = useCart()
   const { getCompareCount } = useCompare()
-  const { user, isAuthenticated, isAdmin, logout } = useAuth()
+  const { user, isAuthenticated, isAdmin, logout, refreshUser } = useAuth()
+
+  // Refresh user data periodically to update coins
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Refresh on mount
+      refreshUser();
+      
+      // Refresh every 30 seconds
+      const interval = setInterval(() => {
+        refreshUser();
+      }, 30000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,6 +127,21 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
             )}
           </button>
         </li>
+        {/* ปุ่มแสดงเหรียญ (Coins) - อยู่ข้างซ้ายของ Profile */}
+        {isAuthenticated && (
+          <li className="relative">
+            <a 
+              href="/coins"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-800 font-semibold shadow-md cursor-pointer hover:from-yellow-500 hover:to-yellow-600 transition-all"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <circle cx="10" cy="10" r="9" fill="#fbbf24" stroke="#d97706" strokeWidth="1.5"/>
+                <text x="10" y="14" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#92400e">฿</text>
+              </svg>
+              <span className="font-bold">{(user?.coins || 0).toLocaleString()}</span>
+            </a>
+          </li>
+        )}
         {/* ปุ่มเข้าสู่ระบบ / บัญชีผู้ใช้ */}
         <li className="relative" ref={dropdownRef}>
           {isAuthenticated ? (

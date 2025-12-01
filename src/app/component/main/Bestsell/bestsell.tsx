@@ -9,6 +9,7 @@ interface Product {
   price: number;
   images?: string[];
   image?: string;
+  coverImage?: string;
   category?: string;
   condition?: string;
 }
@@ -64,7 +65,7 @@ const Bestsell = () => {
       ) : (
         <div className="grid grid-cols-5 gap-4">
           {products.map((product) => {
-            const imageUrl = product.images?.[0] || product.image || '/placeholder.jpg';
+            const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
             
             return (
               <div

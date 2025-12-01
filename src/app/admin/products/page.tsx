@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { productAPI } from '../../lib/api';
-import ImageUpload from '../../component/ImageUpload/ImageUpload';
+import MultipleImageUpload from '../../component/ImageUpload/MultipleImageUpload';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 
 interface Product {
@@ -18,6 +18,8 @@ interface Product {
   stock: number;
   image?: string; // for backward compatibility
   images?: string[]; // new format
+  coverImage?: string; // cover image
+  detailCoverImage?: string; // detail page cover image
   condition?: string;
   description: string;
   isFeatured: boolean;
@@ -40,6 +42,7 @@ export default function AdminProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [showModal, setShowModal] = useState(false);
+  const [showDetailCoverModal, setShowDetailCoverModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -52,7 +55,9 @@ export default function AdminProductsPage() {
     category: '',
     brand: '',
     stock: '',
-    image: '',
+    images: [] as string[],
+    coverImage: '',
+    detailCoverImage: '',
     condition: 'สภาพเหมือนใหม่',
     description: '',
     isFeatured: false,
@@ -109,7 +114,7 @@ export default function AdminProductsPage() {
     if (product) {
       setEditingProduct(product);
       // Support both old (image) and new (images) format
-      const imageUrl = product.images?.[0] || product.image || '';
+      const imageUrls = product.images || (product.image ? [product.image] : []);
       // Format date to datetime-local format (YYYY-MM-DDTHH:mm)
       const flashSaleDate = product.flashSaleEndTime 
         ? new Date(product.flashSaleEndTime).toISOString().slice(0, 16)
@@ -122,7 +127,9 @@ export default function AdminProductsPage() {
         category: product.category || '',
         brand: product.brand || '',
         stock: product.stock?.toString() || '',
-        image: imageUrl,
+        images: imageUrls,
+        coverImage: product.coverImage || '',
+        detailCoverImage: product.detailCoverImage || '',
         condition: product.condition || 'สภาพเหมือนใหม่',
         description: product.description || '',
         isFeatured: product.isFeatured || false,
@@ -140,7 +147,9 @@ export default function AdminProductsPage() {
         category: '',
         brand: '',
         stock: '',
-        image: '',
+        images: [],
+        coverImage: '',
+        detailCoverImage: '',
         condition: 'สภาพเหมือนใหม่',
         description: '',
         isFeatured: false,
@@ -169,7 +178,9 @@ export default function AdminProductsPage() {
         category: formData.category,
         brand: formData.brand || undefined,
         stock: parseInt(formData.stock),
-        image: formData.image,
+        images: formData.images,
+        coverImage: formData.coverImage || undefined,
+        detailCoverImage: formData.detailCoverImage || undefined,
         condition: formData.condition,
         description: formData.description,
         isFeatured: formData.isFeatured,
@@ -597,25 +608,124 @@ export default function AdminProductsPage() {
                   </select>
                 </div>
 
-                {/* Image Upload Component */}
-                <ImageUpload
+                {/* Multiple Image Upload Component */}
+                <MultipleImageUpload
                   label="รูปภาพสินค้า *"
-                  currentImage={formData.image}
-                  onUploadSuccess={(url) => setFormData({...formData, image: url})}
+                  currentImages={formData.images}
+                  onUploadSuccess={(urls) => setFormData({...formData, images: urls})}
+                  maxImages={100}
                 />
 
-                {/* หรือใส่ URL เอง */}
+                {/* Cover Image Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    หรือใส่ URL รูปภาพเอง
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    รูปหน้าปก (รูปที่จะแสดงบนหน้า Main)
                   </label>
-                  <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({...formData, image: e.target.value})}
-                    placeholder="https://example.com/image.jpg"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
-                  />
+                  <div className="space-y-2">
+                    {formData.coverImage && (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-orange-300">
+                        <img
+                          src={formData.coverImage}
+                          alt="Cover"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, coverImage: ''})}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <div className="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
+                          หน้าปก
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-4 gap-2">
+                      {formData.images.map((img, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => setFormData({...formData, coverImage: img})}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                            formData.coverImage === img 
+                              ? 'border-orange-500 ring-2 ring-orange-300' 
+                              : 'border-gray-300 hover:border-orange-300'
+                          }`}
+                        >
+                          <img
+                            src={img}
+                            alt={`Option ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          {formData.coverImage === img && (
+                            <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center">
+                              <svg className="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      คลิกที่รูปภาพเพื่อตั้งเป็นรูปหน้าปก (ถ้าไม่เลือกจะใช้รูปแรกอัตโนมัติ)
+                    </p>
+                  </div>
+                </div>
+
+                {/* Detail Cover Image Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    รูปหน้าปกหน้ารายละเอียดสินค้า (รูปที่จะแสดงในหน้า Product Detail)
+                  </label>
+                  <div className="space-y-3">
+                    {formData.detailCoverImage ? (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-blue-300">
+                        <img
+                          src={formData.detailCoverImage}
+                          alt="Detail Cover"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, detailCoverImage: ''})}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                          หน้าปกรายละเอียด
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
+                        <p className="text-gray-400 text-sm">ยังไม่ได้เลือกรูปหน้าปกรายละเอียด</p>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowDetailCoverModal(true)}
+                      disabled={formData.images.length === 0}
+                      className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                        formData.images.length === 0
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          : 'bg-blue-500 text-white hover:bg-blue-600'
+                      }`}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {formData.detailCoverImage ? 'เปลี่ยนรูปหน้าปกรายละเอียด' : 'เลือกรูปหน้าปกรายละเอียด'}
+                    </button>
+                    <p className="text-xs text-gray-500">
+                      กดปุ่มเพื่อเลือกรูปจากรูปที่อัพโหลดไว้ (ถ้าไม่เลือกจะใช้รูปแรกอัตโนมัติ)
+                    </p>
+                  </div>
                 </div>
 
                 <div>
@@ -715,6 +825,66 @@ export default function AdminProductsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Cover Image Selection Modal */}
+      {showDetailCoverModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-gray-900">เลือกรูปหน้าปกรายละเอียดสินค้า</h3>
+              <button
+                type="button"
+                onClick={() => setShowDetailCoverModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                {formData.images.map((img, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => {
+                      setFormData({...formData, detailCoverImage: img});
+                      setShowDetailCoverModal(false);
+                    }}
+                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                      formData.detailCoverImage === img 
+                        ? 'border-blue-500 ring-4 ring-blue-300' 
+                        : 'border-gray-300 hover:border-blue-400'
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`รูปที่ ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {formData.detailCoverImage === img && (
+                      <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                        <svg className="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 text-center">
+                      รูปที่ {index + 1}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              {formData.images.length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  กรุณาอัพโหลดรูปภาพก่อน
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

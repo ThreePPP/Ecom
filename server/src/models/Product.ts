@@ -12,6 +12,8 @@ export interface IProduct extends Document {
   brand?: string;
   stock: number;
   images: string[];
+  coverImage?: string;
+  detailCoverImage?: string;
   condition?: string;
   specifications?: {
     [key: string]: string;
@@ -79,6 +81,12 @@ const productSchema = new Schema<IProduct>(
         },
         message: 'ต้องมีรูปภาพอย่างน้อย 1 รูป'
       }
+    },
+    coverImage: {
+      type: String,
+    },
+    detailCoverImage: {
+      type: String,
     },
     condition: {
       type: String,

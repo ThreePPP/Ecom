@@ -21,6 +21,56 @@ export default function MultipleImageUpload({
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // ฟังก์ชันบีบอัดรูปภาพ
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          
+          // คงขนาดรูปเดิม
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('ไม่สามารถสร้าง canvas context'));
+            return;
+          }
+
+          // วาดรูปลงบน canvas
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // แปลงเป็น blob โดยบีบอัดที่ quality 0.7 (70%)
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('ไม่สามารถบีบอัดรูปภาพ'));
+                return;
+              }
+              
+              // สร้าง File object ใหม่จาก blob
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              
+              resolve(compressedFile);
+            },
+            'image/jpeg',
+            0.7 // คุณภาพ 70% - ลดขนาดไฟล์แต่ยังคงความคมชัด
+          );
+        };
+        img.onerror = () => reject(new Error('ไม่สามารถโหลดรูปภาพ'));
+      };
+      reader.onerror = () => reject(new Error('ไม่สามารถอ่านไฟล์'));
+    });
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -31,12 +81,8 @@ export default function MultipleImageUpload({
       return;
     }
 
-    // ตรวจสอบขนาดและประเภทไฟล์
+    // ตรวจสอบประเภทไฟล์
     for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('ขนาดไฟล์ต้องไม่เกิน 5MB');
-        return;
-      }
       if (!file.type.startsWith('image/')) {
         setError('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
         return;
@@ -47,21 +93,29 @@ export default function MultipleImageUpload({
     setUploading(true);
 
     try {
+      // บีบอัดรูปภาพทั้งหมด
+      const compressedFiles: File[] = [];
+      
+      for (const file of files) {
+        const compressed = await compressImage(file);
+        compressedFiles.push(compressed);
+      }
+
       // แสดง preview
       const newPreviews: string[] = [];
-      for (const file of files) {
+      for (const file of compressedFiles) {
         const reader = new FileReader();
         reader.onloadend = () => {
           newPreviews.push(reader.result as string);
-          if (newPreviews.length === files.length) {
+          if (newPreviews.length === compressedFiles.length) {
             setPreviews([...previews, ...newPreviews]);
           }
         };
         reader.readAsDataURL(file);
       }
 
-      // Upload ไฟล์
-      const response = await uploadAPI.uploadMultipleImages(files);
+      // Upload ไฟล์ที่บีบอัดแล้ว
+      const response = await uploadAPI.uploadMultipleImages(compressedFiles);
       
       if (response.success) {
         const imageUrls = response.data.images.map((img: any) => img.url);
@@ -149,7 +203,7 @@ export default function MultipleImageUpload({
             )}
           </button>
           <p className="text-xs text-gray-500 mt-1 text-center">
-            รองรับ: JPG, PNG, GIF, WebP (สูงสุด 5MB ต่อรูป)
+            รองรับ: JPG, PNG, GIF, WebP (รูปจะถูกบีบอัดอัตโนมัติ)
           </p>
         </div>
       )}

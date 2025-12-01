@@ -15,15 +15,59 @@ export default function ImageUpload({ onUploadSuccess, currentImage, label = '�
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // ฟังก์ชันบีบอัดรูปภาพ
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          
+          // คงขนาดรูปเดิม
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('ไม่สามารถสร้าง canvas context'));
+            return;
+          }
+
+          // วาดรูปลงบน canvas
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // แปลงเป็น blob โดยบีบอัดที่ quality 0.7 (70%)
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('ไม่สามารถบีบอัดรูปภาพ'));
+                return;
+              }
+              
+              // สร้าง File object ใหม่จาก blob
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              
+              resolve(compressedFile);
+            },
+            'image/jpeg',
+            0.7 // คุณภาพ 70%
+          );
+        };
+        img.onerror = () => reject(new Error('ไม่สามารถโหลดรูปภาพ'));
+      };
+      reader.onerror = () => reject(new Error('ไม่สามารถอ่านไฟล์'));
+    });
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // ตรวจสอบขนาดไฟล์ (ไม่เกิน 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('ขนาดไฟล์ต้องไม่เกิน 5MB');
-      return;
-    }
 
     // ตรวจสอบประเภทไฟล์
     if (!file.type.startsWith('image/')) {
@@ -35,15 +79,18 @@ export default function ImageUpload({ onUploadSuccess, currentImage, label = '�
     setUploading(true);
 
     try {
+      // บีบอัดรูปภาพ
+      const compressedFile = await compressImage(file);
+
       // แสดง preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(compressedFile);
 
-      // Upload ไฟล์
-      const response = await uploadAPI.uploadImage(file);
+      // Upload ไฟล์ที่บีบอัดแล้ว
+      const response = await uploadAPI.uploadImage(compressedFile);
       
       if (response.success) {
         onUploadSuccess(response.data.url);
@@ -137,7 +184,7 @@ export default function ImageUpload({ onUploadSuccess, currentImage, label = '�
             )}
           </button>
           <p className="text-xs text-gray-500 mt-1">
-            รองรับ: JPG, PNG, GIF, WebP (สูงสุด 5MB)
+            รองรับ: JPG, PNG, GIF, WebP (รูปจะถูกบีบอัดอัตโนมัติ)
           </p>
         </div>
 
