@@ -10,6 +10,7 @@ interface Product {
   images?: string[];
   image?: string;
   category?: string;
+  condition?: string;
 }
 
 const Bestsell = () => {
@@ -39,7 +40,8 @@ const Bestsell = () => {
   }, []);
 
   return (
-    <div className="bg-gray-50 px-10 py-6">
+    <div className="bg-gray-50 w-full">
+      <div className="container mx-auto px-4 py-8">
       {/* Header Section with Categories */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-2">
@@ -78,11 +80,23 @@ const Bestsell = () => {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  {product.category && (
-                    <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                      {product.category}
-                    </div>
-                  )}
+                  <div className="absolute top-2 left-2">
+                    {product.category && (
+                      <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded mb-1">
+                        {product.category}
+                      </div>
+                    )}
+                    {product.condition && (
+                      <div className={`text-white text-xs px-2 py-1 rounded font-medium ${
+                        product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
+                        product.condition === 'สภาพดี' ? 'bg-blue-500' :
+                        product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
+                        'bg-gray-500'
+                      }`}>
+                        {product.condition}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="p-4">
@@ -99,37 +113,19 @@ const Bestsell = () => {
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.location.href = `/products/${product._id}`;
+                      alert(`เพิ่ม "${product.name}" ลงในตะกร้าแล้ว!`);
                     }}
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2 rounded transition-colors flex items-center justify-center gap-2"
+                    className="w-full bg-gray-700 hover:bg-[#99ff33] text-white hover:text-gray-800 text-sm py-2 rounded-xl transition-colors font-medium"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                    ดูรายละเอียด
+                    เพิ่มลงตะกร้า
                   </button>
                 </div>
               </div>
             );
-          })}
+          })})
         </div>
       )}
+      </div>
     </div>
   );
 };

@@ -18,6 +18,7 @@ interface Product {
   stock: number;
   images?: string[];
   image?: string;
+  condition?: string;
   description: string;
   rating?: number;
   reviewCount?: number;
@@ -34,6 +35,7 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState('default');
   const [priceRange, setPriceRange] = useState('all');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [selectedMainboardSupport, setSelectedMainboardSupport] = useState<string[]>([]);
   const [selectedCapacity, setSelectedCapacity] = useState<string[]>([]);
   const [selectedMaxPower, setSelectedMaxPower] = useState<string[]>([]);
@@ -85,6 +87,11 @@ export default function CategoryPage() {
     .filter(product => {
       // Filter by brand
       if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand || '')) {
+        return false;
+      }
+
+      // Filter by condition
+      if (selectedConditions.length > 0 && !selectedConditions.includes(product.condition || '')) {
         return false;
       }
 
@@ -147,6 +154,14 @@ export default function CategoryPage() {
       prev.includes(brand) 
         ? prev.filter(b => b !== brand)
         : [...prev, brand]
+    );
+  };
+
+  const toggleCondition = (condition: string) => {
+    setSelectedConditions(prev => 
+      prev.includes(condition) 
+        ? prev.filter(c => c !== condition)
+        : [...prev, condition]
     );
   };
 
@@ -852,6 +867,40 @@ export default function CategoryPage() {
                 </div>
               )}
 
+              {/* Product Condition */}
+              <div className="border-b">
+                <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">สภาพสินค้า</h3>
+                <div className="p-4 space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedConditions.includes('สภาพเหมือนใหม่')}
+                      onChange={() => toggleCondition('สภาพเหมือนใหม่')}
+                      className="w-4 h-4 text-green-500 border-gray-300 rounded focus:ring-green-500"
+                    />
+                    <span className="text-sm text-gray-700">สภาพเหมือนใหม่</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedConditions.includes('สภาพดี')}
+                      onChange={() => toggleCondition('สภาพดี')}
+                      className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">สภาพดี</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedConditions.includes('สภาพพอใช้')}
+                      onChange={() => toggleCondition('สภาพพอใช้')}
+                      className="w-4 h-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500"
+                    />
+                    <span className="text-sm text-gray-700">สภาพพอใช้</span>
+                  </label>
+                </div>
+              </div>
+
               {/* Price Range */}
               <div>
                 <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">ช่วงราคา</h3>
@@ -888,17 +937,7 @@ export default function CategoryPage() {
             </div>
 
             {/* Filter Bar */}
-            <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <input type="radio" name="stock" id="instock" defaultChecked className="w-4 h-4" />
-                  <label htmlFor="instock" className="text-sm text-gray-700">มือสองสภาพเหมือนใหม่</label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input type="radio" name="stock" id="preorder" className="w-4 h-4" />
-                  <label htmlFor="preorder" className="text-sm text-gray-700">มือสองสภาพดี</label>
-                </div>
-              </div>
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex items-center justify-end">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-700">เรียงตาม:</span>
                 <select
@@ -940,9 +979,21 @@ export default function CategoryPage() {
                       className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all cursor-pointer relative"
                       onClick={() => router.push(`/products/${product._id}`)}
                     >
-                      {/* Product Number Badge */}
-                      <div className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">
-                        7
+                      {/* Product Number and Condition Badges */}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1 items-end z-10">
+                        <div className="bg-black text-white text-xs px-2 py-1 rounded">
+                          7
+                        </div>
+                        {product.condition && (
+                          <div className={`text-white text-xs px-2 py-1 rounded font-medium ${
+                            product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
+                            product.condition === 'สภาพดี' ? 'bg-blue-500' :
+                            product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
+                            'bg-gray-500'
+                          }`}>
+                            {product.condition}
+                          </div>
+                        )}
                       </div>
                       
                       <div className="aspect-square bg-gray-900 flex items-center justify-center overflow-hidden p-4">

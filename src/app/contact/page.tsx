@@ -2,6 +2,9 @@
 
 import React from 'react'
 import Navbar from '@/app/component/Navbar/Navbar'
+import Breadcrumb from '@/app/component/Breadcrumb/Breadcrumb'
+import Footer from '@/app/component/main/footer/footer'
+import Features from '@/app/component/main/Features/Features'
 import { FaPhone, FaEnvelope, FaLine, FaFacebook, FaYoutube, FaTiktok, FaMapMarkerAlt } from 'react-icons/fa'
 
 const ContactPage: React.FC = () => {
@@ -10,6 +13,9 @@ const ContactPage: React.FC = () => {
       <Navbar showBanner={false} showPromotion={false} />
       
       <div className="max-w-7xl mx-auto px-10 py-12">
+        {/* Breadcrumb */}
+        <Breadcrumb items={[{ label: 'ติดต่อเรา' }]} />
+        
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="bg-red-500 rounded-full p-3">
@@ -125,6 +131,12 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Features Section */}
+      <Features />
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

@@ -15,6 +15,7 @@ interface Product {
   images?: string[];
   image?: string;
   category?: string;
+  condition?: string;
   flashSaleEndTime?: string;
 }
 
@@ -94,6 +95,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="relative">
         <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
           -{discountPercent}%
+        </div>
+        <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
+          {product.category && (
+            <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
+              {product.category}
+            </div>
+          )}
+          {product.condition && (
+            <div className={`text-white text-xs px-2 py-1 rounded font-medium ${
+              product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
+              product.condition === 'สภาพดี' ? 'bg-blue-500' :
+              product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
+              'bg-gray-500'
+            }`}>
+              {product.condition}
+            </div>
+          )}
         </div>
         
         {/* Product Image */}
@@ -221,9 +239,11 @@ const Flashsale = () => {
 
   if (loading) {
     return (
-      <div className="bg-gray-50 px-10 py-8">
+      <div className="bg-gray-50 w-full">
+        <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse">
           <div className="h-64 bg-gray-200 rounded-2xl"></div>
+        </div>
         </div>
       </div>
     );
@@ -231,16 +251,19 @@ const Flashsale = () => {
 
   if (flashSaleData.length === 0) {
     return (
-      <div className="bg-gray-50 px-10 py-8">
+      <div className="bg-gray-50 w-full">
+        <div className="container mx-auto px-4 py-8">
         <div className="text-center py-8 text-gray-500">
           ไม่มีสินค้า Flash Sale ในขณะนี้
+        </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div id="flashsale-section" className="bg-gray-50 px-10 py-8">
+    <div id="flashsale-section" className="bg-gray-50 w-full">
+      <div className="container mx-auto px-4 py-8">
       {/* Flash Sale Header */}
       <div className="relative bg-white rounded-2xl px-8 py-6 mb-8 shadow-sm border border-gray-200">
         <div className="flex items-center gap-6">
@@ -332,6 +355,7 @@ const Flashsale = () => {
             />
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

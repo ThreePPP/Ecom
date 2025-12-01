@@ -107,7 +107,7 @@ const Footer = () => {
       </div>
 
       {/* Copyright Section */}
-      <div className="bg-blue-900 py-4 flex justify-center">
+      <div className="bg-gray-700 py-4 flex justify-center">
         <div className="max-w-7xl mx-auto px-10">
           <p className="text-white text-sm">
             Copyright © 2025 www.favorpc.com All rights reserved.

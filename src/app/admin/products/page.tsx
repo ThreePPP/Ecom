@@ -18,6 +18,7 @@ interface Product {
   stock: number;
   image?: string; // for backward compatibility
   images?: string[]; // new format
+  condition?: string;
   description: string;
   isFeatured: boolean;
   isFlashSale: boolean;
@@ -40,6 +41,8 @@ export default function AdminProductsPage() {
   const [filterCategory, setFilterCategory] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -50,6 +53,7 @@ export default function AdminProductsPage() {
     brand: '',
     stock: '',
     image: '',
+    condition: 'สภาพเหมือนใหม่',
     description: '',
     isFeatured: false,
     isFlashSale: false,
@@ -119,6 +123,7 @@ export default function AdminProductsPage() {
         brand: product.brand || '',
         stock: product.stock?.toString() || '',
         image: imageUrl,
+        condition: product.condition || 'สภาพเหมือนใหม่',
         description: product.description || '',
         isFeatured: product.isFeatured || false,
         isFlashSale: product.isFlashSale || false,
@@ -136,6 +141,7 @@ export default function AdminProductsPage() {
         brand: '',
         stock: '',
         image: '',
+        condition: 'สภาพเหมือนใหม่',
         description: '',
         isFeatured: false,
         isFlashSale: false,
@@ -164,6 +170,7 @@ export default function AdminProductsPage() {
         brand: formData.brand || undefined,
         stock: parseInt(formData.stock),
         image: formData.image,
+        condition: formData.condition,
         description: formData.description,
         isFeatured: formData.isFeatured,
         isFlashSale: formData.isFlashSale,
@@ -230,6 +237,17 @@ export default function AdminProductsPage() {
     const matchCategory = filterCategory === 'all' || product.category === filterCategory;
     return matchSearch && matchCategory;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCategory]);
 
   const categories = Array.from(new Set(products.map(p => p.category)));
 
@@ -313,7 +331,7 @@ export default function AdminProductsPage() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => {
+          {currentProducts.map((product) => {
             const imageUrl = product.images?.[0] || product.image || '/placeholder.png';
             return (
             <div key={product._id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
@@ -389,10 +407,78 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="mt-6 text-sm text-gray-600">
-          แสดง {filteredProducts.length} จาก {products.length} สินค้า
-        </div>
+        {/* Stats and Pagination */}
+        {filteredProducts.length > 0 && (
+          <div className="mt-6 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              แสดง {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} จาก {filteredProducts.length} สินค้า
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 rounded-lg font-medium ${
+                    currentPage === 1
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  ← ก่อนหน้า
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-10 h-10 rounded-lg font-medium ${
+                            currentPage === page
+                              ? 'bg-orange-500 text-white'
+                              : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      page === currentPage - 2 ||
+                      page === currentPage + 2
+                    ) {
+                      return (
+                        <span key={page} className="px-2 text-gray-400">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 rounded-lg font-medium ${
+                    currentPage === totalPages
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  ถัดไป →
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Modal */}
@@ -493,6 +579,22 @@ export default function AdminProductsPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                     placeholder="เช่น Intel, AMD, ASUS, MSI"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    สภาพสินค้า *
+                  </label>
+                  <select
+                    required
+                    value={formData.condition}
+                    onChange={(e) => setFormData({...formData, condition: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white text-black"
+                  >
+                    <option value="สภาพเหมือนใหม่">สภาพเหมือนใหม่</option>
+                    <option value="สภาพดี">สภาพดี</option>
+                    <option value="สภาพพอใช้">สภาพพอใช้</option>
+                  </select>
                 </div>
 
                 {/* Image Upload Component */}

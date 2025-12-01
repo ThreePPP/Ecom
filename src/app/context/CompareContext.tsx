@@ -13,6 +13,7 @@ interface Product {
   image?: string;
   category?: string;
   brand?: string;
+  condition?: string;
   description?: string;
   specifications?: Record<string, string> | Map<string, string>;
   stock?: number;

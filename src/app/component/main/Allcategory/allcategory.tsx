@@ -9,6 +9,7 @@ interface Product {
   price: number;
   images?: string[];
   image?: string;
+  condition?: string;
 }
 
 interface ProductCardProps {
@@ -18,17 +19,43 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const imageUrl = product.images?.[0] || product.image || '/placeholder.jpg';
   
+  // กำหนดสีและไอคอนตามสภาพสินค้า
+  const getConditionBadge = () => {
+    if (!product.condition) return null;
+    
+    const conditionStyles: { [key: string]: { bg: string; text: string; label: string } } = {
+      'สภาพเหมือนใหม่': { bg: 'bg-green-100', text: 'text-green-700', label: 'สภาพเหมือนใหม่' },
+      'สภาพดี': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'สภาพดี' },
+      'สภาพพอใช้': { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'สภาพพอใช้' },
+    };
+
+    const style = conditionStyles[product.condition];
+    if (!style) return null;
+
+    return (
+      <span className={`text-xs px-2 py-1 rounded ${style.bg} ${style.text} font-medium`}>
+        {style.label}
+      </span>
+    );
+  };
+  
   return (
     <div 
       className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow cursor-pointer"
       onClick={() => window.location.href = `/products/${product._id}`}
     >
-      <div className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden">
+      <div className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden relative">
         <img 
           src={imageUrl} 
           alt={product.name} 
           className="w-full h-full object-cover"
         />
+        {/* แสดงสภาพสินค้าที่มุมบนขวา */}
+        {product.condition && (
+          <div className="absolute top-2 right-2">
+            {getConditionBadge()}
+          </div>
+        )}
       </div>
       <div className="p-3 flex flex-col flex-grow">
         <h3 className="text-sm text-gray-700 mb-2 line-clamp-2 flex-grow">
@@ -40,30 +67,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            window.location.href = `/products/${product._id}`;
+            // Add to cart logic here
+            alert(`เพิ่ม "${product.name}" ลงในตะกร้าแล้ว!`);
           }}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2 rounded-md transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-gray-700 hover:bg-[#99ff33] text-white hover:text-gray-800 text-sm py-2 rounded-xl transition-colors font-medium"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-            />
-          </svg>
-          ดูรายละเอียด
+          เพิ่มลงตะกร้า
         </button>
       </div>
     </div>
@@ -219,7 +228,7 @@ const AllCategory = () => {
                   className="w-full flex items-center justify-center p-3 rounded-lg transition-colors mb-1 bg-blue-50 border border-blue-600 text-blue-600 hover:bg-blue-100 mt-4"
                 >
                   {isSidebarOpen && (
-                    <span className="text-sm font-bold">จัดสเปคคอม</span>
+                    <span className="text-lg font-bold">จัดสเปคคอม</span>
                   )}
                   {!isSidebarOpen && (
                     <span className="text-xs font-bold">PC</span>

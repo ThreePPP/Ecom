@@ -827,10 +827,10 @@ const CartPage = () => {
                   </div>
 
                   <div className="space-y-3">
-                    {/* Credit Card */}
+                    {/* PromptPay QR Code */}
                     <label
                       className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "credit-card"
+                        paymentMethod === "qrcode"
                           ? "border-red-500 bg-red-50 shadow-md"
                           : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
                       }`}
@@ -838,144 +838,8 @@ const CartPage = () => {
                       <input
                         type="radio"
                         name="payment"
-                        value="credit-card"
-                        checked={paymentMethod === "credit-card"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-red-600 cursor-pointer"
-                      />
-                      <div className="ml-4 flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <FaCreditCard className="text-blue-600" size={24} />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-800 block">
-                            บัตรเครดิต / เดบิต
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Visa, Mastercard, JCB
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* Installment */}
-                    <label
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "installment"
-                          ? "border-red-500 bg-red-50 shadow-md"
-                          : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="installment"
-                        checked={paymentMethod === "installment"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-red-600 cursor-pointer"
-                      />
-                      <div className="ml-4 flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <FaCreditCard className="text-purple-600" size={24} />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-800 block">
-                            ผ่อนชำระ 0%
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            3, 6, 10 เดือน
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* Mobile Banking */}
-                    <label
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "mobile-banking"
-                          ? "border-red-500 bg-red-50 shadow-md"
-                          : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="mobile-banking"
-                        checked={paymentMethod === "mobile-banking"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-red-600 cursor-pointer"
-                      />
-                      <div className="ml-4 flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                          <svg
-                            className="w-6 h-6 text-green-600"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-800 block">
-                            โมบายแบงก์กิ้ง
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ธนาคารชั้นนำทุกธนาคาร
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* Internet Banking */}
-                    <label
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "internet-banking"
-                          ? "border-red-500 bg-red-50 shadow-md"
-                          : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="internet-banking"
-                        checked={paymentMethod === "internet-banking"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-red-600 cursor-pointer"
-                      />
-                      <div className="ml-4 flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                          <svg
-                            className="w-6 h-6 text-indigo-600"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-800 block">
-                            อินเทอร์เน็ตแบงก์กิ้ง
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ชำระผ่านเว็บไซต์ธนาคาร
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* PromptPay */}
-                    <label
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "promptpay"
-                          ? "border-red-500 bg-red-50 shadow-md"
-                          : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="promptpay"
-                        checked={paymentMethod === "promptpay"}
+                        value="qrcode"
+                        checked={paymentMethod === "qrcode"}
                         onChange={(e) => setPaymentMethod(e.target.value)}
                         className="w-5 h-5 text-red-600 cursor-pointer"
                       />
@@ -991,116 +855,10 @@ const CartPage = () => {
                         </div>
                         <div>
                           <span className="font-semibold text-gray-800 block">
-                            พร้อมเพย์ (PromptPay)
+                            ชำระผ่าน QR Code
                           </span>
                           <span className="text-xs text-gray-500">
-                            สแกน QR Code ชำระเงิน
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* TrueMoney Wallet */}
-                    <label
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "truemoney"
-                          ? "border-red-500 bg-red-50 shadow-md"
-                          : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="truemoney"
-                        checked={paymentMethod === "truemoney"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-red-600 cursor-pointer"
-                      />
-                      <div className="ml-4 flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                          <FaMoneyBillWave className="text-orange-600" size={24} />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-800 block">
-                            ทรูมันนี่ วอลเล็ท
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            TrueMoney Wallet
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* Line Pay */}
-                    <label
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "linepay"
-                          ? "border-red-500 bg-red-50 shadow-md"
-                          : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="linepay"
-                        checked={paymentMethod === "linepay"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-red-600 cursor-pointer"
-                      />
-                      <div className="ml-4 flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                          <svg
-                            className="w-6 h-6 text-green-600"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-800 block">
-                            ไลน์เพย์ (LINE Pay)
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ชำระผ่าน LINE แอพพลิเคชั่น
-                          </span>
-                        </div>
-                      </div>
-                    </label>
-
-                    {/* Cash on Delivery */}
-                    <label
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === "cod"
-                          ? "border-red-500 bg-red-50 shadow-md"
-                          : "border-gray-300 hover:border-red-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="cod"
-                        checked={paymentMethod === "cod"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 text-red-600 cursor-pointer"
-                      />
-                      <div className="ml-4 flex items-center gap-3 flex-1">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                          <FaMoneyBillWave
-                            className="text-green-600"
-                            size={24}
-                          />
-                        </div>
-                        <div>
-                          <span className="font-semibold text-gray-800 block">
-                            เก็บเงินปลายทาง (COD)
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ชำระเงินเมื่อได้รับสินค้า
+                            สแกน QR Code เพื่อชำระเงิน (พร้อมเพย์)
                           </span>
                         </div>
                       </div>

@@ -12,6 +12,7 @@ export interface IProduct extends Document {
   brand?: string;
   stock: number;
   images: string[];
+  condition?: string;
   specifications?: {
     [key: string]: string;
   };
@@ -78,6 +79,11 @@ const productSchema = new Schema<IProduct>(
         },
         message: 'ต้องมีรูปภาพอย่างน้อย 1 รูป'
       }
+    },
+    condition: {
+      type: String,
+      enum: ['สภาพเหมือนใหม่', 'สภาพดี', 'สภาพพอใช้'],
+      default: 'สภาพเหมือนใหม่',
     },
     specifications: {
       type: Map,

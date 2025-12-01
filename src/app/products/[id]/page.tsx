@@ -22,6 +22,7 @@ interface Product {
   image?: string;
   category?: string;
   brand?: string;
+  condition?: string;
   description?: string;
   specifications?: Record<string, string> | Map<string, string>;
   stock?: number;
@@ -188,7 +189,7 @@ const ProductDetailPage = () => {
                 {product.name}
               </h1>
 
-              {/* Brand and SKU */}
+              {/* Brand, SKU and Condition */}
               <div className="flex gap-4 text-sm text-gray-600 mb-6">
                 {product.brand && (
                   <div>
@@ -198,6 +199,19 @@ const ProductDetailPage = () => {
                 {product.sku && (
                   <div>
                     <span className="font-semibold">รหัสสินค้า:</span> {product.sku}
+                  </div>
+                )}
+                {product.condition && (
+                  <div>
+                    <span className="font-semibold">สภาพสินค้า:</span>{' '}
+                    <span className={`font-medium ${
+                      product.condition === 'สภาพเหมือนใหม่' ? 'text-green-600' :
+                      product.condition === 'สภาพดี' ? 'text-blue-600' :
+                      product.condition === 'สภาพพอใช้' ? 'text-yellow-600' :
+                      'text-gray-600'
+                    }`}>
+                      {product.condition}
+                    </span>
                   </div>
                 )}
               </div>
