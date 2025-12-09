@@ -292,8 +292,8 @@ export default function PCBuilderPage() {
 
             // Step 2: Select compatible Mainboard based on CPU socket
             const cpuSocket = selectedCPU.specifications instanceof Map 
-                              ? selectedCPU.specifications.get('socket') 
-                              : selectedCPU.specifications?.socket;
+                              ? (selectedCPU.specifications.get('Socket') || selectedCPU.specifications.get('socket'))
+                              : (selectedCPU.specifications?.Socket || selectedCPU.specifications?.socket);
             
             const mainboardRatio = ratios.mainboard;
             const mainboardTargetPrice = budget * mainboardRatio;
@@ -303,56 +303,60 @@ export default function PCBuilderPage() {
             const mainboardComponent = COMPONENT_LIST.find(c => c.id === 'mainboard');
             if (mainboardComponent) {
               try {
-                const mainboardResponse = await productAPI.getProducts({
+                // First, get ALL mainboards to find compatible ones
+                const allMainboardsResponse = await productAPI.getProducts({
                   category: mainboardComponent.category,
-                  minPrice: Math.floor(mainboardMinPrice),
-                  maxPrice: Math.floor(mainboardMaxPrice),
-                  limit: 100
+                  limit: 200
                 });
 
-                if (mainboardResponse.success && mainboardResponse.data.products.length > 0) {
+                let compatibleMainboards: Product[] = [];
+
+                if (allMainboardsResponse.success && allMainboardsResponse.data.products.length > 0) {
                   // Filter compatible mainboards by socket
-                  let compatibleMainboards = mainboardResponse.data.products.filter((mb: Product) => {
+                  compatibleMainboards = allMainboardsResponse.data.products.filter((mb: Product) => {
                     const mbSocket = mb.specifications instanceof Map 
-                                    ? mb.specifications.get('socket') 
-                                    : mb.specifications?.socket;
+                                    ? (mb.specifications.get('Socket') || mb.specifications.get('socket'))
+                                    : (mb.specifications?.Socket || mb.specifications?.socket);
                     return cpuSocket && mbSocket === cpuSocket;
                   });
 
-                  // If no compatible mainboards found in price range, try all mainboards
+                  // If no compatible mainboards found, use all available mainboards
                   if (compatibleMainboards.length === 0) {
-                    const allMainboards = await productAPI.getProducts({
-                      category: mainboardComponent.category,
-                      limit: 100
-                    });
-                    if (allMainboards.success) {
-                      compatibleMainboards = allMainboards.data.products.filter((mb: Product) => {
-                        const mbSocket = mb.specifications instanceof Map 
-                                        ? mb.specifications.get('socket') 
-                                        : mb.specifications?.socket;
-                        return cpuSocket && mbSocket === cpuSocket;
-                      });
-                    }
+                    console.warn('No compatible mainboard found for socket:', cpuSocket, '- using all mainboards');
+                    compatibleMainboards = allMainboardsResponse.data.products;
+                  }
+                }
+
+                if (compatibleMainboards.length > 0) {
+                  // Try to find mainboard in price range first
+                  let mainboardsInPriceRange = compatibleMainboards.filter(
+                    mb => mb.price >= mainboardMinPrice && mb.price <= mainboardMaxPrice
+                  );
+
+                  // If no mainboard in price range, use all compatible mainboards
+                  const mainboardPool = mainboardsInPriceRange.length > 0 ? mainboardsInPriceRange : compatibleMainboards;
+
+                  // Select mainboard closest to target price
+                  const selectedMainboard = mainboardPool.reduce((prev: Product, curr: Product) => {
+                    return (Math.abs(curr.price - mainboardTargetPrice) < Math.abs(prev.price - mainboardTargetPrice) ? curr : prev);
+                  });
+                  newSelection['mainboard'] = selectedMainboard;
+
+                  // Detect RAM type supported by mainboard (DDR4 or DDR5)
+                  const ramType = selectedMainboard.name.toLowerCase().includes('ddr5') ? 'DDR5' : 
+                                 selectedMainboard.name.toLowerCase().includes('ddr4') ? 'DDR4' : null;
+                  
+                  // Store RAM type for later use
+                  if (ramType) {
+                    (selectedMainboard as any).detectedRamType = ramType;
                   }
 
-                  if (compatibleMainboards.length > 0) {
-                    // Select mainboard closest to target price
-                    const selectedMainboard = compatibleMainboards.reduce((prev: Product, curr: Product) => {
-                      return (Math.abs(curr.price - mainboardTargetPrice) < Math.abs(prev.price - mainboardTargetPrice) ? curr : prev);
-                    });
-                    newSelection['mainboard'] = selectedMainboard;
-
-                    // Detect RAM type supported by mainboard (DDR4 or DDR5)
-                    const ramType = selectedMainboard.name.toLowerCase().includes('ddr5') ? 'DDR5' : 
-                                   selectedMainboard.name.toLowerCase().includes('ddr4') ? 'DDR4' : null;
-                    
-                    // Store RAM type for later use
-                    if (ramType) {
-                      (selectedMainboard as any).detectedRamType = ramType;
-                    }
-                  } else {
-                    console.warn('No compatible mainboard found for socket:', cpuSocket);
-                  }
+                  console.log('Selected mainboard:', selectedMainboard.name, 'Socket:', 
+                    selectedMainboard.specifications instanceof Map 
+                      ? selectedMainboard.specifications.get('Socket') 
+                      : selectedMainboard.specifications?.Socket);
+                } else {
+                  console.warn('No mainboards available in the system');
                 }
               } catch (err) {
                 console.error('Error fetching mainboard:', err);

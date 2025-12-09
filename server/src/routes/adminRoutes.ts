@@ -7,6 +7,7 @@ import {
   getAdminNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
+  getAllProductsAdmin,
 } from '../controllers/adminController';
 import { authenticate, isAdmin } from '../middleware/auth';
 
@@ -20,6 +21,9 @@ router.get('/stats', getAdminStats);
 router.get('/users', getAllUsers);
 router.put('/users/:id/role', updateUserRole);
 router.delete('/users/:id', deleteUser);
+
+// Products route for admin
+router.get('/products', getAllProductsAdmin);
 
 // Notification routes
 router.get('/notifications', getAdminNotifications);

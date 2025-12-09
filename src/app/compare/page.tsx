@@ -196,8 +196,30 @@ export default function ComparePage() {
                 ))}
               </tr>
 
-              {/* Stock */}
+              {/* Condition */}
               <tr className="border-b border-gray-200 bg-gray-50">
+                <td className="sticky left-0 bg-gray-50 p-4 font-semibold text-gray-700">
+                  สภาพสินค้า
+                </td>
+                {compareItems.map((item) => (
+                  <td key={item._id || item.id} className="p-4">
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      item.condition === 'สภาพเหมือนใหม่' 
+                        ? 'bg-green-100 text-green-700' 
+                        : item.condition === 'สภาพดี'
+                        ? 'bg-blue-100 text-blue-700'
+                        : item.condition === 'สภาพพอใช้'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {item.condition || '-'}
+                    </span>
+                  </td>
+                ))}
+              </tr>
+
+              {/* Stock */}
+              <tr className="border-b border-gray-200">
                 <td className="sticky left-0 bg-gray-50 p-4 font-semibold text-gray-700">
                   สต็อก
                 </td>

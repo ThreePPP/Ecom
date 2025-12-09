@@ -257,6 +257,11 @@ export const adminAPI = {
     return fetchAPI('/admin/users');
   },
 
+  // Get all products for admin (including inactive)
+  getAllProducts: async () => {
+    return fetchAPI('/admin/products');
+  },
+
   updateUserRole: async (userId: string, role: 'user' | 'admin') => {
     return fetchAPI(`/admin/users/${userId}/role`, {
       method: 'PUT',

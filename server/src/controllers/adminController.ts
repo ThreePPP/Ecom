@@ -246,3 +246,28 @@ export const markAllNotificationsAsRead = async (req: AuthRequest, res: Response
     });
   }
 };
+
+// @desc    Get all products for admin (including inactive)
+// @route   GET /api/admin/products
+// @access  Private/Admin
+export const getAllProductsAdmin = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const products = await Product.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      data: { 
+        products,
+        total: products.length
+      },
+    });
+  } catch (error: any) {
+    console.error('Get all products admin error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};

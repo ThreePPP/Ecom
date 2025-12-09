@@ -125,4 +125,57 @@ router.delete('/:filename', authenticate, (req: Request, res: Response): void =>
   }
 });
 
+// @desc    Get all uploaded files list
+// @route   GET /api/upload/list
+// @access  Private (ต้อง login - Admin only)
+router.get('/list', authenticate, (req: Request, res: Response): void => {
+  try {
+    const uploadsDir = path.join(__dirname, '../../uploads');
+
+    // ตรวจสอบว่า folder มีอยู่หรือไม่
+    if (!fs.existsSync(uploadsDir)) {
+      res.status(200).json({
+        success: true,
+        data: {
+          files: [],
+          count: 0,
+        },
+      });
+      return;
+    }
+
+    // อ่านรายการไฟล์ทั้งหมด
+    const files = fs.readdirSync(uploadsDir)
+      .filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+      })
+      .map(filename => {
+        const filePath = path.join(uploadsDir, filename);
+        const stats = fs.statSync(filePath);
+        return {
+          filename,
+          size: stats.size,
+          createdAt: stats.birthtime,
+          modifiedAt: stats.mtime,
+        };
+      });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        files,
+        count: files.length,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get files list error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการดึงรายการไฟล์',
+      error: error.message,
+    });
+  }
+});
+
 export default router;
