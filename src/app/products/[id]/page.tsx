@@ -46,7 +46,6 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState<'overview' | 'details' | 'specs'>('overview');
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -305,114 +304,15 @@ const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* Tabs Section */}
+        {/* Product Details Section */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          {/* Tab Headers */}
-          <div className="flex border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`flex-1 px-6 py-4 font-bold text-center transition-colors ${
-                activeTab === 'overview'
-                  ? 'text-red-600 border-b-2 border-red-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              ทั้งหมด
-            </button>
-            <button
-              onClick={() => setActiveTab('details')}
-              className={`flex-1 px-6 py-4 font-bold text-center transition-colors ${
-                activeTab === 'details'
-                  ? 'text-red-600 border-b-2 border-red-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              รายละเอียดสินค้า
-            </button>
-            <button
-              onClick={() => setActiveTab('specs')}
-              className={`flex-1 px-6 py-4 font-bold text-center transition-colors ${
-                activeTab === 'specs'
-                  ? 'text-red-600 border-b-2 border-red-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              คุณสมบัติสินค้า
-            </button>
-          </div>
-
-          {/* Tab Content */}
           <div className="p-8">
-            {activeTab === 'overview' && (
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">ภาพรวมผลิตภัณฑ์</h3>
-                <p className="text-gray-700 leading-relaxed">
-                  {product.description || 'ไม่มีข้อมูลภาพรวมผลิตภัณฑ์'}
-                </p>
-              </div>
-            )}
-
-            {activeTab === 'details' && (
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">รายละเอียดสินค้า</h3>
-                <div className="prose max-w-none">
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                    {product.description || 'ไม่มีข้อมูลรายละเอียดสินค้า'}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'specs' && (
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-6">คุณสมบัติสินค้า</h3>
-                {(() => {
-                  const specs = product.specifications;
-                  if (!specs) {
-                    return (
-                      <div className="bg-gray-50 rounded-lg p-8 text-center">
-                        <p className="text-gray-500">ไม่มีข้อมูลคุณสมบัติสินค้า</p>
-                      </div>
-                    );
-                  }
-
-                  // Convert Map to Object if needed
-                  const specsObj = specs instanceof Map 
-                    ? Object.fromEntries(specs) 
-                    : specs;
-
-                  const specsEntries = Object.entries(specsObj);
-                  
-                  if (specsEntries.length === 0) {
-                    return (
-                      <div className="bg-gray-50 rounded-lg p-8 text-center">
-                        <p className="text-gray-500">ไม่มีข้อมูลคุณสมบัติสินค้า</p>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="space-y-0 border border-gray-200 rounded-lg overflow-hidden">
-                      {specsEntries.map(([key, value], index) => (
-                        <div
-                          key={key}
-                          className={`grid grid-cols-3 ${
-                            index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                          }`}
-                        >
-                          <div className="col-span-1 px-6 py-4 font-semibold text-gray-700 border-r border-gray-200">
-                            {key}
-                          </div>
-                          <div className="col-span-2 px-6 py-4 text-gray-900">
-                            {value}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
+            <h3 className="text-xl font-bold text-gray-900 mb-4">รายละเอียดสินค้า</h3>
+            <div className="prose max-w-none">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                {product.description || 'ไม่มีข้อมูลรายละเอียดสินค้า'}
+              </p>
+            </div>
           </div>
         </div>
       </div>

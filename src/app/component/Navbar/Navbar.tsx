@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser, FaUserCircle, FaSignOutAlt, FaCog, FaClipboardList, FaDesktop } from 'react-icons/fa'
 import LoginModal from './LoginModal'
 import CartModal from '@/app/component/Navbar/CartModal'
@@ -10,6 +11,7 @@ import CategoriesDropdown from './CategoriesDropdown'
 import { useCart } from '@/app/context/CartContext'
 import { useCompare } from '@/app/context/CompareContext'
 import { useAuth } from '@/app/context/AuthContext'
+import { productAPI } from '@/app/lib/api'
 import type { types } from '@/app/util/types'
 
 interface NavbarProps {
@@ -17,14 +19,30 @@ interface NavbarProps {
   showPromotion?: boolean;
 }
 
+interface SearchProduct {
+  _id: string;
+  name: string;
+  price: number;
+  category: string;
+  coverImage?: string;
+  images?: string[];
+}
+
 const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true }) => {
+  const router = useRouter()
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
   const [isCartModalOpen, setCartModalOpen] = useState(false)
   const [isPromotionOpen, setPromotionOpen] = useState(false)
   const [isCategoriesOpen, setCategoriesOpen] = useState(false)
   const [isSticky, setIsSticky] = useState(false)
   const [isDropdownOpen, setDropdownOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchProduct[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
   const dropdownRef = useRef<HTMLLIElement>(null)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { getTotalItems } = useCart()
   const { getCompareCount } = useCompare()
   const { user, isAuthenticated, isAdmin, logout, refreshUser } = useAuth()
@@ -64,11 +82,65 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false)
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false)
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Search products as user types
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+
+    if (searchQuery.trim().length >= 2) {
+      setIsSearching(true)
+      searchTimeoutRef.current = setTimeout(async () => {
+        try {
+          const response = await productAPI.getProducts({ search: searchQuery.trim(), limit: 8 })
+          if (response.success) {
+            setSearchResults(response.data.products)
+          }
+        } catch (error) {
+          console.error('Search error:', error)
+        } finally {
+          setIsSearching(false)
+        }
+      }, 300) // Debounce 300ms
+    } else {
+      setSearchResults([])
+      setIsSearching(false)
+    }
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [searchQuery])
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+    setShowSearchDropdown(true)
+  }
+
+  const handleProductClick = (productId: string) => {
+    setShowSearchDropdown(false)
+    setSearchQuery('')
+    router.push(`/products/${productId}`)
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      setShowSearchDropdown(false)
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
 
   return (
     <div>
@@ -77,16 +149,72 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-2xl transform scale-100' : ''
       }`}>
         <a href="/"><img src="/Logo/logo_B.png" alt="" className='h-20 w-58'/></a>
-      <form className="flex flex-1 max-w-3xl mx-auto bg-white rounded-full">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="flex-1 px-5 py-2 rounded-l-full bg-gray-100 text-gray-800 focus:outline-none"
-        />
-        <button type="submit" className="flex items-center gap-2 px-6 py-2 bg-gray-700 text-white rounded-r-full font-semibold  border-gray-700 hover:bg-[#99ff33] hover:text-gray-700 transition-colors">
-          <FaSearch />
-        </button>
-      </form>
+      
+      {/* Search with Dropdown */}
+      <div className="relative flex-1 max-w-3xl mx-auto" ref={searchRef}>
+        <form 
+          className="flex bg-white rounded-full border-2 border-gray-200 focus-within:border-blue-400 transition-colors"
+          onSubmit={handleSearchSubmit}
+        >
+          <input
+            type="text"
+            placeholder="ค้นหาสินค้า..."
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            onFocus={() => searchQuery.trim().length >= 2 && setShowSearchDropdown(true)}
+            className="flex-1 px-5 py-2 rounded-l-full bg-transparent text-gray-800 focus:outline-none"
+          />
+          <button type="submit" className="flex items-center gap-2 px-6 py-2 bg-gray-700 text-white rounded-r-full font-semibold border-gray-700 hover:bg-[#99ff33] hover:text-gray-700 transition-colors">
+            <FaSearch />
+          </button>
+        </form>
+
+        {/* Search Results Dropdown */}
+        {showSearchDropdown && searchQuery.trim().length >= 2 && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[400px] overflow-y-auto">
+            {isSearching ? (
+              <div className="p-4 text-center text-gray-500">
+                <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                กำลังค้นหา...
+              </div>
+            ) : searchResults.length > 0 ? (
+              <>
+                {searchResults.map((product) => (
+                  <div
+                    key={product._id}
+                    onClick={() => handleProductClick(product._id)}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <div className="text-gray-400">
+                      <FaSearch size={14} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-800 truncate">
+                        <span className="text-blue-600">{product.category}</span>
+                        {' '}
+                        {product.name}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {searchResults.length >= 8 && (
+                  <div
+                    onClick={handleSearchSubmit as any}
+                    className="px-4 py-3 text-center text-blue-600 hover:bg-blue-50 cursor-pointer font-medium"
+                  >
+                    ดูผลลัพธ์ทั้งหมด →
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                ไม่พบสินค้าที่ตรงกับ "{searchQuery}"
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      
       {/* เมนูด้านขวา สามารถเพิ่มตามต้องการ */}
       <ul className="flex items-center space-x-2 ml-6">
         {/* ปุ่มจัดสเปคคอม */}

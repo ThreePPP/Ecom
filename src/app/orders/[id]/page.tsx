@@ -133,7 +133,7 @@ export default function OrderDetailPage() {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            คำสั่งซื้อ: {order.orderNumber}
+            คำสั่งซื้อ: <span className="text-gray-900">{order.orderNumber}</span>
           </h1>
           <p className="text-gray-600">
             สั่งซื้อเมื่อ:{" "}

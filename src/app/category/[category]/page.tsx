@@ -34,12 +34,21 @@ export default function CategoryPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('default');
-  const [priceRange, setPriceRange] = useState('all');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [selectedMainboardSupport, setSelectedMainboardSupport] = useState<string[]>([]);
   const [selectedCapacity, setSelectedCapacity] = useState<string[]>([]);
   const [selectedMaxPower, setSelectedMaxPower] = useState<string[]>([]);
+  const [selectedSocket, setSelectedSocket] = useState<string[]>([]);
+  const [selectedModel, setSelectedModel] = useState<string[]>([]);
+  const [selectedGpuSeries, setSelectedGpuSeries] = useState<string[]>([]);
+  const [selectedChipset, setSelectedChipset] = useState<string[]>([]);
+  const [selectedMemorySize, setSelectedMemorySize] = useState<string[]>([]);
+  const [selectedBusSpeed, setSelectedBusSpeed] = useState<string[]>([]);
+  const [minPrice, setMinPrice] = useState<string>('');
+  const [maxPrice, setMaxPrice] = useState<string>('');
+  const [appliedMinPrice, setAppliedMinPrice] = useState<number | null>(null);
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | null>(null);
 
   // Get category icon
   const getCategoryIcon = () => {
@@ -114,23 +123,48 @@ export default function CategoryPage() {
         if (!power || !selectedMaxPower.includes(power)) return false;
       }
 
-      // Filter by price range
-      if (priceRange !== 'all') {
-        const price = product.price;
-        switch (priceRange) {
-          case 'under5000':
-            if (price >= 5000) return false;
-            break;
-          case '5000-10000':
-            if (price < 5000 || price >= 10000) return false;
-            break;
-          case '10000-20000':
-            if (price < 10000 || price >= 20000) return false;
-            break;
-          case 'over20000':
-            if (price < 20000) return false;
-            break;
-        }
+      // Filter by Socket (CPU/Mainboard)
+      if ((category === 'CPU' || category === 'Mainboard') && selectedSocket.length > 0) {
+        const socket = product.specifications?.['Socket'];
+        if (!socket || !selectedSocket.includes(socket)) return false;
+      }
+
+      // Filter by Model (CPU)
+      if (category === 'CPU' && selectedModel.length > 0) {
+        const model = product.specifications?.['Model'];
+        if (!model || !selectedModel.includes(model)) return false;
+      }
+
+      // Filter by GPU Series (VGA)
+      if (category === 'VGA' && selectedGpuSeries.length > 0) {
+        const gpuSeries = product.specifications?.['GPU Series'];
+        if (!gpuSeries || !selectedGpuSeries.includes(gpuSeries)) return false;
+      }
+
+      // Filter by Chipset (Mainboard)
+      if (category === 'Mainboard' && selectedChipset.length > 0) {
+        const chipset = product.specifications?.['Chipset'];
+        if (!chipset || !selectedChipset.includes(chipset)) return false;
+      }
+
+      // Filter by Memory Size (Memory)
+      if (category === 'Memory' && selectedMemorySize.length > 0) {
+        const memSize = product.specifications?.['Memory Size'];
+        if (!memSize || !selectedMemorySize.includes(memSize)) return false;
+      }
+
+      // Filter by Bus Speed (Memory)
+      if (category === 'Memory' && selectedBusSpeed.length > 0) {
+        const busSpeed = product.specifications?.['Bus Speed'];
+        if (!busSpeed || !selectedBusSpeed.includes(busSpeed)) return false;
+      }
+
+      // Filter by custom price range
+      if (appliedMinPrice !== null && product.price < appliedMinPrice) {
+        return false;
+      }
+      if (appliedMaxPrice !== null && product.price > appliedMaxPrice) {
+        return false;
       }
 
       return true;
@@ -188,7 +222,57 @@ export default function CategoryPage() {
         ? prev.filter(p => p !== power)
         : [...prev, power]
     );
-  };  return (
+  };
+
+  const toggleSocket = (socket: string) => {
+    setSelectedSocket(prev => 
+      prev.includes(socket) 
+        ? prev.filter(s => s !== socket)
+        : [...prev, socket]
+    );
+  };
+
+  const toggleModel = (model: string) => {
+    setSelectedModel(prev => 
+      prev.includes(model) 
+        ? prev.filter(m => m !== model)
+        : [...prev, model]
+    );
+  };
+
+  const toggleGpuSeries = (series: string) => {
+    setSelectedGpuSeries(prev => 
+      prev.includes(series) 
+        ? prev.filter(s => s !== series)
+        : [...prev, series]
+    );
+  };
+
+  const toggleChipset = (chipset: string) => {
+    setSelectedChipset(prev => 
+      prev.includes(chipset) 
+        ? prev.filter(c => c !== chipset)
+        : [...prev, chipset]
+    );
+  };
+
+  const toggleMemorySize = (size: string) => {
+    setSelectedMemorySize(prev => 
+      prev.includes(size) 
+        ? prev.filter(s => s !== size)
+        : [...prev, size]
+    );
+  };
+
+  const toggleBusSpeed = (speed: string) => {
+    setSelectedBusSpeed(prev => 
+      prev.includes(speed) 
+        ? prev.filter(s => s !== speed)
+        : [...prev, speed]
+    );
+  };
+
+  return (
     <>
       <Navbar showBanner={false} showPromotion={false} />
       <div className="min-h-screen bg-gray-100">
@@ -510,46 +594,27 @@ export default function CategoryPage() {
                 <div className="border-b">
                   <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">GPU Series</h3>
                   <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD RADEON RX 6000 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD RADEON RX 7000 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD RADEON RX 9000 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL ARC SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">NVIDIA 1000 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">NVIDIA 200 - 700 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">NVIDIA 2000 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">NVIDIA 3000 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">NVIDIA 4000 SERIES</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">NVIDIA 5000 SERIES</span>
-                    </label>
+                    {[
+                      { value: 'RX 6000', label: 'AMD Radeon RX 6000 Series' },
+                      { value: 'RX 7000', label: 'AMD Radeon RX 7000 Series' },
+                      { value: 'RX 9000', label: 'AMD Radeon RX 9000 Series' },
+                      { value: 'ARC', label: 'Intel ARC Series' },
+                      { value: 'GTX 1000', label: 'NVIDIA GTX 1000 Series' },
+                      { value: 'RTX 2000', label: 'NVIDIA RTX 2000 Series' },
+                      { value: 'RTX 3000', label: 'NVIDIA RTX 3000 Series' },
+                      { value: 'RTX 4000', label: 'NVIDIA RTX 4000 Series' },
+                      { value: 'RTX 5000', label: 'NVIDIA RTX 5000 Series' },
+                    ].map((series) => (
+                      <label key={series.value} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedGpuSeries.includes(series.value)}
+                          onChange={() => toggleGpuSeries(series.value)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">{series.label}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}
@@ -559,26 +624,17 @@ export default function CategoryPage() {
                 <div className="border-b">
                   <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Memory Size</h3>
                   <div className="p-4 space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">8 GB</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">16 GB</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">32 GB</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">64 GB</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">128 GB</span>
-                    </label>
+                    {['8 GB', '16 GB', '32 GB', '64 GB', '128 GB'].map((size) => (
+                      <label key={size} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedMemorySize.includes(size)}
+                          onChange={() => toggleMemorySize(size)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">{size}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}
@@ -588,42 +644,17 @@ export default function CategoryPage() {
                 <div className="border-b">
                   <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Bus Speed</h3>
                   <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR4 3200MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR4 3600MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR5 4800MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR5 5200MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR5 5600MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR5 6000MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR5 6200MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR5 6400MHz</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">DDR5 7200MHz</span>
-                    </label>
+                    {['DDR4 3200MHz', 'DDR4 3600MHz', 'DDR5 4800MHz', 'DDR5 5200MHz', 'DDR5 5600MHz', 'DDR5 6000MHz', 'DDR5 6200MHz', 'DDR5 6400MHz', 'DDR5 7200MHz'].map((speed) => (
+                      <label key={speed} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedBusSpeed.includes(speed)}
+                          onChange={() => toggleBusSpeed(speed)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">{speed}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}
@@ -633,26 +664,17 @@ export default function CategoryPage() {
                 <div className="border-b">
                   <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Socket</h3>
                   <div className="p-4 space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD AM4</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD AM5</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1200</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1700</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1851</span>
-                    </label>
+                    {['AMD AM4', 'AMD AM5', 'INTEL 1200', 'INTEL 1700', 'INTEL 1851'].map((socket) => (
+                      <label key={socket} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedSocket.includes(socket)}
+                          onChange={() => toggleSocket(socket)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">{socket}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}
@@ -662,50 +684,17 @@ export default function CategoryPage() {
                 <div className="border-b">
                   <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Chipset</h3>
                   <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD AM4 (A320 - A520)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD AM4 (B450 - B550)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD AM5 (A620)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD AM5 (B650 - B850)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD AM5 (X670 - X870)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1151 (H110 - Z390)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1700 (B660 - B760)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1700 (H610 - H770)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1851 (B860)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1851 (H810)</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">INTEL 1851 (Z890)</span>
-                    </label>
+                    {['AMD AM4 (A320 - A520)', 'AMD AM4 (B450 - B550)', 'AMD AM5 (A620)', 'AMD AM5 (B650 - B850)', 'AMD AM5 (X670 - X870)', 'INTEL 1151 (H110 - Z390)', 'INTEL 1700 (B660 - B760)', 'INTEL 1700 (H610 - H770)', 'INTEL 1851 (B860)', 'INTEL 1851 (H810)', 'INTEL 1851 (Z890)'].map((chipset) => (
+                      <label key={chipset} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedChipset.includes(chipset)}
+                          onChange={() => toggleChipset(chipset)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">{chipset}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}
@@ -715,95 +704,17 @@ export default function CategoryPage() {
                 <div className="border-b">
                   <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Model</h3>
                   <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD Ryzen 3</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD Ryzen 5</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD Ryzen 7</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core Ultra 5</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core Ultra 7</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core Ultra 9</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i3</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i5</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i7</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i9</span>
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {/* Model Section - Only for CPU */}
-              {category === 'CPU' && (
-                <div className="border-b">
-                  <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">Model</h3>
-                  <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD Ryzen 3</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD Ryzen 5</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">AMD Ryzen 7</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core Ultra 5</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core Ultra 7</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core Ultra 9</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i3</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i5</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i7</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
-                      <input type="checkbox" className="w-4 h-4 text-blue-500 border-gray-300 rounded" />
-                      <span className="text-sm text-gray-700">Intel Core i9</span>
-                    </label>
+                    {['AMD Ryzen 3', 'AMD Ryzen 5', 'AMD Ryzen 7', 'Intel Core i3', 'Intel Core i5', 'Intel Core i7', 'Intel Core i9', 'Intel Core Ultra 5', 'Intel Core Ultra 7', 'Intel Core Ultra 9'].map((model) => (
+                      <label key={model} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={selectedModel.includes(model)}
+                          onChange={() => toggleModel(model)}
+                          className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">{model}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
               )}
@@ -901,29 +812,6 @@ export default function CategoryPage() {
                   </label>
                 </div>
               </div>
-
-              {/* Price Range */}
-              <div>
-                <h3 className="font-bold text-gray-800 px-4 py-3 bg-gray-50">ช่วงราคา</h3>
-                <div className="p-4">
-                  <div className="flex gap-2 items-center mb-3">
-                    <input
-                      type="number"
-                      placeholder="0"
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
-                    />
-                    <span className="text-gray-500">-</span>
-                    <input
-                      type="number"
-                      placeholder="9999"
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm text-black"
-                    />
-                  </div>
-                  <button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 rounded">
-                    Apply
-                  </button>
-                </div>
-              </div>
             </div>
           </aside>
 
@@ -938,7 +826,50 @@ export default function CategoryPage() {
             </div>
 
             {/* Filter Bar */}
-            <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex items-center justify-end">
+            <div className="bg-white rounded-lg shadow-sm p-4 mb-4 flex items-center justify-between flex-wrap gap-4">
+              {/* Price Range */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700 font-medium">ช่วงราคา:</span>
+                <input
+                  type="number"
+                  placeholder="ต่ำสุด"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-black"
+                />
+                <span className="text-gray-500">-</span>
+                <input
+                  type="number"
+                  placeholder="สูงสุด"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-black"
+                />
+                <button 
+                  onClick={() => {
+                    setAppliedMinPrice(minPrice ? parseInt(minPrice) : null);
+                    setAppliedMaxPrice(maxPrice ? parseInt(maxPrice) : null);
+                  }}
+                  className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded"
+                >
+                  ค้นหา
+                </button>
+                {(appliedMinPrice !== null || appliedMaxPrice !== null) && (
+                  <button 
+                    onClick={() => {
+                      setMinPrice('');
+                      setMaxPrice('');
+                      setAppliedMinPrice(null);
+                      setAppliedMaxPrice(null);
+                    }}
+                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded"
+                  >
+                    ล้าง
+                  </button>
+                )}
+              </div>
+              
+              {/* Sort By */}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-700">เรียงตาม:</span>
                 <select

@@ -105,8 +105,8 @@ export default function OrdersPage() {
               <div key={order._id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-lg">
-                      คำสั่งซื้อ: {order.orderNumber}
+                    <h3 className="font-semibold text-lg text-gray-900">
+                      คำสั่งซื้อ: <span className="text-gray-900">{order.orderNumber}</span>
                     </h3>
                     <p className="text-sm text-gray-500">
                       {new Date(order.createdAt).toLocaleDateString("th-TH", {
