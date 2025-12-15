@@ -7,6 +7,8 @@ import Navbar from '../component/Navbar/Navbar';
 import Features from '../component/main/Features/Features';
 import Footer from '../component/main/footer/footer';
 import Breadcrumb from '../component/Breadcrumb/Breadcrumb';
+import WishlistButton from '../component/WishlistButton/WishlistButton';
+import AddToCartButton from '../component/AddToCartButton/AddToCartButton';
 
 interface Product {
   _id: string;
@@ -140,6 +142,14 @@ function SearchContent() {
                     className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all cursor-pointer relative"
                     onClick={() => router.push(`/products/${product._id}`)}
                   >
+                    {/* Wishlist Button */}
+                    <WishlistButton 
+                      productId={product._id}
+                      size="sm"
+                      className="absolute top-2 left-2 z-20"
+                      onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
+                    />
+                    
                     {/* Condition Badge */}
                     {product.condition && (
                       <div className="absolute top-2 right-2 z-10">
@@ -154,11 +164,11 @@ function SearchContent() {
                       </div>
                     )}
                     
-                    <div className="aspect-square bg-gray-900 flex items-center justify-center overflow-hidden p-4">
+                    <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
                       <img
                         src={imageUrl}
                         alt={product.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="p-3">
@@ -169,18 +179,11 @@ function SearchContent() {
                       <p className="text-lg font-bold text-gray-900 mb-3">
                         ฿{product.price.toLocaleString()}
                       </p>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/products/${product._id}`);
-                        }}
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-2 rounded transition-colors flex items-center justify-center gap-2"
-                      >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                        </svg>
-                        ดูสินค้า
-                      </button>
+                      <AddToCartButton
+                        onClick={() => router.push(`/products/${product._id}`)}
+                        text="ดูสินค้า"
+                        successText="ดูรายละเอียด"
+                      />
                     </div>
                   </div>
                 );

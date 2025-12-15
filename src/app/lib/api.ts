@@ -526,4 +526,47 @@ export const coinAPI = {
   },
 };
 
+// Wishlist API
+export const wishlistAPI = {
+  // Get user's wishlist
+  getWishlist: async () => {
+    return fetchAPI('/wishlist');
+  },
+
+  // Add product to wishlist
+  addToWishlist: async (productId: string) => {
+    return fetchAPI('/wishlist/add', {
+      method: 'POST',
+      body: JSON.stringify({ productId }),
+    });
+  },
+
+  // Remove product from wishlist
+  removeFromWishlist: async (productId: string) => {
+    return fetchAPI(`/wishlist/remove/${productId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Toggle product in wishlist
+  toggleWishlist: async (productId: string) => {
+    return fetchAPI('/wishlist/toggle', {
+      method: 'POST',
+      body: JSON.stringify({ productId }),
+    });
+  },
+
+  // Check if product is in wishlist
+  checkWishlist: async (productId: string) => {
+    return fetchAPI(`/wishlist/check/${productId}`);
+  },
+
+  // Clear wishlist
+  clearWishlist: async () => {
+    return fetchAPI('/wishlist/clear', {
+      method: 'DELETE',
+    });
+  },
+};
+
 export { API_URL };

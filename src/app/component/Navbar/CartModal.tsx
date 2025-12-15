@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { FaTimes, FaPlus, FaMinus, FaCheck } from 'react-icons/fa';
 import Image from 'next/image';
 import { useCart } from '@/app/context/CartContext';
+import { useToast } from '@/app/component/Toast/Toast';
 import { useRouter } from 'next/navigation';
 
 interface CartModalProps {
@@ -13,8 +14,15 @@ interface CartModalProps {
 
 const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
   const { cart, updateQuantity, removeFromCart, setSelectedItems: saveSelectedItems, selectedItemIds } = useCart();
+  const { showToast } = useToast();
   const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+
+  // Handler for removing item with toast
+  const handleRemoveFromCart = (itemId: string) => {
+    removeFromCart(itemId);
+    showToast('ลบสินค้าออกจากตะกร้าแล้ว', 'error', 2500);
+  };
 
   // Load saved selected items or select all by default
   useEffect(() => {
@@ -143,7 +151,13 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                     {/* Quantity Controls */}
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => {
+                          if (item.quantity <= 1) {
+                            handleRemoveFromCart(item.id);
+                          } else {
+                            updateQuantity(item.id, item.quantity - 1);
+                          }
+                        }}
                         className="w-7 h-7 flex items-center justify-center bg-gray-200 text-gray-600 rounded hover:bg-gray-300 transition-colors"
                       >
                         <FaMinus size={10} />
@@ -163,7 +177,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                   {/* Delete Button */}
                   <div className="flex items-start pt-1">
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => handleRemoveFromCart(item.id)}
                       className="text-gray-400 hover:text-red-500 transition-colors p-1"
                     >
                       <FaTimes size={16} />

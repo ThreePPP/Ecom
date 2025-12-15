@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { FaHeart, FaShoppingBag, FaMinus, FaPlus, FaExchangeAlt } from "react-icons/fa";
+import { FaShoppingBag, FaMinus, FaPlus, FaExchangeAlt } from "react-icons/fa";
 import { productAPI } from "@/app/lib/api";
 import { useCart } from "@/app/context/CartContext";
 import { useCompare } from "@/app/context/CompareContext";
+import { useToast } from "@/app/component/Toast/Toast";
 import Navbar from "@/app/component/Navbar/Navbar";
 import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 import Features from "@/app/component/main/Features/Features";
 import Footer from "@/app/component/main/footer/footer";
+import WishlistButton from "@/app/component/WishlistButton/WishlistButton";
 
 interface Product {
   _id: string;
@@ -42,6 +44,7 @@ const ProductDetailPage = () => {
   const router = useRouter();
   const { addToCart } = useCart();
   const { addToCompare, isInCompare } = useCompare();
+  const { showCartToast, showToast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -83,7 +86,7 @@ const ProductDetailPage = () => {
           images: product.images
         });
       }
-      alert(`เพิ่ม "${product.name}" ${quantity} ชิ้น ลงในตะกร้าสินค้าแล้ว!`);
+      showCartToast(`เพิ่มสินค้า ${quantity} ชิ้น ลงตะกร้า`);
     }
   };
 
@@ -94,7 +97,8 @@ const ProductDetailPage = () => {
 
   const handleAddToCompare = () => {
     if (product) {
-      addToCompare(product);
+      const result = addToCompare(product);
+      showToast(result.message, result.type);
     }
   };
 
@@ -149,11 +153,11 @@ const ProductDetailPage = () => {
             {/* Left: Images */}
             <div>
               {/* Main Image */}
-              <div className="bg-gray-50 rounded-xl p-8 mb-4 aspect-square flex items-center justify-center overflow-hidden">
+              <div className="bg-gray-100 rounded-xl mb-4 aspect-square flex items-center justify-center overflow-hidden">
                 <img
                   src={images[selectedImage]}
                   alt={product.name}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                 />
               </div>
 
@@ -233,12 +237,12 @@ const ProductDetailPage = () => {
                 >
                   <FaExchangeAlt className={isInCompare(product._id) ? 'text-yellow-600' : 'text-gray-600'} />
                 </button>
-                <button 
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  title="เพิ่มในรายการโปรด"
-                >
-                  <FaHeart className="text-gray-600" />
-                </button>
+                <WishlistButton 
+                  productId={product._id}
+                  size="lg"
+                  showBackground={false}
+                  onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
+                />
               </div>
 
               {/* Price */}

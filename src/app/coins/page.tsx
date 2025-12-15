@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { coinAPI } from '../lib/api';
 import Navbar from '../component/Navbar/Navbar';
+import Features from '../component/main/Features/Features';
+import Footer from '../component/main/footer/footer';
 import Breadcrumb from '../component/Breadcrumb/Breadcrumb';
 
 interface CoinTransaction {
@@ -97,15 +99,19 @@ export default function CoinsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <>
         <Navbar showBanner={false} showPromotion={false} />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
+        <div className="min-h-screen bg-gray-50">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
+            </div>
           </div>
         </div>
-      </div>
+        <Features />
+        <Footer />
+      </>
     );
   }
 
@@ -114,11 +120,12 @@ export default function CoinsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <>
       <Navbar showBanner={false} showPromotion={false} />
+      <div className="min-h-screen bg-gray-50 pb-20">
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <Breadcrumb items={[{ label: 'หน้าแรก', href: '/' }, { label: 'FavorPC Coins' }]} />
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <Breadcrumb items={[{ label: 'หน้าแรก', href: '/' }, { label: 'FavorPC Coins' }]} />
 
         {/* Header */}
         <div className="mb-8">
@@ -400,5 +407,8 @@ export default function CoinsPage() {
         </div>
       </div>
     </div>
+    <Features />
+    <Footer />
+  </>
   );
 }

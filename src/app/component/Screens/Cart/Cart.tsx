@@ -15,8 +15,11 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
+import { useToast } from "@/app/component/Toast/Toast";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/component/Navbar/Navbar";
+import Features from "@/app/component/main/Features/Features";
+import Footer from "@/app/component/main/footer/footer";
 import { addressAPI } from "@/app/lib/api";
 
 interface ShippingAddress {
@@ -43,12 +46,25 @@ const CartPage = () => {
     selectedItemIds,
     clearSelectedItems,
   } = useCart();
+  const { showToast } = useToast();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [discount, setDiscount] = useState(0);
   const [promoError, setPromoError] = useState("");
+
+  // Handler for removing item with toast
+  const handleRemoveFromCart = (itemId: string, itemName?: string) => {
+    removeFromCart(itemId);
+    showToast('ลบสินค้าออกจากตะกร้าแล้ว', 'error', 2500);
+  };
+
+  // Handler for clearing cart with toast
+  const handleClearCart = () => {
+    clearCart();
+    showToast('ล้างตะกร้าสินค้าแล้ว', 'error', 2500);
+  };
 
   // Saved addresses from database
   const [savedAddresses, setSavedAddresses] = useState<ShippingAddress[]>([]);
@@ -293,10 +309,11 @@ const CartPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
       <Navbar showBanner={false} showPromotion={false} />
+      <div className="min-h-screen bg-gray-50">
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center">
@@ -462,7 +479,7 @@ const CartPage = () => {
 
                               {/* Remove Button */}
                               <button
-                                onClick={() => removeFromCart(item.id)}
+                                onClick={() => handleRemoveFromCart(item.id, item.name)}
                                 className="flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                               >
                                 <FaTrash size={16} />
@@ -476,7 +493,7 @@ const CartPage = () => {
                     {/* Clear Cart Button */}
                     <div className="p-6 bg-gray-50 flex justify-between items-center">
                       <button
-                        onClick={clearCart}
+                        onClick={handleClearCart}
                         className="text-red-600 hover:text-red-700 font-semibold"
                       >
                         ล้างตะกร้าสินค้า
@@ -1162,6 +1179,9 @@ const CartPage = () => {
         </div>
       )}
     </div>
+    <Features />
+    <Footer />
+  </>
   );
 };
 

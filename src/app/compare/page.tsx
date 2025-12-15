@@ -8,11 +8,23 @@ import Footer from '@/app/component/main/footer/footer';
 import Breadcrumb from '@/app/component/Breadcrumb/Breadcrumb';
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '@/app/context/CartContext';
+import { useToast } from '@/app/component/Toast/Toast';
 
 export default function ComparePage() {
   const router = useRouter();
   const { compareItems, removeFromCompare, clearCompare } = useCompare();
   const { addToCart } = useCart();
+  const { showCartToast, showToast } = useToast();
+
+  const handleRemoveFromCompare = (productId: string, productName: string) => {
+    removeFromCompare(productId);
+    showToast(`ลบ ${productName} ออกจากรายการเปรียบเทียบ`, 'error');
+  };
+
+  const handleClearCompare = () => {
+    clearCompare();
+    showToast('ล้างรายการเปรียบเทียบทั้งหมดแล้ว', 'error');
+  };
 
   const handleAddToCart = (product: any) => {
     addToCart({
@@ -23,7 +35,7 @@ export default function ComparePage() {
       image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
       images: product.images
     });
-    alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);
+    showCartToast('เพิ่มสินค้าลงตะกร้า');
   };
 
   // Get all unique specification keys from all products
@@ -82,7 +94,7 @@ export default function ComparePage() {
           <h1 className="text-3xl font-bold text-gray-900">เปรียบเทียบสินค้า</h1>
           <div className="flex gap-4">
             <button
-              onClick={clearCompare}
+              onClick={handleClearCompare}
               className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
               ล้างทั้งหมด
@@ -106,14 +118,14 @@ export default function ComparePage() {
                 {compareItems.map((item) => (
                   <th key={item._id || item.id} className="p-4 min-w-[280px] relative">
                     <button
-                      onClick={() => removeFromCompare(item._id || item.id || '')}
+                      onClick={() => handleRemoveFromCompare(item._id || item.id || '', item.name)}
                       className="absolute top-2 right-2 p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
                       title="ลบออกจากรายการ"
                     >
                       <FaTimes />
                     </button>
                   </th>
-                ))}
+                ))})
               </tr>
             </thead>
             <tbody>
@@ -124,11 +136,11 @@ export default function ComparePage() {
                 </td>
                 {compareItems.map((item) => (
                   <td key={item._id || item.id} className="p-4">
-                    <div className="bg-gray-50 rounded-lg p-4 aspect-square flex items-center justify-center">
+                    <div className="bg-gray-100 rounded-lg aspect-square flex items-center justify-center overflow-hidden">
                       <img
                         src={item.images?.[0] || item.image || '/placeholder.jpg'}
                         alt={item.name}
-                        className="w-full h-full object-contain cursor-pointer"
+                        className="w-full h-full object-cover cursor-pointer"
                         onClick={() => router.push(`/products/${item._id || item.id}`)}
                       />
                     </div>

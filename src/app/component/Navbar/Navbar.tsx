@@ -11,6 +11,7 @@ import CategoriesDropdown from './CategoriesDropdown'
 import { useCart } from '@/app/context/CartContext'
 import { useCompare } from '@/app/context/CompareContext'
 import { useAuth } from '@/app/context/AuthContext'
+import { useWishlist } from '@/app/context/WishlistContext'
 import { productAPI } from '@/app/lib/api'
 import type { types } from '@/app/util/types'
 
@@ -46,6 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   const { getTotalItems } = useCart()
   const { getCompareCount } = useCompare()
   const { user, isAuthenticated, isAdmin, logout, refreshUser } = useAuth()
+  const { totalItems: wishlistCount } = useWishlist()
 
   // Refresh user data periodically to update coins
   useEffect(() => {
@@ -237,6 +239,20 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
             {getCompareCount() > 0 && (
               <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {getCompareCount()}
+              </span>
+            )}
+          </a>
+        </li>
+        {/* ปุ่มรายการโปรด */}
+        <li className="relative">
+          <a 
+            href="/wishlist"
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-[#99ff33] relative"
+          >
+            <FaHeart size={20} />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {wishlistCount}
               </span>
             )}
           </a>

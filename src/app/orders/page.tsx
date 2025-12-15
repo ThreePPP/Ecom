@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { orderAPI } from "@/app/lib/api";
+import Navbar from "@/app/component/Navbar/Navbar";
+import Features from "@/app/component/main/Features/Features";
+import Footer from "@/app/component/main/footer/footer";
 import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 
 interface Order {
@@ -82,19 +85,21 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-6xl mx-auto px-4">
-        <Breadcrumb items={[{ label: 'คำสั่งซื้อของฉัน' }]} />
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          คำสั่งซื้อของฉัน
-        </h1>
+    <>
+      <Navbar showBanner={false} showPromotion={false} />
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <Breadcrumb items={[{ label: 'คำสั่งซื้อของฉัน' }]} />
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+            คำสั่งซื้อของฉัน
+          </h1>
 
-        {orders.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-500 text-lg">ยังไม่มีคำสั่งซื้อ</p>
-            <a
-              href="/"
-              className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          {orders.length === 0 ? (
+            <div className="bg-white rounded-lg shadow p-12 text-center">
+              <p className="text-gray-500 text-lg">ยังไม่มีคำสั่งซื้อ</p>
+              <a
+                href="/"
+                className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
             >
               เริ่มช้อปปิ้ง
             </a>
@@ -160,5 +165,8 @@ export default function OrdersPage() {
         </div>
       </div>
     </div>
+    <Features />
+    <Footer />
+  </>
   );
 }

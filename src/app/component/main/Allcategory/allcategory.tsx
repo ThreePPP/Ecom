@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { productAPI } from "@/app/lib/api";
 import { useCart } from "@/app/context/CartContext";
+import { useToast } from "@/app/component/Toast/Toast";
+import AddToCartButton from "@/app/component/AddToCartButton/AddToCartButton";
 
 interface Product {
   _id: string;
@@ -68,15 +70,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         <p className="text-lg font-bold text-orange-500 mb-2">
           ฿{product.price.toLocaleString()}
         </p>
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddToCart(product);
-          }}
-          className="w-full bg-gray-700 hover:bg-[#99ff33] text-white hover:text-gray-800 text-sm py-2 rounded-xl transition-colors font-medium"
-        >
-          เพิ่มลงตะกร้า
-        </button>
+        <AddToCartButton 
+          onClick={() => onAddToCart(product)}
+        />
       </div>
     </div>
   );
@@ -161,6 +157,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, onAddToCart
 
 const AllCategory = () => {
   const { addToCart } = useCart();
+  const { showCartToast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<string>("CPU");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -176,7 +173,7 @@ const AllCategory = () => {
       image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
       images: product.images
     });
-    alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);
+    showCartToast('เพิ่มสินค้าลงตะกร้า');
   };
 
   const selectedCategoryData = categories.find(cat => cat.key === selectedCategory);

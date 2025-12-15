@@ -3,7 +3,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { FaShoppingCart, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
+import { useToast } from "@/app/component/Toast/Toast";
 import { productAPI } from "@/app/lib/api";
+import WishlistButton from "@/app/component/WishlistButton/WishlistButton";
 
 interface Product {
   _id: string;
@@ -97,6 +99,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
           -{discountPercent}%
         </div>
+        {/* Wishlist Button */}
+        <WishlistButton 
+          productId={product._id}
+          size="sm"
+          className="absolute top-10 left-2 z-20"
+          onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
+        />
         <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
           {product.category && (
             <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
@@ -116,11 +125,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
         
         {/* Product Image */}
-        <div className="w-full aspect-square bg-white flex items-center justify-center overflow-hidden p-4">
+        <div className="w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
           <img
             src={product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg'}
             alt={product.name}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>
@@ -213,6 +222,8 @@ const Flashsale = () => {
     products: categoryProducts,
   }));
 
+  const { showCartToast } = useToast();
+
   const handleAddToCart = (product: Product) => {
     addToCart({
       id: product._id,
@@ -222,7 +233,7 @@ const Flashsale = () => {
       image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
       images: product.images
     });
-    alert(`เพิ่ม "${product.name}" ลงในตะกร้าสินค้าแล้ว!`);
+    showCartToast('เพิ่มสินค้าลงตะกร้า');
   };
 
   const scrollLeft = () => {

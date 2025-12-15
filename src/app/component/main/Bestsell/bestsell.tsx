@@ -2,6 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { productAPI } from "@/app/lib/api";
+import { useCart } from "@/app/context/CartContext";
+import { useToast } from "@/app/component/Toast/Toast";
+import AddToCartButton from "@/app/component/AddToCartButton/AddToCartButton";
 
 interface Product {
   _id: string;
@@ -17,6 +20,8 @@ interface Product {
 const Bestsell = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+  const { showCartToast } = useToast();
 
   useEffect(() => {
     const fetchBestSellers = async () => {
@@ -111,19 +116,22 @@ const Bestsell = () => {
                     </span>
                   </div>
 
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      alert(`เพิ่ม "${product.name}" ลงในตะกร้าแล้ว!`);
+                  <AddToCartButton 
+                    onClick={() => {
+                      addToCart({
+                        id: product._id,
+                        name: product.name,
+                        price: Number(product.price) || 0,
+                        image: imageUrl,
+                        images: product.images
+                      });
+                      showCartToast('เพิ่มสินค้าลงตะกร้า');
                     }}
-                    className="w-full bg-gray-700 hover:bg-[#99ff33] text-white hover:text-gray-800 text-sm py-2 rounded-xl transition-colors font-medium"
-                  >
-                    เพิ่มลงตะกร้า
-                  </button>
+                  />
                 </div>
               </div>
             );
-          })})
+          })}
         </div>
       )}
       </div>

@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { productAPI } from '@/app/lib/api';
-import { FaTrash, FaPlus, FaSearch, FaShoppingCart, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaPlus, FaSearch, FaShoppingCart, FaEdit, FaCheck } from 'react-icons/fa';
 import Breadcrumb from '@/app/component/Breadcrumb/Breadcrumb';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../component/Toast/Toast';
 import Navbar from '../component/Navbar/Navbar';
 import Features from '../component/main/Features/Features';
 import Footer from '../component/main/footer/footer';
@@ -194,7 +195,17 @@ export default function PCBuilderPage() {
   const [showSummary, setShowSummary] = useState(false);
   const [budget, setBudget] = useState<number>(0);
   const [isAutoBuilding, setIsAutoBuilding] = useState(false);
+  const [autoBuildResult, setAutoBuildResult] = useState<{
+    show: boolean;
+    componentCount: number;
+    budget: number;
+    totalPrice: number;
+    withinBudget: boolean;
+    compatibilityMsg: string;
+  } | null>(null);
+  const [animatingProductId, setAnimatingProductId] = useState<string | null>(null);
   const { addToCart } = useCart();
+  const { showCartToast, showToast } = useToast();
 
   const activeComponent = COMPONENT_LIST.find(c => c.id === activeComponentId);
 
@@ -220,10 +231,21 @@ export default function PCBuilderPage() {
   };
 
   const handleSelectProduct = (product: Product) => {
-    setSelectedComponents(prev => ({
-      ...prev,
-      [activeComponentId]: product
-    }));
+    // Trigger animation
+    setAnimatingProductId(product._id);
+    
+    setTimeout(() => {
+      setSelectedComponents(prev => ({
+        ...prev,
+        [activeComponentId]: product
+      }));
+      showToast(`เพิ่ม ${activeComponent?.name} แล้ว`, 'success');
+      
+      // Reset animation after completion
+      setTimeout(() => {
+        setAnimatingProductId(null);
+      }, 300);
+    }, 400);
     
     // Auto advance to next component if not already selected
     const currentIndex = COMPONENT_LIST.findIndex(c => c.id === activeComponentId);
@@ -244,7 +266,7 @@ export default function PCBuilderPage() {
 
   const handleAutoBuild = async () => {
     if (!budget || budget < 10000) {
-      alert('กรุณาระบุงบประมาณ (ขั้นต่ำ 10,000 บาท)');
+      showToast('กรุณาระบุงบประมาณ (ขั้นต่ำ 10,000 บาท)', 'warning');
       return;
     }
 
@@ -480,24 +502,25 @@ export default function PCBuilderPage() {
       
       let compatibilityMsg = '';
       if (hasCPU && hasMainboard) {
-        compatibilityMsg += '✅ CPU และ Mainboard มี Socket ที่เข้ากันได้\n';
+        compatibilityMsg += 'CPU และ Mainboard มี Socket ที่เข้ากันได้|';
       }
       if (hasMainboard && hasMemory && ramType) {
-        compatibilityMsg += `✅ Mainboard รองรับ RAM ${ramType}\n`;
+        compatibilityMsg += `Mainboard รองรับ RAM ${ramType}|`;
       }
       
-      alert(
-        `จัดสเปคตามงบประมาณเรียบร้อยแล้ว! (${componentCount} ชิ้น)\n\n` +
-        `งบประมาณ: ฿${budget.toLocaleString()}\n` +
-        `ยอดรวม: ฿${totalPrice.toLocaleString()}\n` +
-        `${withinBudget ? '✅ อยู่ในงบประมาณ' : '⚠️ เกินงบประมาณเล็กน้อย'}\n\n` +
-        `✅ เลือกอุปกรณ์ละ 1 ชิ้นต่อประเภท\n` +
+      // Show modal instead of alert
+      setAutoBuildResult({
+        show: true,
+        componentCount,
+        budget,
+        totalPrice,
+        withinBudget,
         compatibilityMsg
-      );
+      });
 
     } catch (error) {
       console.error('Auto build error:', error);
-      alert('เกิดข้อผิดพลาดในการจัดสเปค');
+      showToast('เกิดข้อผิดพลาดในการจัดสเปค', 'error');
     } finally {
       setIsAutoBuilding(false);
     }
@@ -540,21 +563,72 @@ export default function PCBuilderPage() {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Filter logic
+
+    const getSpec = (key: string) => {
+      if (!product.specifications) return undefined;
+      if (product.specifications instanceof Map) {
+        return product.specifications.get(key) || product.specifications.get(key.charAt(0).toUpperCase() + key.slice(1));
+      }
+      return product.specifications[key] || product.specifications[key.charAt(0).toUpperCase() + key.slice(1)];
+    };
+
     const matchesFilters = Object.entries(selectedFilters).every(([key, values]) => {
       if (values.length === 0) return true;
-      
-      // Simple matching logic - can be improved based on actual product data structure
-      // Assuming product name or description contains these keywords
-      // Or if you have specific fields in Product interface, use them.
-      // Since Product interface is simple, we'll search in name/description/brand
-      
+
+      // Brand filter
       if (key === 'brands') {
-        return values.some(v => product.brand?.toLowerCase() === v.toLowerCase() || product.name.toLowerCase().includes(v.toLowerCase()));
+        return values.some(v => (product.brand?.toLowerCase() === v.toLowerCase()) || product.name.toLowerCase().includes(v.toLowerCase()));
       }
-      
-      // For other filters like series, socket, etc., we search in the name
+
+      // CPU: Socket Type
+      if (key === 'sockets') {
+        const socket = getSpec('socket');
+        return values.some(v => (socket && socket.toLowerCase() === v.toLowerCase()) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // Mainboard: Chipset
+      if (key === 'chipsets') {
+        const chipset = getSpec('chipset');
+        return values.some(v => (chipset && chipset.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // VGA: Series
+      if (key === 'series') {
+        const series = getSpec('series');
+        return values.some(v => (series && series.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // Memory: Size
+      if (key === 'sizes') {
+        const size = getSpec('size');
+        return values.some(v => (size && size.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // Memory: Bus
+      if (key === 'bus') {
+        const bus = getSpec('bus');
+        return values.some(v => (bus && bus.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // SSD/HDD: Capacity
+      if (key === 'capacities') {
+        const capacity = getSpec('capacity');
+        return values.some(v => (capacity && capacity.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // PSU: Power
+      if (key === 'power') {
+        const power = getSpec('power');
+        return values.some(v => (power && power.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // Case: Mainboard Support
+      if (key === 'mainboardSupport') {
+        const support = getSpec('mainboardSupport');
+        return values.some(v => (support && support.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+      }
+
+      // Default fallback: search in name
       return values.some(v => product.name.toLowerCase().includes(v.toLowerCase()));
     });
 
@@ -610,7 +684,7 @@ export default function PCBuilderPage() {
                       });
                     }
                   });
-                  alert('เพิ่มสินค้าลงตะกร้าเรียบร้อยแล้ว');
+                  showCartToast('เพิ่มสเปคคอมลงตะกร้า');
                 }}
                 className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-full transition-colors flex items-center justify-center gap-2"
               >
@@ -947,11 +1021,11 @@ export default function PCBuilderPage() {
                           isSelected ? 'ring-2 ring-blue-500 border-transparent' : 'border-gray-200'
                         }`}
                       >
-                        <div className="aspect-square bg-gray-100 p-4 flex items-center justify-center relative">
+                        <div className="aspect-square bg-gray-100 flex items-center justify-center relative overflow-hidden">
                           <img 
                             src={imageUrl} 
                             alt={product.name} 
-                            className="w-full h-full object-contain mix-blend-multiply"
+                            className="w-full h-full object-cover"
                           />
                           {isSelected && (
                             <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
@@ -966,18 +1040,45 @@ export default function PCBuilderPage() {
                           <div className="flex justify-between items-end mt-2">
                             <p className="text-lg font-bold text-gray-900">฿{product.price.toLocaleString()}</p>
                             <button 
-                              onClick={() => handleSelectProduct(product)}
-                              className={`p-2 rounded-md transition-colors ${
+                              onClick={() => !isSelected && !animatingProductId && handleSelectProduct(product)}
+                              className={`relative p-2 rounded-md transition-all duration-300 overflow-hidden ${
                                 isSelected 
                                   ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
-                                  : 'bg-red-500 hover:bg-red-600 text-white'
+                                  : animatingProductId === product._id
+                                    ? 'bg-green-500 text-white scale-110'
+                                    : 'bg-red-500 hover:bg-red-600 text-white hover:scale-105'
                               }`}
-                              disabled={isSelected}
+                              disabled={isSelected || animatingProductId === product._id}
                             >
-                              {isSelected ? <FaTrash size={14} onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveComponent(activeComponentId);
-                              }} /> : <FaPlus size={14} />}
+                              {/* Ripple effect */}
+                              {animatingProductId === product._id && (
+                                <span className="absolute inset-0 animate-ping bg-green-400 rounded-md opacity-75"></span>
+                              )}
+                              
+                              {/* Icon */}
+                              <span className={`relative z-10 transition-transform duration-300 flex items-center justify-center ${
+                                animatingProductId === product._id ? 'scale-125' : ''
+                              }`}>
+                                {isSelected ? (
+                                  <FaTrash size={14} onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveComponent(activeComponentId);
+                                  }} />
+                                ) : animatingProductId === product._id ? (
+                                  <FaCheck size={14} />
+                                ) : (
+                                  <FaPlus size={14} />
+                                )}
+                              </span>
+                              
+                              {/* Particles */}
+                              {animatingProductId === product._id && (
+                                <>
+                                  <span className="absolute top-0 left-1/2 w-1 h-1 bg-yellow-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                  <span className="absolute bottom-0 left-1/4 w-1 h-1 bg-green-300 rounded-full animate-bounce" style={{ animationDelay: '100ms' }}></span>
+                                  <span className="absolute top-1/2 right-0 w-1 h-1 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></span>
+                                </>
+                              )}
                             </button>
                           </div>
                         </div>
@@ -991,6 +1092,67 @@ export default function PCBuilderPage() {
         </div>
       </div>
     </div>
+
+    {/* Auto Build Result Modal */}
+    {autoBuildResult?.show && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setAutoBuildResult(null)}>
+        <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6" onClick={e => e.stopPropagation()}>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900">จัดสเปคเสร็จสิ้น</h3>
+            <button onClick={() => setAutoBuildResult(null)} className="text-gray-400 hover:text-gray-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Budget Summary */}
+          <div className="space-y-3 mb-6">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">งบประมาณ</span>
+              <span className="font-medium text-gray-900">฿{autoBuildResult.budget.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">ยอดรวม</span>
+              <span className={`font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
+                ฿{autoBuildResult.totalPrice.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">จำนวนชิ้น</span>
+              <span className="font-medium text-gray-900">{autoBuildResult.componentCount} ชิ้น</span>
+            </div>
+            <div className="border-t pt-3">
+              <span className={`text-sm font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
+                {autoBuildResult.withinBudget ? '✓ อยู่ในงบประมาณ' : '⚠ เกินงบประมาณเล็กน้อย'}
+              </span>
+            </div>
+          </div>
+
+          {/* Compatibility */}
+          {autoBuildResult.compatibilityMsg && (
+            <div className="mb-6 text-sm text-gray-600 space-y-1">
+              {autoBuildResult.compatibilityMsg.split('|').filter(Boolean).map((msg, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <span className="text-green-500 text-xs">✓</span>
+                  <span>{msg}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Button */}
+          <button
+            onClick={() => setAutoBuildResult(null)}
+            className="w-full py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            ตกลง
+          </button>
+        </div>
+      </div>
+    )}
+
     <Features />
     <Footer />
     </>

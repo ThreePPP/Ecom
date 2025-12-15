@@ -23,9 +23,15 @@ interface Product {
   sold?: number;
 }
 
+interface AddToCompareResult {
+  success: boolean;
+  message: string;
+  type: 'success' | 'warning' | 'error';
+}
+
 interface CompareContextType {
   compareItems: Product[];
-  addToCompare: (product: Product) => void;
+  addToCompare: (product: Product) => AddToCompareResult;
   removeFromCompare: (productId: string) => void;
   clearCompare: () => void;
   isInCompare: (productId: string) => boolean;
@@ -54,23 +60,33 @@ export const CompareProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.setItem('compareItems', JSON.stringify(compareItems));
   }, [compareItems]);
 
-  const addToCompare = (product: Product) => {
+  const addToCompare = (product: Product): AddToCompareResult => {
     const productId = product._id || product.id;
     
     // Check if already in compare list
     if (compareItems.some(item => (item._id || item.id) === productId)) {
-      alert('สินค้านี้อยู่ในรายการเปรียบเทียบแล้ว');
-      return;
+      return {
+        success: false,
+        message: 'สินค้านี้อยู่ในรายการเปรียบเทียบแล้ว',
+        type: 'warning'
+      };
     }
 
     // Limit to 4 items for comparison
     if (compareItems.length >= 4) {
-      alert('สามารถเปรียบเทียบได้สูงสุด 4 รายการ');
-      return;
+      return {
+        success: false,
+        message: 'สามารถเปรียบเทียบได้สูงสุด 4 รายการ',
+        type: 'warning'
+      };
     }
 
     setCompareItems(prev => [...prev, product]);
-    alert('เพิ่มสินค้าเข้ารายการเปรียบเทียบแล้ว');
+    return {
+      success: true,
+      message: 'เพิ่มสินค้าเข้ารายการเปรียบเทียบแล้ว',
+      type: 'success'
+    };
   };
 
   const removeFromCompare = (productId: string) => {
