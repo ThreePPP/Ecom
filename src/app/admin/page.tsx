@@ -68,7 +68,7 @@ export default function AdminPage() {
       const token = localStorage.getItem("token");
       
       // Fetch stats from admin API
-      const statsResponse = await fetch("http://localhost:5000/api/admin/stats", {
+      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/stats`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -76,7 +76,7 @@ export default function AdminPage() {
       const statsData = await statsResponse.json();
 
       // Fetch recent orders
-      const ordersResponse = await fetch("http://localhost:5000/api/orders", {
+      const ordersResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

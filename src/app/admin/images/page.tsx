@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { adminAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
 interface Product {
   _id: string;
   name: string;
@@ -160,7 +162,7 @@ export default function AdminImagesPage() {
     try {
       const token = localStorage.getItem('token');
       // Get list of uploaded files from server
-      const response = await fetch('http://localhost:5000/api/upload/list', {
+      const response = await fetch(`${API_URL}/upload/list`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -198,7 +200,7 @@ export default function AdminImagesPage() {
         .filter(file => !usedImages.has(file.filename))
         .map(file => ({
           filename: file.filename,
-          url: `http://localhost:5000/uploads/${file.filename}`,
+          url: `${API_URL.replace('/api', '')}/uploads/${file.filename}`,
           size: file.size,
           lastModified: file.modifiedAt
         }));
@@ -236,7 +238,7 @@ export default function AdminImagesPage() {
       }
 
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/products/${result.productId}`, {
+      const response = await fetch(`${API_URL}/products/${result.productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -269,7 +271,7 @@ export default function AdminImagesPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/upload/${orphan.filename}`, {
+      const response = await fetch(`${API_URL}/upload/${orphan.filename}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -377,7 +379,7 @@ export default function AdminImagesPage() {
           updateData.detailCoverImage = '';
         }
 
-        const response = await fetch(`http://localhost:5000/api/products/${result.productId}`, {
+        const response = await fetch(`${API_URL}/products/${result.productId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -419,7 +421,7 @@ export default function AdminImagesPage() {
 
     for (const filename of selectedOrphans) {
       try {
-        const response = await fetch(`http://localhost:5000/api/upload/${filename}`, {
+        const response = await fetch(`${API_URL}/upload/${filename}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
