@@ -879,11 +879,11 @@ export default function CategoryPage() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                 >
-                  <option value="default">ราคา ต่ำ-สูง</option>
-                  <option value="price-asc">ราคา: ต่ำ - สูง</option>
-                  <option value="price-desc">ราคา: สูง - ต่ำ</option>
-                  <option value="name-asc">ชื่อ: A-Z</option>
-                  <option value="name-desc">ชื่อ: Z-A</option>
+                  <option value="default">ที่เกี่ยวข้อง</option>
+                  <option value="price-asc">ราคา ต่ำ-สูง</option>
+                  <option value="price-desc">ราคา สูง-ต่ำ</option>
+                  <option value="name-asc">ชื่อ A-Z</option>
+                  <option value="name-desc">ชื่อ Z-A</option>
                 </select>
               </div>
             </div>

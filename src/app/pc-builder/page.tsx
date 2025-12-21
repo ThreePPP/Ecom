@@ -572,6 +572,21 @@ export default function PCBuilderPage() {
       return product.specifications[key] || product.specifications[key.charAt(0).toUpperCase() + key.slice(1)];
     };
 
+
+    // Mapping สำหรับ VGA series → เลขรุ่นย่อย
+    const VGA_SERIES_KEYWORDS: Record<string, string[]> = {
+      'amd radeon rx 6000 series': ['6600', '6650', '6700', '6750', '6800', '6850', '6900', '6950'],
+      'amd radeon rx 7000 series': ['7600', '7700', '7800', '7900'],
+      'amd radeon rx 9000 series': ['9600', '9700', '9800', '9900'],
+      'intel arc series': ['a310', 'a380', 'a580', 'a750', 'a770'],
+      'nvidia 200 - 700 series': ['210', '220', '240', '250', '260', '275', '280', '285', '295', '310', '320', '330', '340', '350', '360', '370', '380', '390', '410', '420', '430', '440', '450', '460', '470', '480', '490', '510', '520', '530', '540', '550', '560', '570', '580', '590', '610', '620', '630', '640', '650', '660', '670', '680', '690', '710', '720', '730', '740', '750', '760', '770', '780', '790'],
+      'nvidia 1000 series': ['1030', '1050', '1060', '1070', '1080'],
+      'nvidia 2000 series': ['2060', '2070', '2080', '2080 ti'],
+      'nvidia 3000 series': ['3050', '3060', '3070', '3080', '3090'],
+      'nvidia 4000 series': ['4060', '4070', '4080', '4090'],
+      'nvidia 5000 series': ['5060', '5070', '5080', '5090'],
+    };
+
     const matchesFilters = Object.entries(selectedFilters).every(([key, values]) => {
       if (values.length === 0) return true;
 
@@ -589,25 +604,94 @@ export default function PCBuilderPage() {
       // Mainboard: Chipset
       if (key === 'chipsets') {
         const chipset = getSpec('chipset');
-        return values.some(v => (chipset && chipset.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+        return values.some(v => {
+          const vLower = v.toLowerCase();
+          // ถ้า v มีวงเล็บ เช่น "AMD AM4 (B450 - B550)" ให้ match คำในวงเล็บด้วย
+          const match = vLower.match(/\(([^)]+)\)/);
+          if (match) {
+            // แยกคำในวงเล็บ เช่น "B450 - B550" => ["B450", "B550"]
+            const subModels = match[1].split(/,|\s*-\s*/).map(s => s.trim()).filter(Boolean);
+            // ถ้าเจอ subModel ใดในชื่อหรือ chipset ให้ผ่าน
+            return subModels.some(sub => {
+              const subLower = sub.toLowerCase();
+              return (chipset && chipset.toLowerCase().includes(subLower)) || product.name.toLowerCase().includes(subLower);
+            });
+          }
+          // ถ้าไม่มีวงเล็บ ใช้ logic เดิม
+          return (chipset && chipset.toLowerCase().includes(vLower)) || product.name.toLowerCase().includes(vLower);
+        });
       }
 
-      // VGA: Series
+      // Series filter (CPU, GPU, etc):
       if (key === 'series') {
         const series = getSpec('series');
-        return values.some(v => (series && series.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+        const nameLower = product.name.toLowerCase();
+        // ถ้าเป็นหมวด VGA ให้ match เลขรุ่นย่อยด้วย
+        if (activeComponentId === 'gpu' || (activeComponent && activeComponent.category.toLowerCase() === 'vga')) {
+          return values.some(v => {
+            const vLower = v.toLowerCase();
+            // ตรงกับ series
+            if (series && series.toLowerCase().includes(vLower)) return true;
+            // ตรงกับชื่อสินค้า
+            if (nameLower.includes(vLower)) return true;
+            // match เลขรุ่นย่อย
+            const keywords = VGA_SERIES_KEYWORDS[vLower];
+            if (keywords && keywords.some(k => nameLower.includes(k))) return true;
+            return false;
+          });
+        }
+        // หมวดอื่นใช้ logic เดิม (CPU)
+        return values.some(v => {
+          const vLower = v.toLowerCase();
+          if (series && series.toLowerCase().includes(vLower)) return true;
+          if (nameLower.includes(vLower)) return true;
+          if (vLower.includes('core i5') && nameLower.includes('i5')) return true;
+          if (vLower.includes('core i3') && nameLower.includes('i3')) return true;
+          if (vLower.includes('core i7') && nameLower.includes('i7')) return true;
+          if (vLower.includes('core i9') && nameLower.includes('i9')) return true;
+          if (vLower.includes('ryzen 3') && nameLower.includes('ryzen 3')) return true;
+          if (vLower.includes('ryzen 5') && nameLower.includes('ryzen 5')) return true;
+          if (vLower.includes('ryzen 7') && nameLower.includes('ryzen 7')) return true;
+          if (vLower.includes('ultra 5') && nameLower.includes('ultra 5')) return true;
+          if (vLower.includes('ultra 7') && nameLower.includes('ultra 7')) return true;
+          if (vLower.includes('ultra 9') && nameLower.includes('ultra 9')) return true;
+          return false;
+        });
       }
 
       // Memory: Size
       if (key === 'sizes') {
         const size = getSpec('size');
-        return values.some(v => (size && size.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+        return values.some(v => {
+          const vLower = v.toLowerCase();
+          // ดึงเลขขนาด เช่น 16 จาก string
+          const sizeMatch = vLower.match(/(\d{1,3})\s*gb/);
+          if (sizeMatch) {
+            const sizeNum = sizeMatch[1];
+            // match เฉพาะเลขขนาด+gb ในชื่อหรือ size เช่น 16gb, 16 gb
+            const regex = new RegExp(`\\b${sizeNum}\\s*gb\\b`);
+            if ((size && regex.test(size.toLowerCase())) || regex.test(product.name.toLowerCase())) return true;
+          }
+          // fallback: match ทั้ง string เดิม
+          return (size && size.toLowerCase().includes(vLower)) || product.name.toLowerCase().includes(vLower);
+        });
       }
 
       // Memory: Bus
       if (key === 'bus') {
         const bus = getSpec('bus');
-        return values.some(v => (bus && bus.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+        return values.some(v => {
+          const vLower = v.toLowerCase();
+          // ดึงเลขความเร็ว เช่น 5600 จาก string
+          const speedMatch = vLower.match(/(\d{4,5})/);
+          if (speedMatch) {
+            const speed = speedMatch[1];
+            // match เฉพาะเลขความเร็วในชื่อหรือ bus
+            if ((bus && bus.toLowerCase().includes(speed)) || product.name.toLowerCase().includes(speed)) return true;
+          }
+          // fallback: match ทั้ง string เดิม
+          return (bus && bus.toLowerCase().includes(vLower)) || product.name.toLowerCase().includes(vLower);
+        });
       }
 
       // SSD/HDD: Capacity
@@ -619,13 +703,37 @@ export default function PCBuilderPage() {
       // PSU: Power
       if (key === 'power') {
         const power = getSpec('power');
-        return values.some(v => (power && power.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+        return values.some(v => {
+          const vLower = v.toLowerCase();
+          // Extract number, e.g., 550 from '550 Watt'
+          const wattMatch = vLower.match(/(\d{3,4})\s*w(att)?/);
+          if (wattMatch) {
+            const wattNum = wattMatch[1];
+            // Match 550, 550w, 550 watt, 550watt in name or power
+            const regex = new RegExp(`\\b${wattNum}\\s*(w|watt)?\\b`, 'i');
+            if ((power && regex.test(power)) || regex.test(product.name)) return true;
+          }
+          // fallback: match the original string
+          return (power && power.toLowerCase().includes(vLower)) || product.name.toLowerCase().includes(vLower);
+        });
       }
 
       // Case: Mainboard Support
       if (key === 'mainboardSupport') {
         const support = getSpec('mainboardSupport');
-        return values.some(v => (support && support.toLowerCase().includes(v.toLowerCase())) || product.name.toLowerCase().includes(v.toLowerCase()));
+        return values.some(v => {
+          const vLower = v.toLowerCase();
+          // Normalize filter value (e.g., 'E-ATX' -> 'eatx', 'Micro-ATX' -> 'microatx', 'Mini-ITX' -> 'miniitx')
+          const norm = vLower.replace(/[-\s]/g, '');
+          // Prepare regex to match both with and without dash/space
+          const regex = new RegExp(norm, 'i');
+          // Check in support spec and product name (normalize both)
+          const supportNorm = support ? support.toLowerCase().replace(/[-\s]/g, '') : '';
+          const nameNorm = product.name.toLowerCase().replace(/[-\s]/g, '');
+          if ((supportNorm && regex.test(supportNorm)) || regex.test(nameNorm)) return true;
+          // fallback: match original string (for partials)
+          return (support && support.toLowerCase().includes(vLower)) || product.name.toLowerCase().includes(vLower);
+        });
       }
 
       // Default fallback: search in name
@@ -992,8 +1100,8 @@ export default function PCBuilderPage() {
                 {/* Price Sort Dropdown */}
                 <div className="ml-auto">
                    <select className="px-4 py-1.5 rounded-full text-sm font-medium bg-white border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                      <option value="price-asc">ราคาต่ำ-สูง</option>
-                      <option value="price-desc">ราคาสูง-ต่ำ</option>
+                      <option value="price-asc">ราคา ต่ำ-สูง</option>
+                      <option value="price-desc">ราคา สูง-ต่ำ</option>
                    </select>
                 </div>
               </div>
