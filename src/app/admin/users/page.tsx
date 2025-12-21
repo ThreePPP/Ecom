@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI, coinAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
-import { FaCoins, FaPlus } from 'react-icons/fa';
+import { FaCoins, FaPlus, FaMinus } from 'react-icons/fa';
 
 interface CoinStats {
   totalSpent: number;
@@ -41,13 +41,19 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<'all' | 'user' | 'admin'>('all');
   const highlightedRef = useRef<HTMLTableRowElement>(null);
-  
+
   // Add coins modal state
   const [showAddCoinsModal, setShowAddCoinsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [addCoinsAmount, setAddCoinsAmount] = useState('');
   const [addCoinsDescription, setAddCoinsDescription] = useState('');
   const [addingCoins, setAddingCoins] = useState(false);
+
+  // Remove coins modal state
+  const [showRemoveCoinsModal, setShowRemoveCoinsModal] = useState(false);
+  const [removeCoinsAmount, setRemoveCoinsAmount] = useState('');
+  const [removeCoinsDescription, setRemoveCoinsDescription] = useState('');
+  const [removingCoins, setRemovingCoins] = useState(false);
 
   // Scroll to highlighted user
   useEffect(() => {
@@ -74,7 +80,7 @@ export default function AdminUsersPage() {
       setLoading(true);
       setError('');
       const response = await adminAPI.getAllUsers();
-      
+
       if (response.success) {
         setUsers(response.data.users);
       }
@@ -92,7 +98,7 @@ export default function AdminUsersPage() {
 
     try {
       const response = await adminAPI.updateUserRole(userId, newRole);
-      
+
       if (response.success) {
         alert('เปลี่ยนสิทธิ์สำเร็จ');
         fetchUsers();
@@ -109,7 +115,7 @@ export default function AdminUsersPage() {
 
     try {
       const response = await adminAPI.deleteUser(userId);
-      
+
       if (response.success) {
         alert('ลบผู้ใช้สำเร็จ');
         fetchUsers();
@@ -128,7 +134,7 @@ export default function AdminUsersPage() {
 
   const handleAddCoins = async () => {
     if (!selectedUser) return;
-    
+
     const amount = parseInt(addCoinsAmount);
     if (!amount || amount <= 0) {
       alert('กรุณาระบุจำนวน coins ที่ถูกต้อง');
@@ -142,7 +148,7 @@ export default function AdminUsersPage() {
         amount,
         description: addCoinsDescription || undefined,
       });
-      
+
       if (response.success) {
         alert(response.message || 'เพิ่ม coins สำเร็จ');
         setShowAddCoinsModal(false);
@@ -156,14 +162,56 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleOpenRemoveCoinsModal = (user: User) => {
+    setSelectedUser(user);
+    setRemoveCoinsAmount('');
+    setRemoveCoinsDescription('');
+    setShowRemoveCoinsModal(true);
+  };
+
+  const handleRemoveCoins = async () => {
+    if (!selectedUser) return;
+
+    const amount = parseInt(removeCoinsAmount);
+    if (!amount || amount <= 0) {
+      alert('กรุณาระบุจำนวน coins ที่ถูกต้อง');
+      return;
+    }
+
+    if (amount > (selectedUser.coins || 0)) {
+      alert(`ไม่สามารถหัก coins ได้เกินยอดปัจจุบัน (${(selectedUser.coins || 0).toLocaleString()} coins)`);
+      return;
+    }
+
+    try {
+      setRemovingCoins(true);
+      const response = await coinAPI.adminRemoveCoins({
+        userId: selectedUser._id,
+        amount,
+        description: removeCoinsDescription || undefined,
+      });
+
+      if (response.success) {
+        alert(response.message || 'หัก coins สำเร็จ');
+        setShowRemoveCoinsModal(false);
+        setSelectedUser(null);
+        fetchUsers();
+      }
+    } catch (err: any) {
+      alert(err.message || 'เกิดข้อผิดพลาดในการหัก coins');
+    } finally {
+      setRemovingCoins(false);
+    }
+  };
+
   const filteredUsers = users.filter(user => {
-    const matchSearch = 
+    const matchSearch =
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchRole = filterRole === 'all' || user.role === filterRole;
-    
+
     return matchSearch && matchRole;
   });
 
@@ -275,21 +323,19 @@ export default function AdminUsersPage() {
                   </tr>
                 ) : (
                   filteredUsers.map((user) => (
-                    <tr 
-                      key={user._id} 
+                    <tr
+                      key={user._id}
                       ref={user._id === highlightUserId ? highlightedRef : null}
-                      className={`hover:bg-gray-50 transition-all duration-500 ${
-                        user._id === highlightUserId 
-                          ? 'bg-yellow-100 ring-2 ring-yellow-400 ring-inset animate-pulse' 
-                          : ''
-                      }`}
+                      className={`hover:bg-gray-50 transition-all duration-500 ${user._id === highlightUserId
+                        ? 'bg-yellow-100 ring-2 ring-yellow-400 ring-inset animate-pulse'
+                        : ''
+                        }`}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
-                            <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-medium ${
-                              user._id === highlightUserId ? 'bg-yellow-500' : 'bg-orange-500'
-                            }`}>
+                            <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-medium ${user._id === highlightUserId ? 'bg-yellow-500' : 'bg-orange-500'
+                              }`}>
                               {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                             </div>
                           </div>
@@ -323,6 +369,14 @@ export default function AdminUsersPage() {
                             >
                               <FaPlus size={10} />
                             </button>
+                            <button
+                              onClick={() => handleOpenRemoveCoinsModal(user)}
+                              className="p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                              title="หัก coins"
+                              disabled={(user.coins || 0) <= 0}
+                            >
+                              <FaMinus size={10} />
+                            </button>
                           </div>
                           {user.coinStats && (
                             <div className="text-xs space-y-0.5">
@@ -338,20 +392,18 @@ export default function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          user.role === 'admin' 
-                            ? 'bg-purple-100 text-purple-800' 
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${user.role === 'admin'
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-blue-100 text-blue-800'
+                          }`}>
                           {user.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ผู้ใช้ทั่วไป'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          user.isVerified 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${user.isVerified
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                          }`}>
                           {user.isVerified ? 'ยืนยันแล้ว' : 'รอยืนยัน'}
                         </span>
                       </td>
@@ -366,7 +418,7 @@ export default function AdminUsersPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleUpdateRole(
-                              user._id, 
+                              user._id,
                               user.role === 'admin' ? 'user' : 'admin'
                             )}
                             className="text-blue-600 hover:text-blue-900 font-medium"
@@ -505,6 +557,139 @@ export default function AdminUsersPage() {
                   <>
                     <FaCoins />
                     เพิ่ม Coins
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove Coins Modal */}
+      {showRemoveCoinsModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-red-500 to-red-600 p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <FaMinus className="text-white text-xl" />
+                </div>
+                <div className="text-white">
+                  <h3 className="text-lg font-bold">หัก Coins</h3>
+                  <p className="text-sm opacity-90">
+                    {selectedUser.firstName} {selectedUser.lastName}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {/* Current Balance */}
+              <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                <span className="text-gray-600">ยอด Coins ปัจจุบัน</span>
+                <span className="text-2xl font-bold text-yellow-500">
+                  {(selectedUser.coins || 0).toLocaleString()}
+                </span>
+              </div>
+
+              {/* Amount Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  จำนวน Coins ที่ต้องการหัก <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max={selectedUser.coins || 0}
+                  value={removeCoinsAmount}
+                  onChange={(e) => setRemoveCoinsAmount(e.target.value)}
+                  placeholder="เช่น 50, 100, 500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg text-black"
+                />
+              </div>
+
+              {/* Quick Amount Buttons */}
+              <div className="flex flex-wrap gap-2">
+                {[50, 100, 200, 500].map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => setRemoveCoinsAmount(Math.min(amount, selectedUser.coins || 0).toString())}
+                    disabled={amount > (selectedUser.coins || 0)}
+                    className="px-3 py-1.5 bg-gray-100 hover:bg-red-100 hover:text-red-600 rounded-lg text-sm font-medium transition-colors text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    -{amount}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setRemoveCoinsAmount((selectedUser.coins || 0).toString())}
+                  disabled={(selectedUser.coins || 0) <= 0}
+                  className="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  ทั้งหมด
+                </button>
+              </div>
+
+              {/* Description Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  หมายเหตุ (ไม่บังคับ)
+                </label>
+                <input
+                  type="text"
+                  value={removeCoinsDescription}
+                  onChange={(e) => setRemoveCoinsDescription(e.target.value)}
+                  placeholder="เช่น คืนสินค้า, ปรับยอด..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
+                />
+              </div>
+
+              {/* Preview */}
+              {removeCoinsAmount && parseInt(removeCoinsAmount) > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">ยอดหลังหัก</span>
+                    <span className="text-xl font-bold text-red-600">
+                      {((selectedUser.coins || 0) - parseInt(removeCoinsAmount)).toLocaleString()} coins
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Warning */}
+              {removeCoinsAmount && parseInt(removeCoinsAmount) > (selectedUser.coins || 0) && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-800 text-sm">
+                  ⚠️ จำนวนที่ระบุเกินยอด coins ปัจจุบัน
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRemoveCoinsModal(false);
+                  setSelectedUser(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleRemoveCoins}
+                disabled={removingCoins || !removeCoinsAmount || parseInt(removeCoinsAmount) <= 0 || parseInt(removeCoinsAmount) > (selectedUser.coins || 0)}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {removingCoins ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    กำลังหัก...
+                  </>
+                ) : (
+                  <>
+                    <FaMinus />
+                    หัก Coins
                   </>
                 )}
               </button>

@@ -11,7 +11,7 @@ const getToken = (): string | null => {
 // Helper function to make API requests
 const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
   const token = getToken();
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -60,12 +60,12 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify(userData),
     });
-    
+
     if (data.success && data.data.token) {
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('user', JSON.stringify(data.data.user));
     }
-    
+
     return data;
   },
 
@@ -74,12 +74,12 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    
+
     if (data.success && data.data.token) {
       localStorage.setItem('token', data.data.token);
       localStorage.setItem('user', JSON.stringify(data.data.user));
     }
-    
+
     return data;
   },
 
@@ -126,7 +126,7 @@ export const productAPI = {
     flashSale?: boolean;
   }) => {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -134,7 +134,7 @@ export const productAPI = {
         }
       });
     }
-    
+
     const queryString = queryParams.toString();
     return fetchAPI(`/products${queryString ? `?${queryString}` : ''}`);
   },
@@ -298,11 +298,11 @@ export const uploadAPI = {
   // อัพโหลดรูปเดี่ยว
   uploadImage: async (file: File) => {
     const token = getToken();
-    
+
     if (!token) {
       throw new Error('กรุณาเข้าสู่ระบบก่อนอัพโหลดรูปภาพ');
     }
-    
+
     const formData = new FormData();
     formData.append('image', file);
 
@@ -329,13 +329,13 @@ export const uploadAPI = {
   // อัพโหลดหลายรูป (สูงสุด 10 รูป)
   uploadMultipleImages: async (files: File[]) => {
     const token = getToken();
-    
+
     if (!token) {
       throw new Error('กรุณาเข้าสู่ระบบก่อนอัพโหลดรูปภาพ');
     }
-    
+
     const formData = new FormData();
-    
+
     files.forEach((file) => {
       formData.append('images', file);
     });
@@ -511,6 +511,28 @@ export const coinAPI = {
   }) => {
     const token = getToken();
     const response = await fetch(`${API_URL}/coins/admin/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
+  },
+
+  // Admin: ลบ/หัก coins จาก user
+  adminRemoveCoins: async (data: {
+    userId: string;
+    amount: number;
+    description?: string;
+  }) => {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/coins/admin/remove`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

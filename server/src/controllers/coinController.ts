@@ -7,7 +7,7 @@ import AdminNotification from '../models/AdminNotification';
 export const getCoinTransactions = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?._id;
-    
+
     if (!userId) {
       return res.status(401).json({
         success: false,
@@ -305,6 +305,82 @@ export const adminAddCoins = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'เกิดข้อผิดพลาดในการเพิ่มคอยน์',
+      error: error.message,
+    });
+  }
+};
+
+// Admin: Remove coins from any user
+export const adminRemoveCoins = async (req: Request, res: Response) => {
+  try {
+    const { userId, amount, description } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'กรุณาระบุ User ID',
+      });
+    }
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'จำนวนคอยน์ต้องมากกว่า 0',
+      });
+    }
+
+    // Find user and check coin balance
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'ไม่พบผู้ใช้',
+      });
+    }
+
+    const currentBalance = user.coins || 0;
+    if (currentBalance < amount) {
+      return res.status(400).json({
+        success: false,
+        message: `คอยน์ไม่เพียงพอ (ยอดปัจจุบัน: ${currentBalance} coins)`,
+      });
+    }
+
+    const newBalance = currentBalance - amount;
+    user.coins = newBalance;
+    await user.save();
+
+    // Create transaction record
+    const transaction = new CoinTransaction({
+      userId,
+      type: 'deduct',
+      amount: -amount,
+      description: description || 'หักคอยน์โดยแอดมิน',
+      balanceAfter: newBalance,
+    });
+
+    await transaction.save();
+
+    res.status(201).json({
+      success: true,
+      message: `หัก ${amount.toLocaleString()} coins จาก ${user.firstName} ${user.lastName} สำเร็จ`,
+      data: {
+        transaction,
+        newBalance,
+        user: {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          coins: newBalance,
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Error admin removing coins:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการหักคอยน์',
       error: error.message,
     });
   }

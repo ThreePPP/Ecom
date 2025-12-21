@@ -6,6 +6,7 @@ import {
   spendCoins,
   getCoinSummary,
   adminAddCoins,
+  adminRemoveCoins,
 } from '../controllers/coinController';
 
 const router = express.Router();
@@ -27,5 +28,8 @@ router.post('/spend', spendCoins);
 
 // Admin: Add coins to any user
 router.post('/admin/add', isAdmin, adminAddCoins);
+
+// Admin: Remove coins from any user
+router.post('/admin/remove', isAdmin, adminRemoveCoins);
 
 export default router;
