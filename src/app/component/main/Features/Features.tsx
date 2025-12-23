@@ -1,23 +1,18 @@
 import React from "react";
 import Image from "next/image";
+import { FaShippingFast, FaShoppingBag, FaComments } from "react-icons/fa";
 
 interface FeatureCardProps {
-  iconSrc: string;
+  Icon: React.ElementType;
   title: string;
   description: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ iconSrc, title, description }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({ Icon, title, description }) => {
   return (
-    <div className="flex items-center gap-4 bg-white p-6 rounded-lg shadow-sm">
-      <div className="w-16 h-16 flex-shrink-0 relative">
-        <Image 
-          src={iconSrc} 
-          alt={title}
-          width={64}
-          height={64}
-          className="object-contain"
-        />
+    <div className="flex items-center gap-4 bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+      <div className="w-16 h-16 flex-shrink-0 bg-red-50 rounded-lg flex items-center justify-center">
+        <Icon className="text-red-600 w-8 h-8" />
       </div>
       <div className="flex flex-col">
         <h3 className="text-lg font-bold text-gray-800">{title}</h3>
@@ -30,17 +25,17 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ iconSrc, title, description }
 const Features = () => {
   const features = [
     {
-      iconSrc: "/icons/delivery.png",
+      Icon: FaShippingFast,
       title: "จัดส่งทั่วประเทศ",
       description: "โดยลูกค้าจะได้รับสินค้าภายใน 1-4 วัน",
     },
     {
-      iconSrc: "/icons/shield.png",
+      Icon: FaShoppingBag,
       title: "เลือกซื้อสินค้าอย่างปลอดภัย",
       description: "มั่นใจในทุกการสั่งซื้อ",
     },
     {
-      iconSrc: "/icons/customercare.png",
+      Icon: FaComments,
       title: "ดูแลลูกค้าทางออนไลน์",
       description: "เราดูแลลูกค้าทางออนไลน์ในเวลาทำการ",
     },
@@ -86,7 +81,7 @@ const Features = () => {
           {features.map((feature, index) => (
             <FeatureCard
               key={index}
-              iconSrc={feature.iconSrc}
+              Icon={feature.Icon}
               title={feature.title}
               description={feature.description}
             />

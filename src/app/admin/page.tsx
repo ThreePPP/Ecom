@@ -225,7 +225,7 @@ export default function AdminPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <a
             href="/admin/products"
             className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
@@ -266,7 +266,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">จัดการผู้ใช้</h3>
-                <p className="text-sm text-gray-500">ดูรายชื่อผู้ใช้</p>
+                <p className="text-sm text-gray-500">ดูแลรายชื่อผู้ใช้</p>
               </div>
             </div>
           </a>
@@ -306,9 +306,7 @@ export default function AdminPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       เลขที่คำสั่งซื้อ
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      ลูกค้า
-                    </th>
+
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       ยอดรวม
                     </th>
@@ -318,9 +316,7 @@ export default function AdminPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       วันที่
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      จัดการ
-                    </th>
+
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -329,9 +325,7 @@ export default function AdminPage() {
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
                         {order.orderNumber}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {order.user.firstName} {order.user.lastName}
-                      </td>
+
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {order.total.toLocaleString()} coins
                       </td>
@@ -347,14 +341,7 @@ export default function AdminPage() {
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {new Date(order.createdAt).toLocaleDateString("th-TH")}
                       </td>
-                      <td className="px-6 py-4 text-sm">
-                        <a
-                          href={`/admin/orders/${order._id}`}
-                          className="text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          ดูรายละเอียด
-                        </a>
-                      </td>
+
                     </tr>
                   ))}
                 </tbody>

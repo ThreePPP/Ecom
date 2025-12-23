@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IAdminNotification extends Document {
-  type: 'coin_redeem' | 'new_order' | 'low_stock' | 'new_user';
+  type: 'coin_redeem' | 'new_order' | 'low_stock' | 'new_user' | 'topup_request';
   title: string;
   message: string;
   data?: {
@@ -11,6 +11,8 @@ export interface IAdminNotification extends Document {
     amount?: number;
     orderId?: mongoose.Types.ObjectId;
     productId?: mongoose.Types.ObjectId;
+    topupRequestId?: mongoose.Types.ObjectId;
+    receiptImage?: string;
   };
   isRead: boolean;
   createdAt: Date;
@@ -21,7 +23,7 @@ const adminNotificationSchema = new Schema<IAdminNotification>(
   {
     type: {
       type: String,
-      enum: ['coin_redeem', 'new_order', 'low_stock', 'new_user'],
+      enum: ['coin_redeem', 'new_order', 'low_stock', 'new_user', 'topup_request'],
       required: true,
     },
     title: {
@@ -39,6 +41,8 @@ const adminNotificationSchema = new Schema<IAdminNotification>(
       amount: Number,
       orderId: { type: Schema.Types.ObjectId, ref: 'Order' },
       productId: { type: Schema.Types.ObjectId, ref: 'Product' },
+      topupRequestId: { type: Schema.Types.ObjectId, ref: 'TopupRequest' },
+      receiptImage: String,
     },
     isRead: {
       type: Boolean,

@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaBell, FaCoins, FaShoppingCart, FaUser, FaBox, FaCheck, FaTimes, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaBell, FaCoins, FaShoppingCart, FaUser, FaBox, FaCheck, FaTimes, FaExternalLinkAlt, FaMoneyBillWave } from 'react-icons/fa';
 import { adminAPI } from '@/app/lib/api';
 
 interface AdminNotification {
   _id: string;
-  type: 'coin_redeem' | 'new_order' | 'low_stock' | 'new_user';
+  type: 'coin_redeem' | 'new_order' | 'low_stock' | 'new_user' | 'topup_request';
   title: string;
   message: string;
   data?: {
@@ -17,6 +17,8 @@ interface AdminNotification {
     amount?: number;
     orderId?: string;
     productId?: string;
+    topupRequestId?: string;
+    receiptImage?: string;
   };
   isRead: boolean;
   createdAt: string;
@@ -95,6 +97,8 @@ const AdminNotificationBell: React.FC = () => {
         return <FaBox className="text-red-500" />;
       case 'new_user':
         return <FaUser className="text-blue-500" />;
+      case 'topup_request':
+        return <FaMoneyBillWave className="text-green-600" />;
       default:
         return <FaBell className="text-gray-500" />;
     }
@@ -120,7 +124,7 @@ const AdminNotificationBell: React.FC = () => {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+        className="relative p-2 text-white hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
       >
         <FaBell size={20} />
         {unreadCount > 0 && (
@@ -167,9 +171,8 @@ const AdminNotificationBell: React.FC = () => {
               notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                    !notification.isRead ? 'bg-orange-50' : ''
-                  }`}
+                  className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notification.isRead ? 'bg-orange-50' : ''
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -184,7 +187,7 @@ const AdminNotificationBell: React.FC = () => {
                           <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
                         )}
                       </div>
-                      
+
                       {/* Customer Info */}
                       {notification.data?.userName && (
                         <div className="mt-1 p-2 bg-blue-50 rounded-lg border border-blue-100">
@@ -200,7 +203,7 @@ const AdminNotificationBell: React.FC = () => {
                                 <p className="text-xs text-blue-600">{notification.data.userEmail}</p>
                               )}
                             </div>
-                            {notification.data.userId && (
+                            {notification.data.userId && notification.type === 'new_user' && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -216,12 +219,51 @@ const AdminNotificationBell: React.FC = () => {
                                 ดูข้อมูล
                               </button>
                             )}
+                            {notification.data.orderId && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!notification.isRead) {
+                                    handleMarkAsRead(notification._id);
+                                  }
+                                  setIsOpen(false);
+                                  router.push(`/admin/orders?orderId=${notification.data?.orderId}`);
+                                }}
+                                className="flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs rounded-lg hover:bg-green-600 transition-colors"
+                              >
+                                <FaExternalLinkAlt size={10} />
+                                ดูคำสั่งซื้อ
+                              </button>
+                            )}
+                            {notification.type === 'topup_request' && (
+                              <div className="text-right">
+                                <span className="block text-xs text-gray-500">ยอดเติมเงิน</span>
+                                <span className="block font-bold text-green-600">
+                                  +{notification.data.amount?.toLocaleString()}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
-                      
+
                       <p className="text-sm text-gray-500 mt-1">{notification.message}</p>
-                      
+
+                      {notification.type === 'topup_request' && notification.data?.receiptImage && (
+                        <div className="mt-2">
+                          <a
+                            href={notification.data.receiptImage}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <FaExternalLinkAlt size={10} />
+                            ดูใบเสร็จหลักฐาน
+                          </a>
+                        </div>
+                      )}
+
                       {notification.data?.amount && notification.type === 'coin_redeem' && (
                         <p className="text-xs text-yellow-600 font-semibold mt-1">
                           💰 แลกไป {notification.data.amount.toLocaleString()} coins
@@ -230,7 +272,7 @@ const AdminNotificationBell: React.FC = () => {
                       <p className="text-xs text-gray-400 mt-1">
                         {formatTimeAgo(notification.createdAt)}
                       </p>
-                      
+
                       {/* Mark as read button */}
                       {!notification.isRead && (
                         <button
@@ -250,7 +292,6 @@ const AdminNotificationBell: React.FC = () => {
               ))
             )}
           </div>
-
           {/* Footer */}
           {notifications.length > 0 && (
             <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">

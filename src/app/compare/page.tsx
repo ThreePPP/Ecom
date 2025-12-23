@@ -125,7 +125,7 @@ export default function ComparePage() {
                       <FaTimes />
                     </button>
                   </th>
-                ))})
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -216,12 +216,12 @@ export default function ComparePage() {
                 {compareItems.map((item) => (
                   <td key={item._id || item.id} className="p-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-semibold ${item.condition === 'สภาพเหมือนใหม่'
-                        ? 'bg-green-100 text-green-700'
-                        : item.condition === 'สภาพดี'
-                          ? 'bg-blue-100 text-blue-700'
-                          : item.condition === 'สภาพพอใช้'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-gray-100 text-gray-700'
+                      ? 'bg-green-100 text-green-700'
+                      : item.condition === 'สภาพดี'
+                        ? 'bg-blue-100 text-blue-700'
+                        : item.condition === 'สภาพพอใช้'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-gray-100 text-gray-700'
                       }`}>
                       {item.condition || '-'}
                     </span>
@@ -237,8 +237,8 @@ export default function ComparePage() {
                 {compareItems.map((item) => (
                   <td key={item._id || item.id} className="p-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-semibold ${(item.stock || 0) > 0
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
                       }`}>
                       {(item.stock || 0) > 0 ? 'มีสินค้า' : 'สินค้าหมด'}
                     </span>
@@ -286,8 +286,8 @@ export default function ComparePage() {
                       onClick={() => handleAddToCart(item)}
                       disabled={(item.stock || 0) <= 0}
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${(item.stock || 0) > 0
-                          ? 'bg-red-600 text-white hover:bg-red-700'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                     >
                       <FaShoppingCart />

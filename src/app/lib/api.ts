@@ -249,6 +249,12 @@ export const orderAPI = {
       body: JSON.stringify({ status }),
     });
   },
+
+  deleteOrder: async (id: string) => {
+    return fetchAPI(`/orders/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // Admin API
@@ -543,6 +549,46 @@ export const coinAPI = {
         ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
+  },
+
+  // ส่งคำขอเติมเงินพร้อมใบเสร็จ
+  submitTopupRequest: async (data: {
+    amount: number;
+    receiptImage: string;
+    username: string;
+    note?: string;
+  }) => {
+    const token = getToken();
+    const response = await fetch('/api/coins/topup-request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
+  },
+
+  // ดึงรายการคำขอเติมเงินของตัวเอง
+  getMyTopupRequests: async (page = 1, limit = 10) => {
+    const token = getToken();
+    const response = await fetch(`/api/coins/topup-requests?page=${page}&limit=${limit}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
     });
     const result = await response.json();
     if (!response.ok) {

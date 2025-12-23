@@ -223,8 +223,8 @@ const AllCategory = () => {
                     key={category.key}
                     onClick={() => handleCategoryClick(category.key)}
                     className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors mb-1 ${selectedCategory === category.key
-                        ? 'bg-red-50 border-l-4 border-red-600 text-red-600'
-                        : 'hover:bg-gray-100 text-gray-700'
+                      ? 'bg-red-50 border-l-4 border-red-600 text-red-600'
+                      : 'hover:bg-gray-100 text-gray-700'
                       }`}
                   >
                     <img src={category.icon} alt={category.name} className="w-6 h-6 flex-shrink-0" />
@@ -237,13 +237,14 @@ const AllCategory = () => {
                 {/* PC Builder Button - Separate */}
                 <button
                   onClick={() => window.location.href = "/pc-builder"}
-                  className="w-full flex items-center justify-center p-3 rounded-lg transition-colors mb-1 bg-blue-50 border border-blue-600 text-blue-600 hover:bg-blue-100 mt-4"
+                  className="w-full flex items-center justify-center py-3 px-2 rounded-xl transition-all duration-300 ease-in-out mt-4 shadow-md hover:shadow-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:scale-[1.02] active:scale-95 group relative overflow-hidden"
                 >
-                  {isSidebarOpen && (
-                    <span className="text-lg font-bold">จัดสเปคคอม</span>
-                  )}
-                  {!isSidebarOpen && (
-                    <span className="text-xs font-bold">PC</span>
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+
+                  {isSidebarOpen ? (
+                    <span className="relative z-10 text-white text-lg font-bold tracking-wide">จัดสเปคคอม</span>
+                  ) : (
+                    <span className="relative z-10 text-white text-sm font-bold">PC</span>
                   )}
                 </button>
               </div>

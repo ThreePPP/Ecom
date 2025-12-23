@@ -7,6 +7,10 @@ import {
   getCoinSummary,
   adminAddCoins,
   adminRemoveCoins,
+  submitTopupRequest,
+  getMyTopupRequests,
+  adminGetTopupRequests,
+  adminProcessTopupRequest,
 } from '../controllers/coinController';
 
 const router = express.Router();
@@ -26,10 +30,20 @@ router.post('/add', addCoins);
 // Spend coins
 router.post('/spend', spendCoins);
 
+// Topup request routes
+router.post('/topup-request', submitTopupRequest);
+router.get('/topup-requests', getMyTopupRequests);
+
 // Admin: Add coins to any user
 router.post('/admin/add', isAdmin, adminAddCoins);
 
 // Admin: Remove coins from any user
 router.post('/admin/remove', isAdmin, adminRemoveCoins);
+
+// Admin: Get all topup requests
+router.get('/admin/topup-requests', isAdmin, adminGetTopupRequests);
+
+// Admin: Process topup request (approve/reject)
+router.post('/admin/topup-requests/:requestId/process', isAdmin, adminProcessTopupRequest);
 
 export default router;

@@ -3,6 +3,9 @@ import Order from '../models/Order';
 import Cart from '../models/Cart';
 import Product from '../models/Product';
 import { AuthRequest } from '../middleware/auth';
+import User from '../models/User';
+import CoinTransaction from '../models/CoinTransaction';
+import AdminNotification from '../models/AdminNotification';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -66,6 +69,22 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     const shippingFee = 0; // Free shipping
     const total = clientTotal || (subtotal + vat + shippingFee - discount);
 
+    // Validate coin balance for coin_payment
+    if (paymentMethod === 'coin_payment') {
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        res.status(404).json({ success: false, message: 'ไม่พบข้อมูลผู้ใช้' });
+        return;
+      }
+      if (user.coins < total) {
+        res.status(400).json({
+          success: false,
+          message: 'ยอด Coin ไม่เพียงพอสำหรับชำระสินค้านี้',
+        });
+        return;
+      }
+    }
+
     // Generate order number
     const orderCount = await Order.countDocuments();
     const orderNumber = `ORD-${Date.now()}-${String(orderCount + 1).padStart(5, '0')}`;
@@ -83,11 +102,48 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
       total,
     });
 
+    // Process coin payment
+    if (paymentMethod === 'coin_payment') {
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.coins -= total;
+        await user.save();
+
+        await CoinTransaction.create({
+          userId: user._id,
+          referenceNumber: `TRX-${Date.now()}`,
+          type: 'spend',
+          amount: total,
+          description: `ชำระค่าสินค้า #${order.orderNumber}`,
+          orderId: order._id,
+          balanceAfter: user.coins,
+        });
+
+        order.paymentStatus = 'paid';
+        order.paidAt = new Date();
+        order.orderStatus = 'processing';
+        await order.save();
+      }
+    }
+
     // Clear cart after successful order
     await Cart.findOneAndUpdate(
       { user: req.user._id },
       { items: [] }
     );
+
+    // Create Admin Notification
+    await AdminNotification.create({
+      type: 'new_order',
+      title: 'มีคำสั่งซื้อใหม่',
+      message: `คำสั่งซื้อ #${order.orderNumber} ยอดรวม ${total.toLocaleString()} บาท`,
+      data: {
+        orderId: order._id,
+        userId: req.user._id,
+        userName: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
+        amount: total
+      }
+    });
 
     res.status(201).json({
       success: true,
@@ -217,7 +273,7 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response): Promis
       order.deliveredAt = new Date();
     } else if (status === 'cancelled') {
       order.cancelledAt = new Date();
-      
+
       // Restore product stock
       for (const item of order.items) {
         await Product.findByIdAndUpdate(item.product, {
@@ -260,6 +316,45 @@ export const getAllOrders = async (req: AuthRequest, res: Response): Promise<voi
     res.status(500).json({
       success: false,
       message: 'เกิดข้อผิดพลาด',
+    });
+  }
+};
+
+// @desc    Delete order (Admin)
+// @route   DELETE /api/orders/:id
+// @access  Private/Admin
+export const deleteOrder = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบคำสั่งซื้อ',
+      });
+      return;
+    }
+
+    // Restore product stock if order is not cancelled
+    if (order.orderStatus !== 'cancelled') {
+      for (const item of order.items) {
+        await Product.findByIdAndUpdate(item.product, {
+          $inc: { stock: item.quantity, sold: -item.quantity },
+        });
+      }
+    }
+
+    await Order.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'ลบคำสั่งซื้อสำเร็จ',
+    });
+  } catch (error: any) {
+    console.error('Delete order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการลบคำสั่งซื้อ',
     });
   }
 };

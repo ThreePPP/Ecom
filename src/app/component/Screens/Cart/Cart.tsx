@@ -6,12 +6,14 @@ import {
   FaMinus,
   FaTrash,
   FaTag,
-  FaTruck,
   FaUndo,
   FaShieldAlt,
   FaMapMarkerAlt,
   FaCreditCard,
   FaMoneyBillWave,
+  FaShippingFast,
+  FaShoppingBag,
+  FaComments,
 } from "react-icons/fa";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
@@ -47,7 +49,7 @@ const CartPage = () => {
     selectedItemIds,
     clearSelectedItems,
   } = useCart();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -307,6 +309,11 @@ const CartPage = () => {
         // Clear cart and selected items
         displayItems.forEach(item => removeFromCart(item.id));
         clearSelectedItems();
+
+        // Create Coin Transaction
+        if (paymentMethod === 'coin_payment') {
+          await refreshUser();
+        }
 
         // Show success modal
         setShowSuccessModal(true);
@@ -1054,7 +1061,7 @@ const CartPage = () => {
                   <div className="space-y-3 pt-4 border-t">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <FaTruck className="text-red-600" size={20} />
+                        <FaShippingFast className="text-red-600" size={20} />
                       </div>
                       <div>
                         <p className="font-semibold text-gray-800 text-sm">
@@ -1067,8 +1074,8 @@ const CartPage = () => {
                     </div>
 
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <FaUndo className="text-blue-600" size={20} />
+                      <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FaShoppingBag className="text-red-600" size={20} />
                       </div>
                       <div>
                         <p className="font-semibold text-gray-800 text-sm">
@@ -1081,15 +1088,15 @@ const CartPage = () => {
                     </div>
 
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <FaShieldAlt className="text-green-600" size={20} />
+                      <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FaComments className="text-red-600" size={20} />
                       </div>
                       <div>
                         <p className="font-semibold text-gray-800 text-sm">
                           ดูแลลูกค้าทางออนไลน์
                         </p>
                         <p className="text-gray-600 text-xs">
-                          เราดูแลลูกค้าทางออนไลน์ในเวบาทำการ
+                          เราดูแลลูกค้าทางออนไลน์ในเวลาทำการ
                         </p>
                       </div>
                     </div>
