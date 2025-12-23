@@ -46,7 +46,7 @@ const useCountdown = (endTime?: string) => {
 
     const calculateTimeLeft = () => {
       const difference = new Date(endTime).getTime() - new Date().getTime();
-      
+
       if (difference <= 0) {
         setTimeLeft({
           days: 0,
@@ -83,11 +83,11 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const productCountdown = useCountdown(product.flashSaleEndTime);
-  
+
   // Calculate discount percentage
   const originalPrice = product.originalPrice || product.oldPrice || product.price * 1.2;
   const discountPercent = product.discount || Math.round(((originalPrice - product.price) / originalPrice) * 100);
-  
+
   return (
     <div
       className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all flex-shrink-0 cursor-pointer"
@@ -100,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           -{discountPercent}%
         </div>
         {/* Wishlist Button */}
-        <WishlistButton 
+        <WishlistButton
           productId={product._id}
           size="sm"
           className="absolute top-10 left-2 z-20"
@@ -113,17 +113,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
           )}
           {product.condition && (
-            <div className={`text-white text-xs px-2 py-1 rounded font-medium ${
-              product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
-              product.condition === 'สภาพดี' ? 'bg-blue-500' :
-              product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
-              'bg-gray-500'
-            }`}>
+            <div className={`text-white text-xs px-2 py-1 rounded font-medium ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
+                product.condition === 'สภาพดี' ? 'bg-blue-500' :
+                  product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
+                    'bg-gray-500'
+              }`}>
               {product.condition}
             </div>
           )}
         </div>
-        
+
         {/* Product Image */}
         <div className="w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
           <img
@@ -151,10 +150,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Price Section */}
         <div className="flex items-baseline gap-2">
           <span className="text-red-600 font-bold text-lg">
-            ฿{product.price.toLocaleString()}
+            {product.price.toLocaleString()} coins
           </span>
           <span className="text-gray-400 line-through text-xs">
-            ฿{originalPrice.toLocaleString()}
+            {originalPrice.toLocaleString()} coins
           </span>
         </div>
       </div>
@@ -170,14 +169,14 @@ const Flashsale = () => {
   const [loading, setLoading] = useState(true);
 
   // Get the earliest end time for countdown display
-  const earliestEndTime = products.length > 0 
+  const earliestEndTime = products.length > 0
     ? products.reduce((earliest, product) => {
-        if (!product.flashSaleEndTime) return earliest;
-        if (!earliest) return product.flashSaleEndTime;
-        return new Date(product.flashSaleEndTime) < new Date(earliest) 
-          ? product.flashSaleEndTime 
-          : earliest;
-      }, products[0]?.flashSaleEndTime)
+      if (!product.flashSaleEndTime) return earliest;
+      if (!earliest) return product.flashSaleEndTime;
+      return new Date(product.flashSaleEndTime) < new Date(earliest)
+        ? product.flashSaleEndTime
+        : earliest;
+    }, products[0]?.flashSaleEndTime)
     : undefined;
 
   const countdown = useCountdown(earliestEndTime);
@@ -186,11 +185,11 @@ const Flashsale = () => {
     const fetchFlashSaleProducts = async () => {
       try {
         setLoading(true);
-        const response = await productAPI.getProducts({ 
+        const response = await productAPI.getProducts({
           flashSale: 'true' as any,
-          limit: 20 
+          limit: 20
         });
-        
+
         if (response.success) {
           setProducts(response.data.products);
         }
@@ -253,9 +252,9 @@ const Flashsale = () => {
     return (
       <div className="bg-gray-50 w-full">
         <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 rounded-2xl"></div>
-        </div>
+          <div className="animate-pulse">
+            <div className="h-64 bg-gray-200 rounded-2xl"></div>
+          </div>
         </div>
       </div>
     );
@@ -265,9 +264,9 @@ const Flashsale = () => {
     return (
       <div className="bg-gray-50 w-full">
         <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-8 text-gray-500">
-          ไม่มีสินค้า Flash Sale ในขณะนี้
-        </div>
+          <div className="text-center py-8 text-gray-500">
+            ไม่มีสินค้า Flash Sale ในขณะนี้
+          </div>
         </div>
       </div>
     );
@@ -276,98 +275,95 @@ const Flashsale = () => {
   return (
     <div id="flashsale-section" className="bg-gray-50 w-full">
       <div className="container mx-auto px-4 py-8">
-      {/* Flash Sale Header */}
-      <div className="relative bg-white rounded-2xl px-8 py-6 mb-8 shadow-sm border border-gray-200">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <img src="/icons/bolt.png" alt="Flash Sale" className="w-8 h-8" />
-            <h2 className="text-red-600 text-2xl font-bold">Flash Sale</h2>
+        {/* Flash Sale Header */}
+        <div className="relative bg-white rounded-2xl px-8 py-6 mb-8 shadow-sm border border-gray-200">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <img src="/icons/bolt.png" alt="Flash Sale" className="w-8 h-8" />
+              <h2 className="text-red-600 text-2xl font-bold">Flash Sale</h2>
+            </div>
+
+            {/* Countdown Timer */}
+            {!countdown.isExpired && (
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                  <div className="text-2xl font-bold text-gray-800">{countdown.days}</div>
+                  <div className="text-xs text-gray-500">วัน</div>
+                </div>
+                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                  <div className="text-2xl font-bold text-gray-800">{countdown.hours.toString().padStart(2, '0')}</div>
+                  <div className="text-xs text-gray-500">ชั่วโมง</div>
+                </div>
+                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                  <div className="text-2xl font-bold text-gray-800">{countdown.minutes.toString().padStart(2, '0')}</div>
+                  <div className="text-xs text-gray-500">นาที</div>
+                </div>
+                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
+                  <div className="text-2xl font-bold text-gray-800">{countdown.seconds.toString().padStart(2, '0')}</div>
+                  <div className="text-xs text-gray-500">วินาที</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="relative">
+          {/* Left Arrow */}
+          <button
+            onClick={scrollLeft}
+            disabled={currentIndex === 0}
+            className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${currentIndex === 0
+                ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                : 'bg-black hover:bg-gray-800'
+              }`}
+            aria-label="Scroll left"
+          >
+            <FaChevronLeft className="text-white text-xl" />
+          </button>
+
+          {/* Right Arrow */}
+          <button
+            onClick={scrollRight}
+            disabled={currentIndex >= Math.max(0, products.length - 5)}
+            className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${currentIndex >= Math.max(0, products.length - 5)
+                ? 'bg-gray-400 cursor-not-allowed opacity-50'
+                : 'bg-black hover:bg-gray-800'
+              }`}
+            aria-label="Scroll right"
+          >
+            <FaChevronRight className="text-white text-xl" />
+          </button>
+
+          {/* Scrollable Container */}
+          <div className="overflow-hidden px-12">
+            <div
+              ref={scrollContainerRef}
+              className="flex gap-4 transition-transform duration-700 ease-in-out"
+              style={{
+                transform: `translateX(-${currentIndex * 20.8}%)`
+              }}
+            >
+              {products.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
           </div>
 
-          {/* Countdown Timer */}
-          {!countdown.isExpired && (
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                <div className="text-2xl font-bold text-gray-800">{countdown.days}</div>
-                <div className="text-xs text-gray-500">วัน</div>
-              </div>
-              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                <div className="text-2xl font-bold text-gray-800">{countdown.hours.toString().padStart(2, '0')}</div>
-                <div className="text-xs text-gray-500">ชั่วโมง</div>
-              </div>
-              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                <div className="text-2xl font-bold text-gray-800">{countdown.minutes.toString().padStart(2, '0')}</div>
-                <div className="text-xs text-gray-500">นาที</div>
-              </div>
-              <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                <div className="text-2xl font-bold text-gray-800">{countdown.seconds.toString().padStart(2, '0')}</div>
-                <div className="text-xs text-gray-500">วินาที</div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="relative">
-        {/* Left Arrow */}
-        <button
-          onClick={scrollLeft}
-          disabled={currentIndex === 0}
-          className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${
-            currentIndex === 0 
-              ? 'bg-gray-400 cursor-not-allowed opacity-50' 
-              : 'bg-black hover:bg-gray-800'
-          }`}
-          aria-label="Scroll left"
-        >
-          <FaChevronLeft className="text-white text-xl" />
-        </button>
-
-        {/* Right Arrow */}
-        <button
-          onClick={scrollRight}
-          disabled={currentIndex >= Math.max(0, products.length - 5)}
-          className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${
-            currentIndex >= Math.max(0, products.length - 5)
-              ? 'bg-gray-400 cursor-not-allowed opacity-50' 
-              : 'bg-black hover:bg-gray-800'
-          }`}
-          aria-label="Scroll right"
-        >
-          <FaChevronRight className="text-white text-xl" />
-        </button>
-
-        {/* Scrollable Container */}
-        <div className="overflow-hidden px-12">
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-4 transition-transform duration-700 ease-in-out"
-            style={{ 
-              transform: `translateX(-${currentIndex * 20.8}%)`
-            }}
-          >
-            {products.map((product) => (
-              <ProductCard key={product._id} product={product} />
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-6">
+            {Array.from({ length: Math.max(1, Math.ceil(products.length / 5)) }).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
+                    ? 'bg-red-600 w-8'
+                    : 'bg-gray-300 w-2 hover:bg-gray-400'
+                  }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
             ))}
           </div>
         </div>
-
-        {/* Dots Indicator */}
-        <div className="flex justify-center gap-2 mt-6">
-          {Array.from({ length: Math.max(1, Math.ceil(products.length / 5)) }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-red-600 w-8' 
-                  : 'bg-gray-300 w-2 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      </div>
       </div>
     </div>
   );

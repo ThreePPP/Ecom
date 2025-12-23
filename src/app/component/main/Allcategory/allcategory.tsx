@@ -24,11 +24,11 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   // ใช้รูปหน้าปก ถ้าไม่มีให้ใช้รูปแรกจาก images หรือ image เดิม
   const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
-  
+
   // กำหนดสีและไอคอนตามสภาพสินค้า
   const getConditionBadge = () => {
     if (!product.condition) return null;
-    
+
     const conditionStyles: { [key: string]: { bg: string; text: string; label: string } } = {
       'สภาพเหมือนใหม่': { bg: 'bg-green-100', text: 'text-green-700', label: 'สภาพเหมือนใหม่' },
       'สภาพดี': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'สภาพดี' },
@@ -44,16 +44,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       </span>
     );
   };
-  
+
   return (
-    <div 
+    <div
       className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow cursor-pointer"
       onClick={() => window.location.href = `/products/${product._id}`}
     >
       <div className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden relative">
-        <img 
-          src={imageUrl} 
-          alt={product.name} 
+        <img
+          src={imageUrl}
+          alt={product.name}
           className="w-full h-full object-cover"
         />
         {/* แสดงสภาพสินค้าที่มุมบนขวา */}
@@ -68,9 +68,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           {product.name}
         </h3>
         <p className="text-lg font-bold text-orange-500 mb-2">
-          ฿{product.price.toLocaleString()}
+          {product.price.toLocaleString()} coins
         </p>
-        <AddToCartButton 
+        <AddToCartButton
           onClick={() => onAddToCart(product)}
         />
       </div>
@@ -110,11 +110,11 @@ const CategorySection: React.FC<CategorySectionProps> = ({ category, onAddToCart
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await productAPI.getProducts({ 
+        const response = await productAPI.getProducts({
           category: category,
           limit: 8
         });
-        
+
         if (response.success) {
           setProducts(response.data.products);
         }
@@ -191,14 +191,14 @@ const AllCategory = () => {
                   {isSidebarOpen && (
                     <>
                       <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+                        <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" />
                       </svg>
                       <h2 className="font-bold whitespace-nowrap">สินค้า DIY ของ FavorPC</h2>
                     </>
                   )}
                   {!isSidebarOpen && (
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+                      <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" />
                     </svg>
                   )}
                 </div>
@@ -206,12 +206,12 @@ const AllCategory = () => {
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   className="hover:bg-gray-200 rounded p-1 transition-colors"
                 >
-                  <svg 
-                    className={`w-5 h-5 transition-transform ${isSidebarOpen ? '' : 'rotate-180'}`} 
-                    fill="currentColor" 
+                  <svg
+                    className={`w-5 h-5 transition-transform ${isSidebarOpen ? '' : 'rotate-180'}`}
+                    fill="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
                   </svg>
                 </button>
               </div>
@@ -222,11 +222,10 @@ const AllCategory = () => {
                   <button
                     key={category.key}
                     onClick={() => handleCategoryClick(category.key)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors mb-1 ${
-                      selectedCategory === category.key
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors mb-1 ${selectedCategory === category.key
                         ? 'bg-red-50 border-l-4 border-red-600 text-red-600'
                         : 'hover:bg-gray-100 text-gray-700'
-                    }`}
+                      }`}
                   >
                     <img src={category.icon} alt={category.name} className="w-6 h-6 flex-shrink-0" />
                     {isSidebarOpen && (
@@ -234,7 +233,7 @@ const AllCategory = () => {
                     )}
                   </button>
                 ))}
-                
+
                 {/* PC Builder Button - Separate */}
                 <button
                   onClick={() => window.location.href = "/pc-builder"}

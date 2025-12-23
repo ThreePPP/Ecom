@@ -129,17 +129,17 @@ const ProductDetailPage = () => {
   // ใช้ detailCoverImage ถ้ามี ถ้าไม่มีใช้ images array
   const images = product.detailCoverImage
     ? [product.detailCoverImage, ...(product.images?.filter(img => img !== product.detailCoverImage) || [])]
-    : product.images && product.images.length > 0 
-    ? product.images 
-    : product.image 
-    ? [product.image] 
-    : ['/placeholder.jpg'];
+    : product.images && product.images.length > 0
+      ? product.images
+      : product.image
+        ? [product.image]
+        : ['/placeholder.jpg'];
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
       <Navbar showBanner={false} showPromotion={false} />
-      
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <Breadcrumb items={[
@@ -168,11 +168,10 @@ const ProductDetailPage = () => {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImage === index
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index
                           ? 'border-red-600'
                           : 'border-gray-200 hover:border-gray-400'
-                      }`}
+                        }`}
                     >
                       <img
                         src={img}
@@ -212,12 +211,11 @@ const ProductDetailPage = () => {
                 {product.condition && (
                   <div>
                     <span className="font-semibold">สภาพสินค้า:</span>{' '}
-                    <span className={`font-medium ${
-                      product.condition === 'สภาพเหมือนใหม่' ? 'text-green-600' :
-                      product.condition === 'สภาพดี' ? 'text-blue-600' :
-                      product.condition === 'สภาพพอใช้' ? 'text-yellow-600' :
-                      'text-gray-600'
-                    }`}>
+                    <span className={`font-medium ${product.condition === 'สภาพเหมือนใหม่' ? 'text-green-600' :
+                        product.condition === 'สภาพดี' ? 'text-blue-600' :
+                          product.condition === 'สภาพพอใช้' ? 'text-yellow-600' :
+                            'text-gray-600'
+                      }`}>
                       {product.condition}
                     </span>
                   </div>
@@ -226,18 +224,17 @@ const ProductDetailPage = () => {
 
               {/* Action Icons */}
               <div className="flex gap-4 mb-6">
-                <button 
+                <button
                   onClick={handleAddToCompare}
-                  className={`p-2 rounded-full transition-colors ${
-                    isInCompare(product._id)
+                  className={`p-2 rounded-full transition-colors ${isInCompare(product._id)
                       ? 'bg-yellow-100 text-yellow-600'
                       : 'hover:bg-gray-100 text-gray-600'
-                  }`}
+                    }`}
                   title={isInCompare(product._id) ? 'อยู่ในรายการเปรียบเทียบแล้ว' : 'เปรียบเทียบสินค้า'}
                 >
                   <FaExchangeAlt className={isInCompare(product._id) ? 'text-yellow-600' : 'text-gray-600'} />
                 </button>
-                <WishlistButton 
+                <WishlistButton
                   productId={product._id}
                   size="lg"
                   showBackground={false}
@@ -248,7 +245,7 @@ const ProductDetailPage = () => {
               {/* Price */}
               <div className="mb-8">
                 <div className="text-4xl font-bold text-gray-900">
-                  ฿{product.price ? product.price.toLocaleString() : '0'}
+                  {product.price ? product.price.toLocaleString() : '0'} coins
                 </div>
               </div>
 

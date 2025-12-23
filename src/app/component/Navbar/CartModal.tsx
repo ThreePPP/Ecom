@@ -109,11 +109,10 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                   <div className="flex items-start pt-8">
                     <button
                       onClick={() => toggleSelectItem(item.id)}
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                        selectedItems.has(item.id)
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedItems.has(item.id)
                           ? 'bg-blue-600 border-blue-600'
                           : 'border-gray-300 hover:border-blue-400'
-                      }`}
+                        }`}
                     >
                       {selectedItems.has(item.id) && (
                         <FaCheck size={12} className="text-white" />
@@ -137,7 +136,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                     <h3 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2">
                       {item.name}
                     </h3>
-                    
+
                     {/* Stock Status */}
                     <div className="mb-2">
                       <span className="text-xs text-green-600 font-medium">สินค้าพร้อมส่ง</span>
@@ -145,7 +144,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
 
                     {/* Price */}
                     <div className="text-red-600 font-bold text-lg mb-3">
-                      ฿{Number(item.price).toLocaleString()}
+                      {Number(item.price).toLocaleString()} coins
                     </div>
 
                     {/* Quantity Controls */}
@@ -199,11 +198,10 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                 className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
               >
                 <div
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                    selectedItems.size === cart.length
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedItems.size === cart.length
                       ? 'bg-blue-600 border-blue-600'
                       : 'border-gray-300'
-                  }`}
+                    }`}
                 >
                   {selectedItems.size === cart.length && (
                     <FaCheck size={10} className="text-white" />
@@ -212,7 +210,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                 <span>เลือกทั้งหมด ({selectedItems.size}/{cart.length})</span>
               </button>
               <span className="text-sm text-gray-600">
-                รวม: <span className="font-bold text-red-600 text-base">฿{getSelectedTotal().toLocaleString()}</span>
+                รวม: <span className="font-bold text-red-600 text-base">{getSelectedTotal().toLocaleString()} coins</span>
               </span>
             </div>
 
@@ -221,13 +219,12 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
               <button
                 onClick={handleCheckout}
                 disabled={selectedItems.size === 0}
-                className={`w-full px-6 py-3.5 rounded-lg font-bold text-base transition-all ${
-                  selectedItems.size === 0
+                className={`w-full px-6 py-3.5 rounded-lg font-bold text-base transition-all ${selectedItems.size === 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg'
-                }`}
+                  }`}
               >
-                สั่งซื้อ ({selectedItems.size} ชิ้น) ฿{getSelectedTotal().toLocaleString()}
+                สั่งซื้อ ({selectedItems.size} ชิ้น) {getSelectedTotal().toLocaleString()} coins
               </button>
               <button
                 onClick={onClose}

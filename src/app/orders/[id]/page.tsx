@@ -122,7 +122,7 @@ export default function OrderDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar showBanner={false} showPromotion={false} />
-      
+
       <div className="max-w-6xl mx-auto px-4 py-12">
         <Breadcrumb
           items={[
@@ -161,11 +161,10 @@ export default function OrderDetailPage() {
               {getStatusText(order.orderStatus)}
             </span>
             <span
-              className={`px-4 py-2 rounded-full text-sm font-medium ${
-                order.paymentStatus === "paid"
+              className={`px-4 py-2 rounded-full text-sm font-medium ${order.paymentStatus === "paid"
                   ? "bg-green-100 text-green-800"
                   : "bg-yellow-100 text-yellow-800"
-              }`}
+                }`}
             >
               {order.paymentStatus === "paid"
                 ? "ชำระเงินแล้ว"
@@ -202,10 +201,10 @@ export default function OrderDetailPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-red-600">
-                    ฿{(item.price * item.quantity).toLocaleString()}
+                    {(item.price * item.quantity).toLocaleString()} coins
                   </p>
                   <p className="text-sm text-gray-600">
-                    ฿{item.price.toLocaleString()} / ชิ้น
+                    {item.price.toLocaleString()} coins / ชิ้น
                   </p>
                 </div>
               </div>
@@ -250,20 +249,20 @@ export default function OrderDetailPage() {
             <div className="border-t pt-3 space-y-2">
               <div className="flex justify-between text-gray-600">
                 <span>ราคาสินค้า:</span>
-                <span>฿{order.subtotal.toLocaleString()}</span>
+                <span>{order.subtotal.toLocaleString()} coins</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>ค่าจัดส่ง:</span>
                 <span className="text-green-600">
                   {order.shippingFee === 0
                     ? "ฟรี"
-                    : `฿${order.shippingFee.toLocaleString()}`}
+                    : `${order.shippingFee.toLocaleString()} coins`}
                 </span>
               </div>
               {order.discount > 0 && (
                 <div className="flex justify-between text-green-600 font-semibold">
                   <span>ส่วนลด:</span>
-                  <span>-฿{order.discount.toLocaleString()}</span>
+                  <span>-{order.discount.toLocaleString()} coins</span>
                 </div>
               )}
             </div>
@@ -272,7 +271,7 @@ export default function OrderDetailPage() {
                 ยอดรวมทั้งหมด:
               </span>
               <span className="text-2xl font-bold text-red-600">
-                ฿{order.total.toLocaleString()}
+                {order.total.toLocaleString()} coins
               </span>
             </div>
           </div>

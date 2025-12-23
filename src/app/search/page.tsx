@@ -49,7 +49,7 @@ function SearchContent() {
     try {
       setLoading(true);
       const response = await productAPI.getProducts({ search: query });
-      
+
       if (response.success) {
         setProducts(response.data.products);
       }
@@ -143,27 +143,26 @@ function SearchContent() {
                     onClick={() => router.push(`/products/${product._id}`)}
                   >
                     {/* Wishlist Button */}
-                    <WishlistButton 
+                    <WishlistButton
                       productId={product._id}
                       size="sm"
                       className="absolute top-2 left-2 z-20"
                       onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
                     />
-                    
+
                     {/* Condition Badge */}
                     {product.condition && (
                       <div className="absolute top-2 right-2 z-10">
-                        <div className={`text-white text-xs px-2 py-1 rounded font-medium ${
-                          product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
-                          product.condition === 'สภาพดี' ? 'bg-blue-500' :
-                          product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
-                          'bg-gray-500'
-                        }`}>
+                        <div className={`text-white text-xs px-2 py-1 rounded font-medium ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
+                            product.condition === 'สภาพดี' ? 'bg-blue-500' :
+                              product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
+                                'bg-gray-500'
+                          }`}>
                           {product.condition}
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
                       <img
                         src={imageUrl}
@@ -177,7 +176,7 @@ function SearchContent() {
                         {product.name}
                       </h3>
                       <p className="text-lg font-bold text-gray-900 mb-3">
-                        ฿{product.price.toLocaleString()}
+                        {product.price.toLocaleString()} coins
                       </p>
                       <AddToCartButton
                         onClick={() => router.push(`/products/${product._id}`)}

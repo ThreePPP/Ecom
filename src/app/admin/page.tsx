@@ -5,10 +5,10 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 import AdminNotificationBell from "@/app/component/Admin/AdminNotificationBell";
-import { 
-  FaUsers, 
-  FaBox, 
-  FaShoppingCart, 
+import {
+  FaUsers,
+  FaBox,
+  FaShoppingCart,
   FaMoneyBillWave,
   FaChartLine,
   FaClipboardList,
@@ -66,7 +66,7 @@ export default function AdminPage() {
   const fetchAdminData = async () => {
     try {
       const token = localStorage.getItem("token");
-      
+
       // Fetch stats from admin API
       const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/stats`, {
         headers: {
@@ -214,7 +214,7 @@ export default function AdminPage() {
               <div>
                 <p className="text-gray-500 text-sm">ยอดขายรวม</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
-                  ฿{stats.totalRevenue.toLocaleString()}
+                  {stats.totalRevenue.toLocaleString()} coins
                 </p>
               </div>
               <div className="bg-yellow-100 p-3 rounded-lg">
@@ -333,7 +333,7 @@ export default function AdminPage() {
                         {order.user.firstName} {order.user.lastName}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        ฿{order.total.toLocaleString()}
+                        {order.total.toLocaleString()} coins
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span

@@ -118,7 +118,7 @@ export default function AdminProductsPage() {
     try {
       setLoading(true);
       setError('');
-      
+
       // ตรวจสอบว่ามี token หรือไม่
       const token = localStorage.getItem('token');
       if (!token) {
@@ -126,10 +126,10 @@ export default function AdminProductsPage() {
         router.push('/');
         return;
       }
-      
+
       // ดึงสินค้าทั้งหมดผ่าน admin API (รวมถึง inactive)
       const response = await adminAPI.getAllProducts();
-      
+
       if (response.success) {
         setProducts(response.data.products);
       }
@@ -154,7 +154,7 @@ export default function AdminProductsPage() {
       // Support both old (image) and new (images) format
       const imageUrls = product.images || (product.image ? [product.image] : []);
       // Format date to datetime-local format (YYYY-MM-DDTHH:mm)
-      const flashSaleDate = product.flashSaleEndTime 
+      const flashSaleDate = product.flashSaleEndTime
         ? new Date(product.flashSaleEndTime).toISOString().slice(0, 16)
         : '';
       setFormData({
@@ -263,7 +263,7 @@ export default function AdminProductsPage() {
 
       // Build specifications based on category
       const specifications: Record<string, string> = {};
-      
+
       if (modalSelectedSocket) {
         specifications['Socket'] = modalSelectedSocket;
       }
@@ -295,7 +295,7 @@ export default function AdminProductsPage() {
       if (modalSelectedCoolerSocket) {
         specifications['Socket Support'] = modalSelectedCoolerSocket;
       }
-      
+
       // Only add specifications if there are any
       if (Object.keys(specifications).length > 0) {
         productData.specifications = specifications;
@@ -333,7 +333,7 @@ export default function AdminProductsPage() {
 
     try {
       const response = await productAPI.deleteProduct(productId);
-      
+
       if (response.success) {
         alert('ลบสินค้าสำเร็จ');
         fetchProducts();
@@ -453,69 +453,69 @@ export default function AdminProductsPage() {
           {currentProducts.map((product) => {
             const imageUrl = product.images?.[0] || product.image || '/placeholder.png';
             return (
-            <div key={product._id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative h-48">
-                <img
-                  src={imageUrl}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-                {product.stock < 10 && (
-                  <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                    สต็อกต่ำ
+              <div key={product._id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative h-48">
+                  <img
+                    src={imageUrl}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                  {product.stock < 10 && (
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                      สต็อกต่ำ
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg font-bold text-orange-500">
+                      {product.price.toLocaleString()} coins
+                    </span>
+                    {product.originalPrice && (
+                      <span className="text-sm text-gray-400 line-through">
+                        {product.originalPrice.toLocaleString()} coins
+                      </span>
+                    )}
                   </div>
-                )}
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg font-bold text-orange-500">
-                    ฿{product.price.toLocaleString()}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-sm text-gray-400 line-through">
-                      ฿{product.originalPrice.toLocaleString()}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm text-gray-600">
+                      หมวดหมู่: {product.category}
                     </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm text-gray-600">
-                    หมวดหมู่: {product.category}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm text-gray-600">
-                    คงเหลือ: {product.stock} ชิ้น
-                  </span>
-                </div>
-                <div className="flex gap-2 mb-3">
-                  {product.isFeatured && (
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                      แนะนำ
+                  </div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm text-gray-600">
+                      คงเหลือ: {product.stock} ชิ้น
                     </span>
-                  )}
-                  {product.isFlashSale && (
-                    <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                      Flash Sale
-                    </span>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleOpenModal(product)}
-                    className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 text-sm font-medium"
-                  >
-                    แก้ไข
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product._id, product.name)}
-                    className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 text-sm font-medium"
-                  >
-                    ลบ
-                  </button>
+                  </div>
+                  <div className="flex gap-2 mb-3">
+                    {product.isFeatured && (
+                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        แนะนำ
+                      </span>
+                    )}
+                    {product.isFlashSale && (
+                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                        Flash Sale
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleOpenModal(product)}
+                      className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 text-sm font-medium"
+                    >
+                      แก้ไข
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product._id, product.name)}
+                      className="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 text-sm font-medium"
+                    >
+                      ลบ
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
             );
           })}
         </div>
@@ -533,7 +533,7 @@ export default function AdminProductsPage() {
               <div className="text-sm text-gray-600">
                 แสดง {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} จาก {filteredProducts.length} สินค้า (หน้า {currentPage}/{totalPages})
               </div>
-              
+
               {/* Items per page selector */}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">แสดง:</span>
@@ -560,11 +560,10 @@ export default function AdminProductsPage() {
               <button
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
-                className={`px-3 py-2 rounded-lg font-medium text-sm ${
-                  currentPage === 1
+                className={`px-3 py-2 rounded-lg font-medium text-sm ${currentPage === 1
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
                 title="หน้าแรก"
               >
                 ⏮
@@ -574,11 +573,10 @@ export default function AdminProductsPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  currentPage === 1
+                className={`px-4 py-2 rounded-lg font-medium ${currentPage === 1
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 ← ก่อนหน้า
               </button>
@@ -596,11 +594,10 @@ export default function AdminProductsPage() {
                         <button
                           key={page}
                           onClick={() => setCurrentPage(page)}
-                          className={`w-10 h-10 rounded-lg font-medium ${
-                            currentPage === page
+                          className={`w-10 h-10 rounded-lg font-medium ${currentPage === page
                               ? 'bg-orange-500 text-white'
                               : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                          }`}
+                            }`}
                         >
                           {page}
                         </button>
@@ -624,11 +621,10 @@ export default function AdminProductsPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  currentPage === totalPages || totalPages === 0
+                className={`px-4 py-2 rounded-lg font-medium ${currentPage === totalPages || totalPages === 0
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 ถัดไป →
               </button>
@@ -637,11 +633,10 @@ export default function AdminProductsPage() {
               <button
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className={`px-3 py-2 rounded-lg font-medium text-sm ${
-                  currentPage === totalPages || totalPages === 0
+                className={`px-3 py-2 rounded-lg font-medium text-sm ${currentPage === totalPages || totalPages === 0
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
                 title="หน้าสุดท้าย"
               >
                 ⏭
@@ -674,7 +669,7 @@ export default function AdminProductsPage() {
                       value={modalFilterBrand}
                       onChange={(e) => {
                         setModalFilterBrand(e.target.value);
-                        setFormData({...formData, brand: e.target.value});
+                        setFormData({ ...formData, brand: e.target.value });
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                     >
@@ -698,7 +693,7 @@ export default function AdminProductsPage() {
                       value={modalFilterCondition}
                       onChange={(e) => {
                         setModalFilterCondition(e.target.value);
-                        setFormData({...formData, condition: e.target.value});
+                        setFormData({ ...formData, condition: e.target.value });
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                     >
@@ -711,13 +706,13 @@ export default function AdminProductsPage() {
                   {/* Category Selector */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      เลือกหมวดหมู่ 
+                      เลือกหมวดหมู่
                     </label>
                     <select
                       value={modalFilterCategory}
                       onChange={(e) => {
                         setModalFilterCategory(e.target.value);
-                        setFormData({...formData, category: e.target.value, brand: ''});
+                        setFormData({ ...formData, category: e.target.value, brand: '' });
                         setModalFilterBrand('');
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
@@ -1067,7 +1062,7 @@ export default function AdminProductsPage() {
                     type="text"
                     required
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                   />
                 </div>
@@ -1081,7 +1076,7 @@ export default function AdminProductsPage() {
                       type="number"
                       required
                       value={formData.price}
-                      onChange={(e) => setFormData({...formData, price: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                     />
                   </div>
@@ -1092,7 +1087,7 @@ export default function AdminProductsPage() {
                     <input
                       type="number"
                       value={formData.originalPrice}
-                      onChange={(e) => setFormData({...formData, originalPrice: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                     />
                   </div>
@@ -1106,7 +1101,7 @@ export default function AdminProductsPage() {
                     type="number"
                     required
                     value={formData.stock}
-                    onChange={(e) => setFormData({...formData, stock: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                   />
                 </div>
@@ -1115,7 +1110,7 @@ export default function AdminProductsPage() {
                 <MultipleImageUpload
                   label="รูปภาพสินค้า *"
                   currentImages={formData.images}
-                  onUploadSuccess={(urls) => setFormData({...formData, images: urls})}
+                  onUploadSuccess={(urls) => setFormData({ ...formData, images: urls })}
                   maxImages={100}
                 />
 
@@ -1134,7 +1129,7 @@ export default function AdminProductsPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => setFormData({...formData, coverImage: ''})}
+                          onClick={() => setFormData({ ...formData, coverImage: '' })}
                           className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1151,12 +1146,11 @@ export default function AdminProductsPage() {
                         <button
                           key={index}
                           type="button"
-                          onClick={() => setFormData({...formData, coverImage: img})}
-                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                            formData.coverImage === img 
-                              ? 'border-orange-500 ring-2 ring-orange-300' 
+                          onClick={() => setFormData({ ...formData, coverImage: img })}
+                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${formData.coverImage === img
+                              ? 'border-orange-500 ring-2 ring-orange-300'
                               : 'border-gray-300 hover:border-orange-300'
-                          }`}
+                            }`}
                         >
                           <img
                             src={img}
@@ -1194,7 +1188,7 @@ export default function AdminProductsPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => setFormData({...formData, detailCoverImage: ''})}
+                          onClick={() => setFormData({ ...formData, detailCoverImage: '' })}
                           className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1214,11 +1208,10 @@ export default function AdminProductsPage() {
                       type="button"
                       onClick={() => setShowDetailCoverModal(true)}
                       disabled={formData.images.length === 0}
-                      className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                        formData.images.length === 0
+                      className={`w-full px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${formData.images.length === 0
                           ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-blue-500 text-white hover:bg-blue-600'
-                      }`}
+                        }`}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -1239,7 +1232,7 @@ export default function AdminProductsPage() {
                     required
                     rows={4}
                     value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none text-black"
                   />
                 </div>
@@ -1251,7 +1244,7 @@ export default function AdminProductsPage() {
                       name="productType"
                       checked={formData.isFeatured}
                       onChange={(e) => setFormData({
-                        ...formData, 
+                        ...formData,
                         isFeatured: e.target.checked,
                         isFlashSale: false,
                         showInCategory: false
@@ -1266,7 +1259,7 @@ export default function AdminProductsPage() {
                       name="productType"
                       checked={formData.isFlashSale}
                       onChange={(e) => setFormData({
-                        ...formData, 
+                        ...formData,
                         isFlashSale: e.target.checked,
                         isFeatured: false,
                         showInCategory: false
@@ -1281,7 +1274,7 @@ export default function AdminProductsPage() {
                       name="productType"
                       checked={formData.showInCategory}
                       onChange={(e) => setFormData({
-                        ...formData, 
+                        ...formData,
                         showInCategory: e.target.checked,
                         isFeatured: false,
                         isFlashSale: false
@@ -1301,7 +1294,7 @@ export default function AdminProductsPage() {
                     <input
                       type="datetime-local"
                       value={formData.flashSaleEndTime}
-                      onChange={(e) => setFormData({...formData, flashSaleEndTime: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, flashSaleEndTime: e.target.value })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-black"
                       required
                     />
@@ -1355,14 +1348,13 @@ export default function AdminProductsPage() {
                     key={index}
                     type="button"
                     onClick={() => {
-                      setFormData({...formData, detailCoverImage: img});
+                      setFormData({ ...formData, detailCoverImage: img });
                       setShowDetailCoverModal(false);
                     }}
-                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                      formData.detailCoverImage === img 
-                        ? 'border-blue-500 ring-4 ring-blue-300' 
+                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${formData.detailCoverImage === img
+                        ? 'border-blue-500 ring-4 ring-blue-300'
                         : 'border-gray-300 hover:border-blue-400'
-                    }`}
+                      }`}
                   >
                     <img
                       src={img}

@@ -100,73 +100,73 @@ export default function OrdersPage() {
               <a
                 href="/"
                 className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+              >
+                เริ่มช้อปปิ้ง
+              </a>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((order) => (
+                <div key={order._id} className="bg-white rounded-lg shadow p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="font-semibold text-lg text-gray-900">
+                        คำสั่งซื้อ: <span className="text-gray-900">{order.orderNumber}</span>
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {new Date(order.createdAt).toLocaleDateString("th-TH", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {order.total.toLocaleString()} coins
+                      </div>
+                      <span
+                        className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                          order.orderStatus
+                        )}`}
+                      >
+                        {getStatusText(order.orderStatus)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <p className="text-sm text-gray-600 mb-2">
+                      สินค้า: {order.items.length} รายการ
+                    </p>
+                    <div className="flex gap-2">
+                      <a
+                        href={`/orders/${order._id}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        ดูรายละเอียด →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-8">
+            <a
+              href="/"
+              className="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700"
             >
-              เริ่มช้อปปิ้ง
+              ← กลับหน้าแรก
             </a>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {orders.map((order) => (
-              <div key={order._id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-lg text-gray-900">
-                      คำสั่งซื้อ: <span className="text-gray-900">{order.orderNumber}</span>
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString("th-TH", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">
-                      ฿{order.total.toLocaleString()}
-                    </div>
-                    <span
-                      className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                        order.orderStatus
-                      )}`}
-                    >
-                      {getStatusText(order.orderStatus)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <p className="text-sm text-gray-600 mb-2">
-                    สินค้า: {order.items.length} รายการ
-                  </p>
-                  <div className="flex gap-2">
-                    <a
-                      href={`/orders/${order._id}`}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      ดูรายละเอียด →
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-8">
-          <a
-            href="/"
-            className="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700"
-          >
-            ← กลับหน้าแรก
-          </a>
         </div>
       </div>
-    </div>
-    <Features />
-    <Footer />
-  </>
+      <Features />
+      <Footer />
+    </>
   );
 }

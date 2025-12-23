@@ -43,8 +43,8 @@ export default function ComparePage() {
     const keys = new Set<string>();
     compareItems.forEach(item => {
       if (item.specifications) {
-        const specs = item.specifications instanceof Map 
-          ? Object.fromEntries(item.specifications) 
+        const specs = item.specifications instanceof Map
+          ? Object.fromEntries(item.specifications)
           : item.specifications;
         Object.keys(specs).forEach(key => keys.add(key));
       }
@@ -54,8 +54,8 @@ export default function ComparePage() {
 
   const getSpecValue = (product: any, key: string) => {
     if (!product.specifications) return '-';
-    const specs = product.specifications instanceof Map 
-      ? Object.fromEntries(product.specifications) 
+    const specs = product.specifications instanceof Map
+      ? Object.fromEntries(product.specifications)
       : product.specifications;
     return specs[key] || '-';
   };
@@ -87,7 +87,7 @@ export default function ComparePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar showBanner={false} showPromotion={false} />
-      
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Breadcrumb items={[{ label: 'เปรียบเทียบสินค้า' }]} />
         <div className="flex items-center justify-between mb-8">
@@ -155,7 +155,7 @@ export default function ComparePage() {
                 </td>
                 {compareItems.map((item) => (
                   <td key={item._id || item.id} className="p-4">
-                    <div 
+                    <div
                       className="font-semibold text-gray-900 cursor-pointer hover:text-red-600"
                       onClick={() => router.push(`/products/${item._id || item.id}`)}
                     >
@@ -173,11 +173,11 @@ export default function ComparePage() {
                 {compareItems.map((item) => (
                   <td key={item._id || item.id} className="p-4">
                     <div className="text-2xl font-bold text-red-600">
-                      ฿{item.price.toLocaleString()}
+                      {item.price.toLocaleString()} coins
                     </div>
                     {item.originalPrice && item.originalPrice > item.price && (
                       <div className="text-sm text-gray-500 line-through">
-                        ฿{item.originalPrice.toLocaleString()}
+                        {item.originalPrice.toLocaleString()} coins
                       </div>
                     )}
                   </td>
@@ -215,15 +215,14 @@ export default function ComparePage() {
                 </td>
                 {compareItems.map((item) => (
                   <td key={item._id || item.id} className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      item.condition === 'สภาพเหมือนใหม่' 
-                        ? 'bg-green-100 text-green-700' 
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${item.condition === 'สภาพเหมือนใหม่'
+                        ? 'bg-green-100 text-green-700'
                         : item.condition === 'สภาพดี'
-                        ? 'bg-blue-100 text-blue-700'
-                        : item.condition === 'สภาพพอใช้'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}>
+                          ? 'bg-blue-100 text-blue-700'
+                          : item.condition === 'สภาพพอใช้'
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : 'bg-gray-100 text-gray-700'
+                      }`}>
                       {item.condition || '-'}
                     </span>
                   </td>
@@ -237,11 +236,10 @@ export default function ComparePage() {
                 </td>
                 {compareItems.map((item) => (
                   <td key={item._id || item.id} className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      (item.stock || 0) > 0 
-                        ? 'bg-green-100 text-green-700' 
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${(item.stock || 0) > 0
+                        ? 'bg-green-100 text-green-700'
                         : 'bg-red-100 text-red-700'
-                    }`}>
+                      }`}>
                       {(item.stock || 0) > 0 ? 'มีสินค้า' : 'สินค้าหมด'}
                     </span>
                   </td>
@@ -262,8 +260,8 @@ export default function ComparePage() {
 
               {/* Specifications */}
               {specKeys.map((key, index) => (
-                <tr 
-                  key={key} 
+                <tr
+                  key={key}
                   className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-gray-50' : ''}`}
                 >
                   <td className={`sticky left-0 p-4 font-semibold text-gray-700 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
@@ -287,11 +285,10 @@ export default function ComparePage() {
                     <button
                       onClick={() => handleAddToCart(item)}
                       disabled={(item.stock || 0) <= 0}
-                      className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
-                        (item.stock || 0) > 0
+                      className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${(item.stock || 0) > 0
                           ? 'bg-red-600 text-white hover:bg-red-700'
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
+                        }`}
                     >
                       <FaShoppingCart />
                       {(item.stock || 0) > 0 ? 'เพิ่มลงตะกร้า' : 'สินค้าหมด'}

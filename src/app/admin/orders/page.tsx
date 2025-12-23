@@ -65,7 +65,7 @@ export default function AdminOrdersPage() {
       setLoading(true);
       setError('');
       const response = await orderAPI.getMyOrders();
-      
+
       if (response.success) {
         setOrders(response.data.orders);
       }
@@ -83,7 +83,7 @@ export default function AdminOrdersPage() {
 
     try {
       const response = await orderAPI.updateOrderStatus(orderId, newStatus);
-      
+
       if (response.success) {
         alert('อัพเดทสถานะสำเร็จ');
         fetchOrders();
@@ -166,51 +166,46 @@ export default function AdminOrdersPage() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                filterStatus === 'all'
+              className={`px-4 py-2 rounded-lg font-medium ${filterStatus === 'all'
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               ทั้งหมด ({orders.length})
             </button>
             <button
               onClick={() => setFilterStatus('pending')}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                filterStatus === 'pending'
+              className={`px-4 py-2 rounded-lg font-medium ${filterStatus === 'pending'
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               รอดำเนินการ ({orders.filter(o => o.orderStatus === 'pending').length})
             </button>
             <button
               onClick={() => setFilterStatus('processing')}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                filterStatus === 'processing'
+              className={`px-4 py-2 rounded-lg font-medium ${filterStatus === 'processing'
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               กำลังดำเนินการ ({orders.filter(o => o.orderStatus === 'processing').length})
             </button>
             <button
               onClick={() => setFilterStatus('shipped')}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                filterStatus === 'shipped'
+              className={`px-4 py-2 rounded-lg font-medium ${filterStatus === 'shipped'
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               จัดส่งแล้ว ({orders.filter(o => o.orderStatus === 'shipped').length})
             </button>
             <button
               onClick={() => setFilterStatus('delivered')}
-              className={`px-4 py-2 rounded-lg font-medium ${
-                filterStatus === 'delivered'
+              className={`px-4 py-2 rounded-lg font-medium ${filterStatus === 'delivered'
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               สำเร็จ ({orders.filter(o => o.orderStatus === 'delivered').length})
             </button>
@@ -276,18 +271,17 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-gray-900">
-                          ฿{order.total.toLocaleString()}
+                          {order.total.toLocaleString()} coins
                         </div>
                         <div className="text-xs text-gray-500">
                           {order.items.length} รายการ
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          order.isPaid 
-                            ? 'bg-green-100 text-green-800' 
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${order.isPaid
+                            ? 'bg-green-100 text-green-800'
                             : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                          }`}>
                           {order.isPaid ? 'ชำระแล้ว' : 'รอชำระ'}
                         </span>
                       </td>
@@ -396,7 +390,7 @@ export default function AdminOrdersPage() {
                         <p className="text-gray-900 font-medium">{item.product.name}</p>
                         <p className="text-gray-600 text-sm">จำนวน: {item.quantity}</p>
                         <p className="text-orange-500 font-semibold">
-                          ฿{item.price.toLocaleString()} x {item.quantity} = ฿{(item.price * item.quantity).toLocaleString()}
+                          {item.price.toLocaleString()} coins x {item.quantity} = {(item.price * item.quantity).toLocaleString()} coins
                         </p>
                       </div>
                     </div>
@@ -410,15 +404,15 @@ export default function AdminOrdersPage() {
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                   <div className="flex justify-between text-gray-600">
                     <span>ราคาสินค้า</span>
-                    <span>฿{selectedOrder.itemsPrice.toLocaleString()}</span>
+                    <span>{selectedOrder.itemsPrice.toLocaleString()} coins</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>ค่าจัดส่ง</span>
-                    <span>฿{selectedOrder.shippingPrice.toLocaleString()}</span>
+                    <span>{selectedOrder.shippingPrice.toLocaleString()} coins</span>
                   </div>
                   <div className="border-t pt-2 flex justify-between text-lg font-bold text-gray-900">
                     <span>ยอดรวมทั้งหมด</span>
-                    <span className="text-orange-500">฿{selectedOrder.total.toLocaleString()}</span>
+                    <span className="text-orange-500">{selectedOrder.total.toLocaleString()} coins</span>
                   </div>
                   <div className="flex justify-between text-gray-600 pt-2 border-t">
                     <span>วิธีชำระเงิน</span>
@@ -434,44 +428,40 @@ export default function AdminOrdersPage() {
                   <button
                     onClick={() => handleUpdateStatus(selectedOrder._id, 'processing')}
                     disabled={selectedOrder.orderStatus === 'processing'}
-                    className={`px-4 py-2 rounded-lg font-medium ${
-                      selectedOrder.orderStatus === 'processing'
+                    className={`px-4 py-2 rounded-lg font-medium ${selectedOrder.orderStatus === 'processing'
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-blue-500 text-white hover:bg-blue-600'
-                    }`}
+                      }`}
                   >
                     กำลังดำเนินการ
                   </button>
                   <button
                     onClick={() => handleUpdateStatus(selectedOrder._id, 'shipped')}
                     disabled={selectedOrder.orderStatus === 'shipped' || selectedOrder.orderStatus === 'delivered'}
-                    className={`px-4 py-2 rounded-lg font-medium ${
-                      selectedOrder.orderStatus === 'shipped' || selectedOrder.orderStatus === 'delivered'
+                    className={`px-4 py-2 rounded-lg font-medium ${selectedOrder.orderStatus === 'shipped' || selectedOrder.orderStatus === 'delivered'
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-purple-500 text-white hover:bg-purple-600'
-                    }`}
+                      }`}
                   >
                     จัดส่งแล้ว
                   </button>
                   <button
                     onClick={() => handleUpdateStatus(selectedOrder._id, 'delivered')}
                     disabled={selectedOrder.orderStatus === 'delivered'}
-                    className={`px-4 py-2 rounded-lg font-medium ${
-                      selectedOrder.orderStatus === 'delivered'
+                    className={`px-4 py-2 rounded-lg font-medium ${selectedOrder.orderStatus === 'delivered'
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-green-500 text-white hover:bg-green-600'
-                    }`}
+                      }`}
                   >
                     สำเร็จ
                   </button>
                   <button
                     onClick={() => handleUpdateStatus(selectedOrder._id, 'cancelled')}
                     disabled={selectedOrder.orderStatus === 'cancelled' || selectedOrder.orderStatus === 'delivered'}
-                    className={`px-4 py-2 rounded-lg font-medium ${
-                      selectedOrder.orderStatus === 'cancelled' || selectedOrder.orderStatus === 'delivered'
+                    className={`px-4 py-2 rounded-lg font-medium ${selectedOrder.orderStatus === 'cancelled' || selectedOrder.orderStatus === 'delivered'
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : 'bg-red-500 text-white hover:bg-red-600'
-                    }`}
+                      }`}
                   >
                     ยกเลิก
                   </button>

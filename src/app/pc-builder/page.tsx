@@ -87,7 +87,7 @@ const FILTER_DATA: Record<string, { brands?: string[], series?: string[], socket
   },
   memory: {
     brands: ['APACER', 'CORSAIR', 'G.SKILL', 'HIKSEMI', 'KINGSTON', 'KLEVV', 'PATRIOT'],
-    sizes: ['4 GB','8 GB', '16 GB', '32 GB', '64 GB', '128 GB'],
+    sizes: ['4 GB', '8 GB', '16 GB', '32 GB', '64 GB', '128 GB'],
     bus: ['DDR4 3200MHz', 'DDR4 3600MHz', 'DDR5 4800MHz', 'DDR5 5200MHz', 'DDR5 5600MHz', 'DDR5 6000MHz', 'DDR5 6200MHz', 'DDR5 6400MHz', 'DDR5 7200MHz']
   },
   psu: {
@@ -135,24 +135,23 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, selecte
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors border ${
-          selected.length > 0 
-            ? 'bg-red-50 text-red-600 border-red-200' 
-            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-        }`}
+        className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors border ${selected.length > 0
+          ? 'bg-gray-100 text-gray-900 border-gray-900'
+          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+          }`}
       >
         {label}
         {selected.length > 0 && (
-          <span className="bg-red-600 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+          <span className="bg-gray-900 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
             {selected.length}
           </span>
         )}
-        <svg 
-          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -163,16 +162,16 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, selecte
         <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 z-50 p-2 animate-in fade-in zoom-in-95 duration-100">
           <div className="max-h-64 overflow-y-auto space-y-1 custom-scrollbar">
             {options.map((option) => (
-              <label 
-                key={option} 
+              <label
+                key={option}
                 className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md cursor-pointer transition-colors"
               >
                 <div className="relative flex items-center">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={selected.includes(option)}
                     onChange={() => onChange(option)}
-                    className="peer w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                    className="peer w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-black"
                   />
                 </div>
                 <span className="text-sm text-gray-700">{option}</span>
@@ -204,6 +203,7 @@ export default function PCBuilderPage() {
     compatibilityMsg: string;
   } | null>(null);
   const [animatingProductId, setAnimatingProductId] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'price-asc' | 'price-desc'>('price-asc');
   const { addToCart } = useCart();
   const { showCartToast, showToast } = useToast();
 
@@ -233,20 +233,20 @@ export default function PCBuilderPage() {
   const handleSelectProduct = (product: Product) => {
     // Trigger animation
     setAnimatingProductId(product._id);
-    
+
     setTimeout(() => {
       setSelectedComponents(prev => ({
         ...prev,
         [activeComponentId]: product
       }));
       showToast(`เพิ่ม ${activeComponent?.name} แล้ว`, 'success');
-      
+
       // Reset animation after completion
       setTimeout(() => {
         setAnimatingProductId(null);
       }, 300);
     }, 400);
-    
+
     // Auto advance to next component if not already selected
     const currentIndex = COMPONENT_LIST.findIndex(c => c.id === activeComponentId);
     if (currentIndex < COMPONENT_LIST.length - 1) {
@@ -313,10 +313,10 @@ export default function PCBuilderPage() {
             newSelection['cpu'] = selectedCPU;
 
             // Step 2: Select compatible Mainboard based on CPU socket
-            const cpuSocket = selectedCPU.specifications instanceof Map 
-                              ? (selectedCPU.specifications.get('Socket') || selectedCPU.specifications.get('socket'))
-                              : (selectedCPU.specifications?.Socket || selectedCPU.specifications?.socket);
-            
+            const cpuSocket = selectedCPU.specifications instanceof Map
+              ? (selectedCPU.specifications.get('Socket') || selectedCPU.specifications.get('socket'))
+              : (selectedCPU.specifications?.Socket || selectedCPU.specifications?.socket);
+
             const mainboardRatio = ratios.mainboard;
             const mainboardTargetPrice = budget * mainboardRatio;
             const mainboardMinPrice = mainboardTargetPrice * 0.7;
@@ -336,9 +336,9 @@ export default function PCBuilderPage() {
                 if (allMainboardsResponse.success && allMainboardsResponse.data.products.length > 0) {
                   // Filter compatible mainboards by socket
                   compatibleMainboards = allMainboardsResponse.data.products.filter((mb: Product) => {
-                    const mbSocket = mb.specifications instanceof Map 
-                                    ? (mb.specifications.get('Socket') || mb.specifications.get('socket'))
-                                    : (mb.specifications?.Socket || mb.specifications?.socket);
+                    const mbSocket = mb.specifications instanceof Map
+                      ? (mb.specifications.get('Socket') || mb.specifications.get('socket'))
+                      : (mb.specifications?.Socket || mb.specifications?.socket);
                     return cpuSocket && mbSocket === cpuSocket;
                   });
 
@@ -365,17 +365,17 @@ export default function PCBuilderPage() {
                   newSelection['mainboard'] = selectedMainboard;
 
                   // Detect RAM type supported by mainboard (DDR4 or DDR5)
-                  const ramType = selectedMainboard.name.toLowerCase().includes('ddr5') ? 'DDR5' : 
-                                 selectedMainboard.name.toLowerCase().includes('ddr4') ? 'DDR4' : null;
-                  
+                  const ramType = selectedMainboard.name.toLowerCase().includes('ddr5') ? 'DDR5' :
+                    selectedMainboard.name.toLowerCase().includes('ddr4') ? 'DDR4' : null;
+
                   // Store RAM type for later use
                   if (ramType) {
                     (selectedMainboard as any).detectedRamType = ramType;
                   }
 
-                  console.log('Selected mainboard:', selectedMainboard.name, 'Socket:', 
-                    selectedMainboard.specifications instanceof Map 
-                      ? selectedMainboard.specifications.get('Socket') 
+                  console.log('Selected mainboard:', selectedMainboard.name, 'Socket:',
+                    selectedMainboard.specifications instanceof Map
+                      ? selectedMainboard.specifications.get('Socket')
                       : selectedMainboard.specifications?.Socket);
                 } else {
                   console.warn('No mainboards available in the system');
@@ -395,11 +395,11 @@ export default function PCBuilderPage() {
       const promises = otherComponents.map(async (componentId) => {
         const ratio = ratios[componentId];
         if (!ratio) return; // Skip if no ratio defined
-        
+
         const targetPrice = budget * ratio;
         const minPrice = targetPrice * 0.7;
         const maxPrice = targetPrice * 1.3;
-        
+
         const component = COMPONENT_LIST.find(c => c.id === componentId);
         if (!component) return;
 
@@ -408,7 +408,7 @@ export default function PCBuilderPage() {
           if (componentId === 'memory' && newSelection['mainboard']) {
             const mainboard = newSelection['mainboard'];
             const ramType = (mainboard as any).detectedRamType;
-            
+
             const memoryResponse = await productAPI.getProducts({
               category: component.category,
               minPrice: Math.floor(minPrice),
@@ -418,7 +418,7 @@ export default function PCBuilderPage() {
 
             if (memoryResponse.success && memoryResponse.data.products.length > 0) {
               let compatibleMemory = memoryResponse.data.products;
-              
+
               // Filter by RAM type if detected
               if (ramType) {
                 compatibleMemory = memoryResponse.data.products.filter((mem: Product) => {
@@ -460,26 +460,26 @@ export default function PCBuilderPage() {
           });
 
           if (response.success && response.data.products.length > 0) {
-             const products = response.data.products;
-             // Select ONE product closest to target price
-             const closest = products.reduce((prev: Product, curr: Product) => {
-               return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
-             });
-             newSelection[componentId] = closest;
+            const products = response.data.products;
+            // Select ONE product closest to target price
+            const closest = products.reduce((prev: Product, curr: Product) => {
+              return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
+            });
+            newSelection[componentId] = closest;
           } else {
-             // Fallback: fetch generic list and select ONE
-             const fallbackResponse = await productAPI.getProducts({
-               category: component.category,
-               limit: 50
-             });
-             
-             if (fallbackResponse.success && fallbackResponse.data.products.length > 0) {
-                const products = fallbackResponse.data.products;
-                const closest = products.reduce((prev: Product, curr: Product) => {
-                  return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
-                });
-                newSelection[componentId] = closest;
-             }
+            // Fallback: fetch generic list and select ONE
+            const fallbackResponse = await productAPI.getProducts({
+              category: component.category,
+              limit: 50
+            });
+
+            if (fallbackResponse.success && fallbackResponse.data.products.length > 0) {
+              const products = fallbackResponse.data.products;
+              const closest = products.reduce((prev: Product, curr: Product) => {
+                return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
+              });
+              newSelection[componentId] = closest;
+            }
           }
         } catch (err) {
           console.error(`Error fetching ${component.name}:`, err);
@@ -493,13 +493,13 @@ export default function PCBuilderPage() {
       const totalPrice = Object.values(newSelection).reduce((sum, product) => sum + (product?.price || 0), 0);
       const withinBudget = totalPrice <= budget * 1.1; // Allow 10% over budget
       const componentCount = Object.keys(newSelection).length;
-      
+
       // Check compatibility
       const hasMainboard = !!newSelection['mainboard'];
       const hasCPU = !!newSelection['cpu'];
       const hasMemory = !!newSelection['memory'];
       const ramType = hasMainboard ? (newSelection['mainboard'] as any).detectedRamType : null;
-      
+
       let compatibilityMsg = '';
       if (hasCPU && hasMainboard) {
         compatibilityMsg += 'CPU และ Mainboard มี Socket ที่เข้ากันได้|';
@@ -507,7 +507,7 @@ export default function PCBuilderPage() {
       if (hasMainboard && hasMemory && ramType) {
         compatibilityMsg += `Mainboard รองรับ RAM ${ramType}|`;
       }
-      
+
       // Show modal instead of alert
       setAutoBuildResult({
         show: true,
@@ -540,13 +540,13 @@ export default function PCBuilderPage() {
       return { compatible: true, message: '' };
     }
 
-    const cpuSocket = cpu.specifications instanceof Map 
-                      ? cpu.specifications.get('socket') 
-                      : cpu.specifications?.socket;
-    
-    const mbSocket = mainboard.specifications instanceof Map 
-                     ? mainboard.specifications.get('socket') 
-                     : mainboard.specifications?.socket;
+    const cpuSocket = cpu.specifications instanceof Map
+      ? cpu.specifications.get('socket')
+      : cpu.specifications?.socket;
+
+    const mbSocket = mainboard.specifications instanceof Map
+      ? mainboard.specifications.get('socket')
+      : mainboard.specifications?.socket;
 
     if (!cpuSocket || !mbSocket) {
       return { compatible: true, message: '' };
@@ -555,8 +555,8 @@ export default function PCBuilderPage() {
     const compatible = cpuSocket === mbSocket;
     return {
       compatible,
-      message: compatible 
-        ? `✅ Socket ${cpuSocket} เข้ากันได้` 
+      message: compatible
+        ? `✅ Socket ${cpuSocket} เข้ากันได้`
         : `⚠️ CPU (${cpuSocket}) และ Mainboard (${mbSocket}) ไม่เข้ากัน!`
     };
   };
@@ -743,6 +743,15 @@ export default function PCBuilderPage() {
     return matchesSearch && matchesFilters;
   });
 
+  // Sort products by price
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortOrder === 'price-asc') {
+      return a.price - b.price;
+    } else {
+      return b.price - a.price;
+    }
+  });
+
   const toggleFilter = (type: string, value: string) => {
     setSelectedFilters(prev => {
       const current = prev[type] || [];
@@ -760,86 +769,86 @@ export default function PCBuilderPage() {
       <>
         <Navbar showBanner={false} />
         <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <Breadcrumb 
-            items={[
-              { label: 'จัดสเปคคอม', href: '/pc-builder' },
-              { label: 'สรุปรายการ' }
-            ]} 
-          />
-          
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left Sidebar - Summary */}
-            <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-sm p-4 h-fit sticky top-24">
-              <div className="flex justify-between items-center mb-4 border-b pb-4">
-                <h2 className="text-lg font-bold text-gray-800">สรุปยอดรวม</h2>
-                <p className="text-xl font-bold text-gray-800">฿{calculateTotal().toLocaleString()} .-</p>
-              </div>
-              <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
-                 <span>จัดส่งทันทีภายใน 5 ชั่วโมง:</span>
-                 <span className="text-red-600 font-bold">ฟรี</span>
-              </div>
-              <button 
-                onClick={() => {
-                  Object.values(selectedComponents).forEach(product => {
-                    if (product) {
-                      addToCart({
-                        id: product._id,
-                        name: product.name,
-                        price: product.price,
-                        image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
-                        images: product.images || (product.image ? [product.image] : ['/placeholder.jpg'])
-                      });
-                    }
-                  });
-                  showCartToast('เพิ่มสเปคคอมลงตะกร้า');
-                }}
-                className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-full transition-colors flex items-center justify-center gap-2"
-              >
-                <FaShoppingCart /> สั่งซื้อสเปคนี้
-              </button>
-            </div>
+          <div className="container mx-auto px-4">
+            <Breadcrumb
+              items={[
+                { label: 'จัดสเปคคอม', href: '/pc-builder' },
+                { label: 'สรุปรายการ' }
+              ]}
+            />
 
-            {/* Right Content - Spec Details */}
-            <div className="w-full lg:w-3/4">
-              <div className="bg-gray-800 rounded-t-lg p-4 flex justify-between items-center">
-                 <h2 className="text-xl font-bold text-white">สเปคคอมฯ ที่คุณเลือก</h2>
-                 <button 
-                   onClick={() => setShowSummary(false)}
-                   className="bg-white text-gray-800 px-4 py-1 rounded-full text-sm font-bold hover:bg-gray-100 flex items-center gap-2"
-                 >
-                   <FaEdit /> แก้ไข
-                 </button>
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Left Sidebar - Summary */}
+              <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-sm p-4 h-fit sticky top-24">
+                <div className="flex justify-between items-center mb-4 border-b pb-4">
+                  <h2 className="text-lg font-bold text-gray-800">สรุปยอดรวม</h2>
+                  <p className="text-xl font-bold text-gray-800">{calculateTotal().toLocaleString()} coins</p>
+                </div>
+                <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
+                  <span>จัดส่งทันทีภายใน 5 ชั่วโมง:</span>
+                  <span className="text-red-600 font-bold">ฟรี</span>
+                </div>
+                <button
+                  onClick={() => {
+                    Object.values(selectedComponents).forEach(product => {
+                      if (product) {
+                        addToCart({
+                          id: product._id,
+                          name: product.name,
+                          price: product.price,
+                          image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
+                          images: product.images || (product.image ? [product.image] : ['/placeholder.jpg'])
+                        });
+                      }
+                    });
+                    showCartToast('เพิ่มสเปคคอมลงตะกร้า');
+                  }}
+                  className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-full transition-colors flex items-center justify-center gap-2"
+                >
+                  <FaShoppingCart /> สั่งซื้อสเปคนี้
+                </button>
               </div>
-              <div className="bg-gray-800 p-4 pt-0 rounded-b-lg">
-                 <div className="bg-white rounded-lg p-6">
+
+              {/* Right Content - Spec Details */}
+              <div className="w-full lg:w-3/4">
+                <div className="bg-gray-800 rounded-t-lg p-4 flex justify-between items-center">
+                  <h2 className="text-xl font-bold text-white">สเปคคอมฯ ที่คุณเลือก</h2>
+                  <button
+                    onClick={() => setShowSummary(false)}
+                    className="bg-white text-gray-800 px-4 py-1 rounded-full text-sm font-bold hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <FaEdit /> แก้ไข
+                  </button>
+                </div>
+                <div className="bg-gray-800 p-4 pt-0 rounded-b-lg">
+                  <div className="bg-white rounded-lg p-6">
                     <h3 className="text-lg font-bold text-gray-800 mb-4">รายละเอียดสเปคคอมฯ</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       {COMPONENT_LIST.map(comp => {
-                          const product = selectedComponents[comp.id];
-                          if (!product) return null;
-                          return (
-                             <div key={comp.id} className="border rounded-lg p-4 flex gap-4 items-center">
-                                <div className="w-20 h-20 bg-gray-100 rounded p-2 flex-shrink-0 flex items-center justify-center">
-                                   <img src={product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg'} className="w-full h-full object-contain" />
-                                </div>
-                                <div>
-                                   <span className="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full mb-1 inline-block">{comp.name}</span>
-                                   <h4 className="text-sm font-medium text-gray-800 line-clamp-2">{product.name}</h4>
-                                   <p className="text-lg font-bold text-gray-900 mt-1">฿{product.price.toLocaleString()}</p>
-                                </div>
-                             </div>
-                          )
-                       })}
+                      {COMPONENT_LIST.map(comp => {
+                        const product = selectedComponents[comp.id];
+                        if (!product) return null;
+                        return (
+                          <div key={comp.id} className="border rounded-lg p-4 flex gap-4 items-center">
+                            <div className="w-20 h-20 bg-gray-100 rounded p-2 flex-shrink-0 flex items-center justify-center">
+                              <img src={product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg'} className="w-full h-full object-contain" />
+                            </div>
+                            <div>
+                              <span className="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full mb-1 inline-block">{comp.name}</span>
+                              <h4 className="text-sm font-medium text-gray-800 line-clamp-2">{product.name}</h4>
+                              <p className="text-lg font-bold text-gray-900 mt-1">{product.price.toLocaleString()} coins</p>
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
-                 </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <Features />
-      <Footer />
+        <Features />
+        <Footer />
       </>
     );
   }
@@ -848,95 +857,93 @@ export default function PCBuilderPage() {
     <>
       <Navbar showBanner={false} />
       <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <Breadcrumb 
-          items={[
-            { label: 'จัดสเปคคอม', href: '/pc-builder' },
-            { label: activeComponent?.name || '' }
-          ]} 
-        />
-        <div className="flex flex-col lg:flex-row gap-6">
-          
-          {/* Left Sidebar - Component List */}
-          <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-sm p-4 h-fit sticky top-24">
-            
-            {/* Auto Build Section */}
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-               <h3 className="text-sm font-bold text-blue-800 mb-2">จัดสเปคตามงบ</h3>
-               <div className="flex gap-2 mb-2">
-                 <input 
-                   type="number" 
-                   value={budget || ''}
-                   onChange={(e) => setBudget(Number(e.target.value))}
-                   placeholder="ระบุงบประมาณ"
-                   className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:border-blue-500 text-black"
-                 />
-               </div>
-               <button 
-                 onClick={handleAutoBuild}
-                 disabled={isAutoBuilding}
-                 className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-md transition-colors disabled:opacity-50"
-               >
-                 {isAutoBuilding ? 'กำลังคำนวณ...' : 'จัดอัตโนมัติ'}
-               </button>
-            </div>
+        <div className="container mx-auto px-4">
+          <Breadcrumb
+            items={[
+              { label: 'จัดสเปคคอม', href: '/pc-builder' },
+              { label: activeComponent?.name || '' }
+            ]}
+          />
+          <div className="flex flex-col lg:flex-row gap-6">
 
-            <div className="flex justify-between items-center mb-4 border-b pb-4">
-              <h2 className="text-lg font-bold text-gray-800">รายการอุปกรณ์</h2>
-              <div className="text-right">
-                <p className="text-xs text-gray-500">ยอดรวมทั้งสิ้น</p>
-                <p className="text-xl font-bold text-red-600">฿{calculateTotal().toLocaleString()}</p>
+            {/* Left Sidebar - Component List */}
+            <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-sm p-4 h-fit sticky top-24">
+
+              {/* Auto Build Section */}
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <h3 className="text-sm font-bold text-blue-800 mb-2">จัดสเปคตามงบ</h3>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="number"
+                    value={budget || ''}
+                    onChange={(e) => setBudget(Number(e.target.value))}
+                    placeholder="ระบุงบประมาณ"
+                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:border-blue-500 text-black"
+                  />
+                </div>
+                <button
+                  onClick={handleAutoBuild}
+                  disabled={isAutoBuilding}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-md transition-colors disabled:opacity-50"
+                >
+                  {isAutoBuilding ? 'กำลังคำนวณ...' : 'จัดอัตโนมัติ'}
+                </button>
               </div>
-            </div>
 
-            {/* Socket Compatibility Indicator */}
-            {(() => {
-              const { compatible, message } = checkSocketCompatibility();
-              if (message) {
-                return (
-                  <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${
-                    compatible 
-                      ? 'bg-green-50 text-green-700 border border-green-200' 
+              <div className="flex justify-between items-center mb-4 border-b pb-4">
+                <h2 className="text-lg font-bold text-gray-800">รายการอุปกรณ์</h2>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">ยอดรวมทั้งสิ้น</p>
+                  <p className="text-xl font-bold text-red-600">{calculateTotal().toLocaleString()} coins</p>
+                </div>
+              </div>
+
+              {/* Socket Compatibility Indicator */}
+              {(() => {
+                const { compatible, message } = checkSocketCompatibility();
+                if (message) {
+                  return (
+                    <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${compatible
+                      ? 'bg-green-50 text-green-700 border border-green-200'
                       : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-                  }`}>
-                    {message}
-                  </div>
-                );
-              }
-              return null;
-            })()}
+                      }`}>
+                      {message}
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
-            <div className="space-y-2">
-              {COMPONENT_LIST.map((component) => {
-                const selected = selectedComponents[component.id];
-                const isActive = activeComponentId === component.id;
+              <div className="space-y-2">
+                {COMPONENT_LIST.map((component) => {
+                  const selected = selectedComponents[component.id];
+                  const isActive = activeComponentId === component.id;
 
-                return (
-                  <div 
-                    key={component.id}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                      isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                    onClick={() => setActiveComponentId(component.id)}
-                  >
-                    {selected ? (
-                      <div className="flex flex-col gap-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-blue-600">{component.name}</span>
-                          <span className="text-sm font-bold text-gray-600">฿{selected.price.toLocaleString()}</span>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                          <div className="w-12 h-12 bg-white border rounded p-1 flex-shrink-0 flex items-center justify-center">
-                             <img 
-                                src={selected.images?.[0] || selected.image || '/placeholder.jpg'} 
+                  return (
+                    <div
+                      key={component.id}
+                      className={`p-3 rounded-lg border transition-all cursor-pointer ${isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
+                        }`}
+                      onClick={() => setActiveComponentId(component.id)}
+                    >
+                      {selected ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-blue-600">{component.name}</span>
+                            <span className="text-sm font-bold text-gray-600">{selected.price.toLocaleString()} coins</span>
+                          </div>
+                          <div className="flex gap-3 items-start">
+                            <div className="w-12 h-12 bg-white border rounded p-1 flex-shrink-0 flex items-center justify-center">
+                              <img
+                                src={selected.images?.[0] || selected.image || '/placeholder.jpg'}
                                 alt={selected.name}
                                 className="w-full h-full object-contain"
                               />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                             <p className="text-xs text-gray-700 line-clamp-2 mb-1">{selected.name}</p>
-                             <div className="flex items-center gap-2">
-                                <button 
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-gray-700 line-clamp-2 mb-1">{selected.name}</p>
+                              <div className="flex items-center gap-2">
+                                <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(`/products/${selected._id}`, '_blank');
@@ -946,323 +953,324 @@ export default function PCBuilderPage() {
                                   รายละเอียด
                                 </button>
                                 <span className="text-xs text-gray-500">x 1</span>
-                             </div>
-                          </div>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveComponent(component.id);
-                            }}
-                            className="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center flex-shrink-0 transition-colors"
-                          >
-                            <FaTrash size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center p-2">
-                          <img 
-                            src={component.icon} 
-                            alt={component.name}
-                            className="w-full h-full object-contain opacity-50"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/icons/cpu.png'; 
-                            }}
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{component.name}</p>
-                          <p className="text-xs text-gray-400">ยังไม่ได้เลือก</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 space-y-3">
-              <button 
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md flex items-center justify-center gap-2 transition-colors"
-                onClick={() => setShowSummary(true)}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                สร้างชุดสเปคคอม
-              </button>
-              
-              <button 
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md transition-colors"
-                onClick={() => setSelectedComponents({})}
-              >
-                รีเซ็ต
-              </button>
-            </div>
-          </div>
-
-          {/* Right Content - Product Selection */}
-          <div className="w-full lg:w-3/4">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">{activeComponent?.name}</h1>
-                
-                <div className="relative w-full md:w-96">
-                  <input
-                    type="text"
-                    placeholder="ค้นหาสินค้า..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500 text-black"
-                  />
-                  <FaSearch className="absolute left-3 top-3 text-gray-400" />
-                </div>
-              </div>
-
-              {/* Filters */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {currentFilters.brands && (
-                  <FilterDropdown 
-                    label="Brand" 
-                    options={currentFilters.brands} 
-                    selected={selectedFilters['brands'] || []}
-                    onChange={(val) => toggleFilter('brands', val)}
-                  />
-                )}
-                {currentFilters.series && (
-                  <FilterDropdown 
-                    label="Series" 
-                    options={currentFilters.series} 
-                    selected={selectedFilters['series'] || []}
-                    onChange={(val) => toggleFilter('series', val)}
-                  />
-                )}
-                {currentFilters.sockets && (
-                  <FilterDropdown 
-                    label="Socket Type" 
-                    options={currentFilters.sockets} 
-                    selected={selectedFilters['sockets'] || []}
-                    onChange={(val) => toggleFilter('sockets', val)}
-                  />
-                )}
-                {currentFilters.chipsets && (
-                  <FilterDropdown 
-                    label="Chipset" 
-                    options={currentFilters.chipsets} 
-                    selected={selectedFilters['chipsets'] || []}
-                    onChange={(val) => toggleFilter('chipsets', val)}
-                  />
-                )}
-                {currentFilters.sizes && (
-                  <FilterDropdown 
-                    label="Memory Size" 
-                    options={currentFilters.sizes} 
-                    selected={selectedFilters['sizes'] || []}
-                    onChange={(val) => toggleFilter('sizes', val)}
-                  />
-                )}
-                {currentFilters.bus && (
-                  <FilterDropdown 
-                    label="Bus Speed" 
-                    options={currentFilters.bus} 
-                    selected={selectedFilters['bus'] || []}
-                    onChange={(val) => toggleFilter('bus', val)}
-                  />
-                )}
-                {currentFilters.capacities && (
-                  <FilterDropdown 
-                    label="Capacity" 
-                    options={currentFilters.capacities} 
-                    selected={selectedFilters['capacities'] || []}
-                    onChange={(val) => toggleFilter('capacities', val)}
-                  />
-                )}
-                {currentFilters.power && (
-                  <FilterDropdown 
-                    label="Maximum Power" 
-                    options={currentFilters.power} 
-                    selected={selectedFilters['power'] || []}
-                    onChange={(val) => toggleFilter('power', val)}
-                  />
-                )}
-                {currentFilters.mainboardSupport && (
-                  <FilterDropdown 
-                    label="Mainboard Support" 
-                    options={currentFilters.mainboardSupport} 
-                    selected={selectedFilters['mainboardSupport'] || []}
-                    onChange={(val) => toggleFilter('mainboardSupport', val)}
-                  />
-                )}
-                
-                {/* Price Sort Dropdown */}
-                <div className="ml-auto">
-                   <select className="px-4 py-1.5 rounded-full text-sm font-medium bg-white border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                      <option value="price-asc">ราคา ต่ำ-สูง</option>
-                      <option value="price-desc">ราคา สูง-ต่ำ</option>
-                   </select>
-                </div>
-              </div>
-
-              {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                    <div key={i} className="bg-gray-100 animate-pulse rounded-lg h-80"></div>
-                  ))}
-                </div>
-              ) : filteredProducts.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  ไม่พบสินค้าในหมวดหมู่นี้
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filteredProducts.map((product) => {
-                    const isSelected = selectedComponents[activeComponentId]?._id === product._id;
-                    const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
-
-                    return (
-                      <div 
-                        key={product._id} 
-                        className={`bg-white border rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col ${
-                          isSelected ? 'ring-2 ring-blue-500 border-transparent' : 'border-gray-200'
-                        }`}
-                      >
-                        <div className="aspect-square bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                          <img 
-                            src={imageUrl} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover"
-                          />
-                          {isSelected && (
-                            <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                              เลือกแล้ว
+                              </div>
                             </div>
-                          )}
-                        </div>
-                        <div className="p-4 flex flex-col flex-grow">
-                          <h3 className="text-sm text-gray-800 font-medium line-clamp-2 mb-2 flex-grow" title={product.name}>
-                            {product.name}
-                          </h3>
-                          <div className="flex justify-between items-end mt-2">
-                            <p className="text-lg font-bold text-gray-900">฿{product.price.toLocaleString()}</p>
-                            <button 
-                              onClick={() => !isSelected && !animatingProductId && handleSelectProduct(product)}
-                              className={`relative p-2 rounded-md transition-all duration-300 overflow-hidden ${
-                                isSelected 
-                                  ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
-                                  : animatingProductId === product._id
-                                    ? 'bg-green-500 text-white scale-110'
-                                    : 'bg-red-500 hover:bg-red-600 text-white hover:scale-105'
-                              }`}
-                              disabled={isSelected || animatingProductId === product._id}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveComponent(component.id);
+                              }}
+                              className="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center flex-shrink-0 transition-colors"
                             >
-                              {/* Ripple effect */}
-                              {animatingProductId === product._id && (
-                                <span className="absolute inset-0 animate-ping bg-green-400 rounded-md opacity-75"></span>
-                              )}
-                              
-                              {/* Icon */}
-                              <span className={`relative z-10 transition-transform duration-300 flex items-center justify-center ${
-                                animatingProductId === product._id ? 'scale-125' : ''
-                              }`}>
-                                {isSelected ? (
-                                  <FaTrash size={14} onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveComponent(activeComponentId);
-                                  }} />
-                                ) : animatingProductId === product._id ? (
-                                  <FaCheck size={14} />
-                                ) : (
-                                  <FaPlus size={14} />
-                                )}
-                              </span>
-                              
-                              {/* Particles */}
-                              {animatingProductId === product._id && (
-                                <>
-                                  <span className="absolute top-0 left-1/2 w-1 h-1 bg-yellow-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                  <span className="absolute bottom-0 left-1/4 w-1 h-1 bg-green-300 rounded-full animate-bounce" style={{ animationDelay: '100ms' }}></span>
-                                  <span className="absolute top-1/2 right-0 w-1 h-1 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></span>
-                                </>
-                              )}
+                              <FaTrash size={12} />
                             </button>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      ) : (
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center p-2">
+                            <img
+                              src={component.icon}
+                              alt={component.name}
+                              className="w-full h-full object-contain opacity-50"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/icons/cpu.png';
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">{component.name}</p>
+                            <p className="text-xs text-gray-400">ยังไม่ได้เลือก</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-6 space-y-3">
+                <button
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md flex items-center justify-center gap-2 transition-colors"
+                  onClick={() => setShowSummary(true)}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  สร้างชุดสเปคคอม
+                </button>
+
+                <button
+                  className="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md transition-colors"
+                  onClick={() => setSelectedComponents({})}
+                >
+                  รีเซ็ต
+                </button>
+              </div>
+            </div>
+
+            {/* Right Content - Product Selection */}
+            <div className="w-full lg:w-3/4">
+              <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                  <h1 className="text-2xl font-bold text-gray-800">{activeComponent?.name}</h1>
+
+                  <div className="relative w-full md:w-96">
+                    <input
+                      type="text"
+                      placeholder="ค้นหาสินค้า..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500 text-black"
+                    />
+                    <FaSearch className="absolute left-3 top-3 text-gray-400" />
+                  </div>
                 </div>
-              )}
+
+                {/* Filters */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {currentFilters.brands && (
+                    <FilterDropdown
+                      label="Brand"
+                      options={currentFilters.brands}
+                      selected={selectedFilters['brands'] || []}
+                      onChange={(val) => toggleFilter('brands', val)}
+                    />
+                  )}
+                  {currentFilters.series && (
+                    <FilterDropdown
+                      label="Series"
+                      options={currentFilters.series}
+                      selected={selectedFilters['series'] || []}
+                      onChange={(val) => toggleFilter('series', val)}
+                    />
+                  )}
+                  {currentFilters.sockets && (
+                    <FilterDropdown
+                      label="Socket Type"
+                      options={currentFilters.sockets}
+                      selected={selectedFilters['sockets'] || []}
+                      onChange={(val) => toggleFilter('sockets', val)}
+                    />
+                  )}
+                  {currentFilters.chipsets && (
+                    <FilterDropdown
+                      label="Chipset"
+                      options={currentFilters.chipsets}
+                      selected={selectedFilters['chipsets'] || []}
+                      onChange={(val) => toggleFilter('chipsets', val)}
+                    />
+                  )}
+                  {currentFilters.sizes && (
+                    <FilterDropdown
+                      label="Memory Size"
+                      options={currentFilters.sizes}
+                      selected={selectedFilters['sizes'] || []}
+                      onChange={(val) => toggleFilter('sizes', val)}
+                    />
+                  )}
+                  {currentFilters.bus && (
+                    <FilterDropdown
+                      label="Bus Speed"
+                      options={currentFilters.bus}
+                      selected={selectedFilters['bus'] || []}
+                      onChange={(val) => toggleFilter('bus', val)}
+                    />
+                  )}
+                  {currentFilters.capacities && (
+                    <FilterDropdown
+                      label="Capacity"
+                      options={currentFilters.capacities}
+                      selected={selectedFilters['capacities'] || []}
+                      onChange={(val) => toggleFilter('capacities', val)}
+                    />
+                  )}
+                  {currentFilters.power && (
+                    <FilterDropdown
+                      label="Maximum Power"
+                      options={currentFilters.power}
+                      selected={selectedFilters['power'] || []}
+                      onChange={(val) => toggleFilter('power', val)}
+                    />
+                  )}
+                  {currentFilters.mainboardSupport && (
+                    <FilterDropdown
+                      label="Mainboard Support"
+                      options={currentFilters.mainboardSupport}
+                      selected={selectedFilters['mainboardSupport'] || []}
+                      onChange={(val) => toggleFilter('mainboardSupport', val)}
+                    />
+                  )}
+
+                  {/* Price Sort Dropdown */}
+                  <div className="ml-auto">
+                    <select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value as 'price-asc' | 'price-desc')}
+                      className="px-4 py-1.5 rounded-full text-sm font-medium bg-white border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer"
+                    >
+                      <option value="price-asc">ราคา ต่ำ-สูง</option>
+                      <option value="price-desc">ราคา สูง-ต่ำ</option>
+                    </select>
+                  </div>
+                </div>
+
+                {loading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                      <div key={i} className="bg-gray-100 animate-pulse rounded-lg h-80"></div>
+                    ))}
+                  </div>
+                ) : sortedProducts.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    ไม่พบสินค้าในหมวดหมู่นี้
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {sortedProducts.map((product) => {
+                      const isSelected = selectedComponents[activeComponentId]?._id === product._id;
+                      const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
+
+                      return (
+                        <div
+                          key={product._id}
+                          className={`bg-white border rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col ${isSelected ? 'ring-2 ring-blue-500 border-transparent' : 'border-gray-200'
+                            }`}
+                        >
+                          <div className="aspect-square bg-gray-100 flex items-center justify-center relative overflow-hidden">
+                            <img
+                              src={imageUrl}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                            />
+                            {isSelected && (
+                              <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                                เลือกแล้ว
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4 flex flex-col flex-grow">
+                            <h3 className="text-sm text-gray-800 font-medium line-clamp-2 mb-2 flex-grow" title={product.name}>
+                              {product.name}
+                            </h3>
+                            <div className="flex justify-between items-end mt-2">
+                              <p className="text-lg font-bold text-gray-900">{product.price.toLocaleString()} coins</p>
+                              <button
+                                onClick={() => !isSelected && !animatingProductId && handleSelectProduct(product)}
+                                className={`relative p-2 rounded-md transition-all duration-300 overflow-hidden ${isSelected
+                                  ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                                  : animatingProductId === product._id
+                                    ? 'bg-green-500 text-white scale-110'
+                                    : 'bg-red-500 hover:bg-red-600 text-white hover:scale-105'
+                                  }`}
+                                disabled={isSelected || animatingProductId === product._id}
+                              >
+                                {/* Ripple effect */}
+                                {animatingProductId === product._id && (
+                                  <span className="absolute inset-0 animate-ping bg-green-400 rounded-md opacity-75"></span>
+                                )}
+
+                                {/* Icon */}
+                                <span className={`relative z-10 transition-transform duration-300 flex items-center justify-center ${animatingProductId === product._id ? 'scale-125' : ''
+                                  }`}>
+                                  {isSelected ? (
+                                    <FaTrash size={14} onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveComponent(activeComponentId);
+                                    }} />
+                                  ) : animatingProductId === product._id ? (
+                                    <FaCheck size={14} />
+                                  ) : (
+                                    <FaPlus size={14} />
+                                  )}
+                                </span>
+
+                                {/* Particles */}
+                                {animatingProductId === product._id && (
+                                  <>
+                                    <span className="absolute top-0 left-1/2 w-1 h-1 bg-yellow-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                    <span className="absolute bottom-0 left-1/4 w-1 h-1 bg-green-300 rounded-full animate-bounce" style={{ animationDelay: '100ms' }}></span>
+                                    <span className="absolute top-1/2 right-0 w-1 h-1 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Auto Build Result Modal */}
-    {autoBuildResult?.show && (
-      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setAutoBuildResult(null)}>
-        <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6" onClick={e => e.stopPropagation()}>
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">จัดสเปคเสร็จสิ้น</h3>
-            <button onClick={() => setAutoBuildResult(null)} className="text-gray-400 hover:text-gray-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+      {/* Auto Build Result Modal */}
+      {autoBuildResult?.show && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setAutoBuildResult(null)}>
+          <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">จัดสเปคเสร็จสิ้น</h3>
+              <button onClick={() => setAutoBuildResult(null)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Budget Summary */}
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">งบประมาณ</span>
+                <span className="font-medium text-gray-900">{autoBuildResult.budget.toLocaleString()} coins</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">ยอดรวม</span>
+                <span className={`font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
+                  {autoBuildResult.totalPrice.toLocaleString()} coins
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">จำนวนชิ้น</span>
+                <span className="font-medium text-gray-900">{autoBuildResult.componentCount} ชิ้น</span>
+              </div>
+              <div className="border-t pt-3">
+                <span className={`text-sm font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
+                  {autoBuildResult.withinBudget ? '✓ อยู่ในงบประมาณ' : '⚠ เกินงบประมาณเล็กน้อย'}
+                </span>
+              </div>
+            </div>
+
+            {/* Compatibility */}
+            {autoBuildResult.compatibilityMsg && (
+              <div className="mb-6 text-sm text-gray-600 space-y-1">
+                {autoBuildResult.compatibilityMsg.split('|').filter(Boolean).map((msg, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="text-green-500 text-xs">✓</span>
+                    <span>{msg}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Button */}
+            <button
+              onClick={() => setAutoBuildResult(null)}
+              className="w-full py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              ตกลง
             </button>
           </div>
-
-          {/* Budget Summary */}
-          <div className="space-y-3 mb-6">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">งบประมาณ</span>
-              <span className="font-medium text-gray-900">฿{autoBuildResult.budget.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">ยอดรวม</span>
-              <span className={`font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
-                ฿{autoBuildResult.totalPrice.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">จำนวนชิ้น</span>
-              <span className="font-medium text-gray-900">{autoBuildResult.componentCount} ชิ้น</span>
-            </div>
-            <div className="border-t pt-3">
-              <span className={`text-sm font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
-                {autoBuildResult.withinBudget ? '✓ อยู่ในงบประมาณ' : '⚠ เกินงบประมาณเล็กน้อย'}
-              </span>
-            </div>
-          </div>
-
-          {/* Compatibility */}
-          {autoBuildResult.compatibilityMsg && (
-            <div className="mb-6 text-sm text-gray-600 space-y-1">
-              {autoBuildResult.compatibilityMsg.split('|').filter(Boolean).map((msg, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <span className="text-green-500 text-xs">✓</span>
-                  <span>{msg}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Button */}
-          <button
-            onClick={() => setAutoBuildResult(null)}
-            className="w-full py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            ตกลง
-          </button>
         </div>
-      </div>
-    )}
+      )}
 
-    <Features />
-    <Footer />
+      <Features />
+      <Footer />
     </>
   );
 }

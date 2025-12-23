@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_URL) {
+  throw new Error("NEXT_PUBLIC_API_URL is not set in environment variables.");
+}
 
 export async function GET(request: NextRequest) {
   try {
     // Get token from Authorization header
     const authHeader = request.headers.get('Authorization');
-    
+
     if (!authHeader) {
       return NextResponse.json(
         { success: false, message: 'กรุณาเข้าสู่ระบบ' },

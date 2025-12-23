@@ -1,5 +1,9 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+if (!API_URL) {
+  console.error("NEXT_PUBLIC_API_URL is not set in environment variables.");
+}
+
 // Helper function to get token from localStorage
 const getToken = (): string | null => {
   if (typeof window !== 'undefined') {
