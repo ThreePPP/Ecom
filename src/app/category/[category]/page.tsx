@@ -880,8 +880,8 @@ export default function CategoryPage() {
                     className="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                   >
                     <option value="default">ที่เกี่ยวข้อง</option>
-                    <option value="price-asc">ราคา ต่ำ-สูง</option>
-                    <option value="price-desc">ราคา สูง-ต่ำ</option>
+                    <option value="price-asc">ราคาต่ำ-สูง</option>
+                    <option value="price-desc">ราคาสูง-ต่ำ</option>
                     <option value="name-asc">ชื่อ A-Z</option>
                     <option value="name-desc">ชื่อ Z-A</option>
                   </select>
@@ -928,9 +928,9 @@ export default function CategoryPage() {
                           </div>
                           {product.condition && (
                             <div className={`text-white text-xs px-2 py-1 rounded font-medium ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
-                                product.condition === 'สภาพดี' ? 'bg-blue-500' :
-                                  product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
-                                    'bg-gray-500'
+                              product.condition === 'สภาพดี' ? 'bg-blue-500' :
+                                product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
+                                  'bg-gray-500'
                               }`}>
                               {product.condition}
                             </div>

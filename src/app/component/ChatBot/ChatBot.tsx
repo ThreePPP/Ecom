@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { FaComments, FaTimes, FaPaperPlane, FaDesktop, FaShoppingCart } from 'react-icons/fa'
+import Image from 'next/image'
 import axios from 'axios'
 import { orderAPI } from '@/app/lib/api'
 import { authAPI } from '@/app/lib/api'
@@ -24,8 +25,8 @@ interface QuickOption {
 const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<{ text: string; isBot: boolean; options?: QuickOption[] }[]>([
-    { 
-      text: 'สวัสดีครับ! ผมเป็น AI ผู้ช่วยบริการลูกค้า มีอะไรให้ช่วยไหมครับ?', 
+    {
+      text: 'สวัสดีครับ! ผมเป็น AI ผู้ช่วยบริการลูกค้า มีอะไรให้ช่วยไหมครับ?',
       isBot: true,
       options: [
         { id: 'upgrade', label: '🖥️ อัพเกรด/เปลี่ยนชิ้นส่วน PC', icon: <FaDesktop /> },
@@ -73,35 +74,35 @@ const ChatBot: React.FC = () => {
       setMessages(prev => [
         ...prev,
         { text: '🖥️ อัพเกรด/เปลี่ยนชิ้นส่วน PC', isBot: false },
-        { 
+        {
           text: 'เยี่ยมเลยครับ! 💻 ผมจะช่วยวิเคราะห์สเปค PC ของคุณ\n\n📋 ตัวอย่างการกรอกสเปค:\n1️⃣ CPU: Intel i5-12400F\n2️⃣ Motherboard: MSI B660M Pro\n3️⃣ CPU Cooler: ID-Cooling SE-214-XT\n4️⃣ RAM: 16GB DDR4 3200MHz\n5️⃣ GPU: RTX 3060\n6️⃣ PSU: 650W 80+ Bronze\n\n🚀 มาเริ่มกันเลยครับ!\nกรุณาพิมพ์สเปคของคุณทีละรายการ เริ่มจาก:\n\n1️⃣ CPU: พิมพ์ชื่อรุ่น CPU ของคุณ\n\n💡 พิมพ์ 0 เพื่อยกเลิก',
-          isBot: true 
+          isBot: true
         }
       ])
     } else if (optionId === 'order') {
       setChatMode('order-inquiry')
       setIsLoading(true)
-      
+
       // Check if user is authenticated
       if (!authAPI.isAuthenticated()) {
         setMessages(prev => [
           ...prev,
           { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
-          { 
-            text: '⚠️ กรุณาเข้าสู่ระบบก่อนเพื่อดูคำสั่งซื้อของคุณครับ\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก', 
-            isBot: true 
+          {
+            text: '⚠️ กรุณาเข้าสู่ระบบก่อนเพื่อดูคำสั่งซื้อของคุณครับ\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก',
+            isBot: true
           }
         ])
         setIsLoading(false)
         return
       }
-      
+
       try {
         const response = await orderAPI.getMyOrders()
-        
+
         if (response.success && response.data.orders.length > 0) {
           const orders = response.data.orders
-          
+
           // Status text mapping
           const getStatusText = (status: string) => {
             const texts: Record<string, string> = {
@@ -113,7 +114,7 @@ const ChatBot: React.FC = () => {
             }
             return texts[status] || status
           }
-          
+
           // Format orders list
           let ordersList = '📦 คำสั่งซื้อของคุณ:\n\n'
           orders.slice(0, 5).forEach((order: any, index: number) => {
@@ -127,13 +128,13 @@ const ChatBot: React.FC = () => {
             ordersList += `   📅 ${date}\n`
             ordersList += `   ${getStatusText(order.orderStatus)}\n\n`
           })
-          
+
           if (orders.length > 5) {
             ordersList += `📋 และอีก ${orders.length - 5} รายการ...\n\n`
           }
-          
+
           ordersList += '🔍 พิมพ์เลขคำสั่งซื้อเพื่อดูรายละเอียด\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก'
-          
+
           setMessages(prev => [
             ...prev,
             { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
@@ -143,9 +144,9 @@ const ChatBot: React.FC = () => {
           setMessages(prev => [
             ...prev,
             { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
-            { 
-              text: '📭 คุณยังไม่มีคำสั่งซื้อครับ\n\nลองเลือกสินค้าและสั่งซื้อกันนะครับ! 🛍️\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก', 
-              isBot: true 
+            {
+              text: '📭 คุณยังไม่มีคำสั่งซื้อครับ\n\nลองเลือกสินค้าและสั่งซื้อกันนะครับ! 🛍️\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก',
+              isBot: true
             }
           ])
         }
@@ -154,9 +155,9 @@ const ChatBot: React.FC = () => {
         setMessages(prev => [
           ...prev,
           { text: '🛒 สอบถามการสั่งซื้อ', isBot: false },
-          { 
-            text: '❌ ไม่สามารถดึงข้อมูลคำสั่งซื้อได้ กรุณาลองใหม่อีกครั้งครับ\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก', 
-            isBot: true 
+          {
+            text: '❌ ไม่สามารถดึงข้อมูลคำสั่งซื้อได้ กรุณาลองใหม่อีกครั้งครับ\n\n💡 พิมพ์ 0 เพื่อกลับเมนูหลัก',
+            isBot: true
           }
         ])
       } finally {
@@ -228,7 +229,7 @@ const ChatBot: React.FC = () => {
     if (inputMessage.trim() === '' || isLoading) return
 
     const userMessage = inputMessage.trim()
-    
+
     // Add user message
     const newMessages = [...messages, { text: userMessage, isBot: false }]
     setMessages(newMessages)
@@ -264,12 +265,12 @@ const ChatBot: React.FC = () => {
 
         // Step-by-step spec collection
         const currentStep = specSteps[currentSpecStep - 1]
-        
+
         if (currentStep) {
           // Save current spec
           const updatedSpecs = { ...pcSpecs, [currentStep.key]: userMessage }
           setPcSpecs(updatedSpecs)
-          
+
           if (currentSpecStep < specSteps.length) {
             // Move to next step
             const nextStep = currentSpecStep + 1
@@ -295,7 +296,7 @@ const ChatBot: React.FC = () => {
         // Format: "5 RTX 4060 Ti" or "5" alone
         const componentMap: { [key: string]: keyof PCSpecs } = {
           '1': 'cpu',
-          '2': 'motherboard', 
+          '2': 'motherboard',
           '3': 'cpuCooler',
           '4': 'ram',
           '5': 'gpu',
@@ -312,21 +313,21 @@ const ChatBot: React.FC = () => {
 
         // Parse input: "5 RTX 4060 Ti" -> componentNum = "5", newValue = "RTX 4060 Ti"
         const match = userMessage.match(/^(\d)\s*(.*)$/)
-        
+
         if (match) {
           const componentNum = match[1]
           const newValue = match[2].trim()
           const selectedKey = componentMap[componentNum]
-          
+
           if (selectedKey) {
             if (newValue) {
               // User provided both number and new value - proceed to analyze
               setSelectedComponent(selectedKey)
               setChatMode('upgrade-analyze')
-              
+
               // Store original specs before updating
               const originalSpecs = { ...pcSpecs }
-              
+
               // Update specs with new component
               const updatedSpecs = { ...pcSpecs, [selectedKey]: newValue }
               setPcSpecs(updatedSpecs)
@@ -342,7 +343,7 @@ const ChatBot: React.FC = () => {
               })
 
               const data = response.data
-              
+
               if (data.response) {
                 setChatMode('normal')
                 setMessages([...newMessages, {
@@ -374,7 +375,7 @@ const ChatBot: React.FC = () => {
             }
           }
         }
-        
+
         setMessages([...newMessages, {
           text: 'กรุณาพิมพ์เลข 1-6 ตามด้วยชื่อรุ่นใหม่\n(เช่น "5 RTX 4060 Ti" หมายถึงเปลี่ยน GPU เป็น RTX 4060 Ti)\n\nหรือพิมพ์แค่เลขก็ได้ครับ แล้วค่อยบอกรุ่นทีหลัง',
           isBot: true
@@ -386,7 +387,7 @@ const ChatBot: React.FC = () => {
         const newComponent = userMessage
         const componentNames: { [key: string]: string } = {
           'cpu': 'CPU',
-          'motherboard': 'Motherboard', 
+          'motherboard': 'Motherboard',
           'cpuCooler': 'CPU Cooler',
           'ram': 'RAM',
           'gpu': 'การ์ดจอ (GPU)',
@@ -395,7 +396,7 @@ const ChatBot: React.FC = () => {
 
         // Store original specs before updating
         const originalSpecs = { ...pcSpecs }
-        
+
         // Update specs with new component
         const updatedSpecs = { ...pcSpecs, [selectedComponent]: newComponent }
         setPcSpecs(updatedSpecs)
@@ -411,7 +412,7 @@ const ChatBot: React.FC = () => {
         })
 
         const data = response.data
-        
+
         if (data.response) {
           setChatMode('normal')
           setMessages([...newMessages, {
@@ -451,15 +452,15 @@ const ChatBot: React.FC = () => {
       if (chatMode === 'order-inquiry') {
         try {
           const response = await orderAPI.getMyOrders()
-          
+
           if (response.success) {
             const orders = response.data.orders
             // Find order by order number (partial match)
-            const foundOrder = orders.find((order: any) => 
+            const foundOrder = orders.find((order: any) =>
               order.orderNumber.toLowerCase().includes(userMessage.toLowerCase()) ||
               userMessage.toLowerCase().includes(order.orderNumber.toLowerCase())
             )
-            
+
             if (foundOrder) {
               const getStatusText = (status: string) => {
                 const texts: Record<string, string> = {
@@ -471,7 +472,7 @@ const ChatBot: React.FC = () => {
                 }
                 return texts[status] || status
               }
-              
+
               const getPaymentStatusText = (status: string) => {
                 const texts: Record<string, string> = {
                   pending: '⏳ รอชำระเงิน',
@@ -480,7 +481,7 @@ const ChatBot: React.FC = () => {
                 }
                 return texts[status] || status
               }
-              
+
               const date = new Date(foundOrder.createdAt).toLocaleDateString('th-TH', {
                 day: 'numeric',
                 month: 'long',
@@ -488,21 +489,21 @@ const ChatBot: React.FC = () => {
                 hour: '2-digit',
                 minute: '2-digit'
               })
-              
+
               let orderDetail = `📦 รายละเอียดคำสั่งซื้อ #${foundOrder.orderNumber}\n\n`
               orderDetail += `📅 วันที่สั่ง: ${date}\n`
               orderDetail += `💰 ยอดรวม: ฿${foundOrder.total.toLocaleString()}\n`
               orderDetail += `📊 สถานะ: ${getStatusText(foundOrder.orderStatus)}\n`
               orderDetail += `💳 การชำระเงิน: ${getPaymentStatusText(foundOrder.paymentStatus)}\n\n`
-              
+
               orderDetail += `🛍️ สินค้า (${foundOrder.items.length} รายการ):\n`
               foundOrder.items.forEach((item: any, idx: number) => {
                 orderDetail += `   ${idx + 1}. ${item.name || 'สินค้า'} x${item.quantity}\n`
               })
-              
+
               orderDetail += `\n🔗 ดูรายละเอียดเพิ่มเติมได้ที่: /orders/${foundOrder._id}\n\n`
               orderDetail += '💡 พิมพ์ 0 เพื่อกลับเมนูหลัก'
-              
+
               setMessages([...newMessages, { text: orderDetail, isBot: true }])
             } else {
               setMessages([...newMessages, {
@@ -530,21 +531,21 @@ const ChatBot: React.FC = () => {
       const data = response.data
 
       if (data.response) {
-        setMessages([...newMessages, { 
-          text: data.response, 
-          isBot: true 
+        setMessages([...newMessages, {
+          text: data.response,
+          isBot: true
         }])
       } else {
-        setMessages([...newMessages, { 
-          text: 'ขออภัยครับ ระบบขัดข้อง กรุณาลองใหม่อีกครั้งหรือติดต่อฝ่ายบริการลูกค้า', 
-          isBot: true 
+        setMessages([...newMessages, {
+          text: 'ขออภัยครับ ระบบขัดข้อง กรุณาลองใหม่อีกครั้งหรือติดต่อฝ่ายบริการลูกค้า',
+          isBot: true
         }])
       }
     } catch (error) {
       console.error('Chat error:', error)
-      setMessages([...newMessages, { 
-        text: 'ขออภัยครับ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่อีกครั้ง', 
-        isBot: true 
+      setMessages([...newMessages, {
+        text: 'ขออภัยครับ ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่อีกครั้ง',
+        isBot: true
       }])
     } finally {
       setIsLoading(false)
@@ -559,8 +560,13 @@ const ChatBot: React.FC = () => {
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-4 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                <FaComments className="text-blue-600" size={20} />
+              <div className="w-10 h-10 relative bg-white rounded-full overflow-hidden border border-gray-200">
+                <Image
+                  src="/ChatBot/chatbot_icon.png"
+                  alt="Chatbot"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div>
                 <h3 className="font-semibold">Ai chatbot ศูนย์ช่วยเหลือลูกค้า</h3>
@@ -581,11 +587,10 @@ const ChatBot: React.FC = () => {
               <div key={index} className="space-y-2">
                 <div className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}>
                   <div
-                    className={`max-w-[85%] px-4 py-2 rounded-lg ${
-                      message.isBot
-                        ? 'bg-white text-gray-800 border border-gray-200'
-                        : 'bg-blue-600 text-white'
-                    }`}
+                    className={`max-w-[85%] px-4 py-2 rounded-lg ${message.isBot
+                      ? 'bg-white text-gray-800 border border-gray-200'
+                      : 'bg-blue-600 text-white'
+                      }`}
                   >
                     <p className="text-sm whitespace-pre-line">{message.text}</p>
                   </div>
@@ -644,26 +649,29 @@ const ChatBot: React.FC = () => {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
+        className={`fixed bottom-6 right-6 w-16 h-16 transition-all duration-300 flex items-center justify-center z-50 group ${isOpen
+            ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full shadow-2xl hover:shadow-3xl'
+            : 'bg-transparent hover:scale-110'
+          }`}
         aria-label="Open chat"
       >
         {isOpen ? (
-          <FaTimes size={28} className="group-hover:rotate-90 transition-transform duration-300" />
+          <FaTimes size={28} className="transition-transform duration-300 rotate-90" />
         ) : (
-          <>
-            <FaComments size={28} className="group-hover:scale-110 transition-transform duration-300" />
+          <div className="w-full h-full relative">
+            <Image
+              src="/ChatBot/chatbot_icon.png"
+              alt="Chatbot"
+              fill
+              className="object-contain drop-shadow-xl transition-transform duration-300 group-hover:scale-110"
+            />
             {/* Notification Badge */}
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-pulse">
+            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse z-10 shadow-md">
               1
             </span>
-          </>
+          </div>
         )}
       </button>
-
-      {/* Pulse Animation */}
-      {!isOpen && (
-        <div className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-blue-600 animate-ping opacity-20 z-40"></div>
-      )}
     </>
   )
 }

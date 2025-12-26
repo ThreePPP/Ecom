@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+
 import { productAPI } from '@/app/lib/api';
 import { FaTrash, FaPlus, FaSearch, FaShoppingCart, FaEdit, FaCheck } from 'react-icons/fa';
 import Breadcrumb from '@/app/component/Breadcrumb/Breadcrumb';
@@ -192,16 +193,6 @@ export default function PCBuilderPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [showSummary, setShowSummary] = useState(false);
-  const [budget, setBudget] = useState<number>(0);
-  const [isAutoBuilding, setIsAutoBuilding] = useState(false);
-  const [autoBuildResult, setAutoBuildResult] = useState<{
-    show: boolean;
-    componentCount: number;
-    budget: number;
-    totalPrice: number;
-    withinBudget: boolean;
-    compatibilityMsg: string;
-  } | null>(null);
   const [animatingProductId, setAnimatingProductId] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'price-asc' | 'price-desc'>('price-asc');
   const { addToCart } = useCart();
@@ -215,6 +206,21 @@ export default function PCBuilderPage() {
       setSelectedFilters({}); // Reset filters when changing component
     }
   }, [activeComponentId]);
+
+  useEffect(() => {
+    // Check for auto-build specs from localStorage
+    const autoBuildSpecs = localStorage.getItem('autoBuildSpecs');
+    if (autoBuildSpecs) {
+      try {
+        const specs = JSON.parse(autoBuildSpecs);
+        setSelectedComponents(specs);
+        localStorage.removeItem('autoBuildSpecs'); // Clear after loading
+        showToast('โหลดรายการจัดสเปคอัตโนมัติเรียบร้อย', 'success');
+      } catch (e) {
+        console.error('Failed to parse auto build specs', e);
+      }
+    }
+  }, []);
 
   const fetchProducts = async (category: string) => {
     try {
@@ -264,267 +270,7 @@ export default function PCBuilderPage() {
     });
   };
 
-  const handleAutoBuild = async () => {
-    if (!budget || budget < 10000) {
-      showToast('กรุณาระบุงบประมาณ (ขั้นต่ำ 10,000 บาท)', 'warning');
-      return;
-    }
 
-    setIsAutoBuilding(true);
-    setSelectedComponents({}); // Clear current selection
-
-    // Define budget ratios for each component type
-    const ratios: Record<string, number> = {
-      cpu: 0.20,
-      cooler: 0.05,
-      mainboard: 0.13,
-      gpu: 0.30,
-      memory: 0.10,
-      hdd: 0.04,
-      ssd: 0.08,
-      psu: 0.07,
-      case: 0.03
-    };
-
-    const newSelection: Record<string, Product> = {};
-
-    try {
-      // Step 1: Select CPU first
-      const cpuRatio = ratios.cpu;
-      const cpuTargetPrice = budget * cpuRatio;
-      const cpuMinPrice = cpuTargetPrice * 0.7;
-      const cpuMaxPrice = cpuTargetPrice * 1.3;
-
-      const cpuComponent = COMPONENT_LIST.find(c => c.id === 'cpu');
-      if (cpuComponent) {
-        try {
-          const cpuResponse = await productAPI.getProducts({
-            category: cpuComponent.category,
-            minPrice: Math.floor(cpuMinPrice),
-            maxPrice: Math.floor(cpuMaxPrice),
-            limit: 50
-          });
-
-          if (cpuResponse.success && cpuResponse.data.products.length > 0) {
-            const cpuProducts = cpuResponse.data.products;
-            const selectedCPU = cpuProducts.reduce((prev: Product, curr: Product) => {
-              return (Math.abs(curr.price - cpuTargetPrice) < Math.abs(prev.price - cpuTargetPrice) ? curr : prev);
-            });
-            newSelection['cpu'] = selectedCPU;
-
-            // Step 2: Select compatible Mainboard based on CPU socket
-            const cpuSocket = selectedCPU.specifications instanceof Map
-              ? (selectedCPU.specifications.get('Socket') || selectedCPU.specifications.get('socket'))
-              : (selectedCPU.specifications?.Socket || selectedCPU.specifications?.socket);
-
-            const mainboardRatio = ratios.mainboard;
-            const mainboardTargetPrice = budget * mainboardRatio;
-            const mainboardMinPrice = mainboardTargetPrice * 0.7;
-            const mainboardMaxPrice = mainboardTargetPrice * 1.3;
-
-            const mainboardComponent = COMPONENT_LIST.find(c => c.id === 'mainboard');
-            if (mainboardComponent) {
-              try {
-                // First, get ALL mainboards to find compatible ones
-                const allMainboardsResponse = await productAPI.getProducts({
-                  category: mainboardComponent.category,
-                  limit: 200
-                });
-
-                let compatibleMainboards: Product[] = [];
-
-                if (allMainboardsResponse.success && allMainboardsResponse.data.products.length > 0) {
-                  // Filter compatible mainboards by socket
-                  compatibleMainboards = allMainboardsResponse.data.products.filter((mb: Product) => {
-                    const mbSocket = mb.specifications instanceof Map
-                      ? (mb.specifications.get('Socket') || mb.specifications.get('socket'))
-                      : (mb.specifications?.Socket || mb.specifications?.socket);
-                    return cpuSocket && mbSocket === cpuSocket;
-                  });
-
-                  // If no compatible mainboards found, use all available mainboards
-                  if (compatibleMainboards.length === 0) {
-                    console.warn('No compatible mainboard found for socket:', cpuSocket, '- using all mainboards');
-                    compatibleMainboards = allMainboardsResponse.data.products;
-                  }
-                }
-
-                if (compatibleMainboards.length > 0) {
-                  // Try to find mainboard in price range first
-                  let mainboardsInPriceRange = compatibleMainboards.filter(
-                    mb => mb.price >= mainboardMinPrice && mb.price <= mainboardMaxPrice
-                  );
-
-                  // If no mainboard in price range, use all compatible mainboards
-                  const mainboardPool = mainboardsInPriceRange.length > 0 ? mainboardsInPriceRange : compatibleMainboards;
-
-                  // Select mainboard closest to target price
-                  const selectedMainboard = mainboardPool.reduce((prev: Product, curr: Product) => {
-                    return (Math.abs(curr.price - mainboardTargetPrice) < Math.abs(prev.price - mainboardTargetPrice) ? curr : prev);
-                  });
-                  newSelection['mainboard'] = selectedMainboard;
-
-                  // Detect RAM type supported by mainboard (DDR4 or DDR5)
-                  const ramType = selectedMainboard.name.toLowerCase().includes('ddr5') ? 'DDR5' :
-                    selectedMainboard.name.toLowerCase().includes('ddr4') ? 'DDR4' : null;
-
-                  // Store RAM type for later use
-                  if (ramType) {
-                    (selectedMainboard as any).detectedRamType = ramType;
-                  }
-
-                  console.log('Selected mainboard:', selectedMainboard.name, 'Socket:',
-                    selectedMainboard.specifications instanceof Map
-                      ? selectedMainboard.specifications.get('Socket')
-                      : selectedMainboard.specifications?.Socket);
-                } else {
-                  console.warn('No mainboards available in the system');
-                }
-              } catch (err) {
-                console.error('Error fetching mainboard:', err);
-              }
-            }
-          }
-        } catch (err) {
-          console.error('Error fetching CPU:', err);
-        }
-      }
-
-      // Step 3: Select other components - ONE per ComponentType
-      const otherComponents = ['cooler', 'gpu', 'memory', 'hdd', 'ssd', 'psu', 'case'];
-      const promises = otherComponents.map(async (componentId) => {
-        const ratio = ratios[componentId];
-        if (!ratio) return; // Skip if no ratio defined
-
-        const targetPrice = budget * ratio;
-        const minPrice = targetPrice * 0.7;
-        const maxPrice = targetPrice * 1.3;
-
-        const component = COMPONENT_LIST.find(c => c.id === componentId);
-        if (!component) return;
-
-        try {
-          // Special handling for Memory - filter by RAM type compatibility
-          if (componentId === 'memory' && newSelection['mainboard']) {
-            const mainboard = newSelection['mainboard'];
-            const ramType = (mainboard as any).detectedRamType;
-
-            const memoryResponse = await productAPI.getProducts({
-              category: component.category,
-              minPrice: Math.floor(minPrice),
-              maxPrice: Math.floor(maxPrice),
-              limit: 100
-            });
-
-            if (memoryResponse.success && memoryResponse.data.products.length > 0) {
-              let compatibleMemory = memoryResponse.data.products;
-
-              // Filter by RAM type if detected
-              if (ramType) {
-                compatibleMemory = memoryResponse.data.products.filter((mem: Product) => {
-                  return mem.name.toLowerCase().includes(ramType.toLowerCase());
-                });
-              }
-
-              // If no compatible memory in price range, try all memory
-              if (compatibleMemory.length === 0) {
-                const allMemory = await productAPI.getProducts({
-                  category: component.category,
-                  limit: 100
-                });
-                if (allMemory.success && ramType) {
-                  compatibleMemory = allMemory.data.products.filter((mem: Product) => {
-                    return mem.name.toLowerCase().includes(ramType.toLowerCase());
-                  });
-                } else if (allMemory.success) {
-                  compatibleMemory = allMemory.data.products;
-                }
-              }
-
-              if (compatibleMemory.length > 0) {
-                const closest = compatibleMemory.reduce((prev: Product, curr: Product) => {
-                  return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
-                });
-                newSelection[componentId] = closest;
-              }
-            }
-            return;
-          }
-
-          // Standard component selection for other components
-          const response = await productAPI.getProducts({
-            category: component.category,
-            minPrice: Math.floor(minPrice),
-            maxPrice: Math.floor(maxPrice),
-            limit: 50
-          });
-
-          if (response.success && response.data.products.length > 0) {
-            const products = response.data.products;
-            // Select ONE product closest to target price
-            const closest = products.reduce((prev: Product, curr: Product) => {
-              return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
-            });
-            newSelection[componentId] = closest;
-          } else {
-            // Fallback: fetch generic list and select ONE
-            const fallbackResponse = await productAPI.getProducts({
-              category: component.category,
-              limit: 50
-            });
-
-            if (fallbackResponse.success && fallbackResponse.data.products.length > 0) {
-              const products = fallbackResponse.data.products;
-              const closest = products.reduce((prev: Product, curr: Product) => {
-                return (Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev);
-              });
-              newSelection[componentId] = closest;
-            }
-          }
-        } catch (err) {
-          console.error(`Error fetching ${component.name}:`, err);
-        }
-      });
-
-      await Promise.all(promises);
-      setSelectedComponents(newSelection);
-
-      // Show summary of selected components (1 per ComponentType)
-      const totalPrice = Object.values(newSelection).reduce((sum, product) => sum + (product?.price || 0), 0);
-      const withinBudget = totalPrice <= budget * 1.1; // Allow 10% over budget
-      const componentCount = Object.keys(newSelection).length;
-
-      // Check compatibility
-      const hasMainboard = !!newSelection['mainboard'];
-      const hasCPU = !!newSelection['cpu'];
-      const hasMemory = !!newSelection['memory'];
-      const ramType = hasMainboard ? (newSelection['mainboard'] as any).detectedRamType : null;
-
-      let compatibilityMsg = '';
-      if (hasCPU && hasMainboard) {
-        compatibilityMsg += 'CPU และ Mainboard มี Socket ที่เข้ากันได้|';
-      }
-      if (hasMainboard && hasMemory && ramType) {
-        compatibilityMsg += `Mainboard รองรับ RAM ${ramType}|`;
-      }
-
-      // Show modal instead of alert
-      setAutoBuildResult({
-        show: true,
-        componentCount,
-        budget,
-        totalPrice,
-        withinBudget,
-        compatibilityMsg
-      });
-
-    } catch (error) {
-      console.error('Auto build error:', error);
-      showToast('เกิดข้อผิดพลาดในการจัดสเปค', 'error');
-    } finally {
-      setIsAutoBuilding(false);
-    }
-  };
 
   const calculateTotal = () => {
     return Object.values(selectedComponents).reduce((total, product) => {
@@ -870,25 +616,7 @@ export default function PCBuilderPage() {
             <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-sm p-4 h-fit sticky top-24">
 
               {/* Auto Build Section */}
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <h3 className="text-sm font-bold text-blue-800 mb-2">จัดสเปคตามงบ</h3>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="number"
-                    value={budget || ''}
-                    onChange={(e) => setBudget(Number(e.target.value))}
-                    placeholder="ระบุงบประมาณ"
-                    className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:border-blue-500 text-black"
-                  />
-                </div>
-                <button
-                  onClick={handleAutoBuild}
-                  disabled={isAutoBuilding}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-md transition-colors disabled:opacity-50"
-                >
-                  {isAutoBuilding ? 'กำลังคำนวณ...' : 'จัดอัตโนมัติ'}
-                </button>
-              </div>
+
 
               <div className="flex justify-between items-center mb-4 border-b pb-4">
                 <h2 className="text-lg font-bold text-gray-800">รายการอุปกรณ์</h2>
@@ -1111,8 +839,8 @@ export default function PCBuilderPage() {
                       onChange={(e) => setSortOrder(e.target.value as 'price-asc' | 'price-desc')}
                       className="px-4 py-1.5 rounded-full text-sm font-medium bg-white border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-black cursor-pointer"
                     >
-                      <option value="price-asc">ราคา ต่ำ-สูง</option>
-                      <option value="price-desc">ราคา สูง-ต่ำ</option>
+                      <option value="price-asc">ราคาต่ำ-สูง</option>
+                      <option value="price-desc">ราคาสูง-ต่ำ</option>
                     </select>
                   </div>
                 </div>
@@ -1210,65 +938,6 @@ export default function PCBuilderPage() {
       </div>
 
       {/* Auto Build Result Modal */}
-      {autoBuildResult?.show && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setAutoBuildResult(null)}>
-          <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6" onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">จัดสเปคเสร็จสิ้น</h3>
-              <button onClick={() => setAutoBuildResult(null)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Budget Summary */}
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">งบประมาณ</span>
-                <span className="font-medium text-gray-900">{autoBuildResult.budget.toLocaleString()} coins</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">ยอดรวม</span>
-                <span className={`font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
-                  {autoBuildResult.totalPrice.toLocaleString()} coins
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">จำนวนชิ้น</span>
-                <span className="font-medium text-gray-900">{autoBuildResult.componentCount} ชิ้น</span>
-              </div>
-              <div className="border-t pt-3">
-                <span className={`text-sm font-medium ${autoBuildResult.withinBudget ? 'text-green-600' : 'text-orange-600'}`}>
-                  {autoBuildResult.withinBudget ? '✓ อยู่ในงบประมาณ' : '⚠ เกินงบประมาณเล็กน้อย'}
-                </span>
-              </div>
-            </div>
-
-            {/* Compatibility */}
-            {autoBuildResult.compatibilityMsg && (
-              <div className="mb-6 text-sm text-gray-600 space-y-1">
-                {autoBuildResult.compatibilityMsg.split('|').filter(Boolean).map((msg, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span className="text-green-500 text-xs">✓</span>
-                    <span>{msg}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Button */}
-            <button
-              onClick={() => setAutoBuildResult(null)}
-              className="w-full py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
-            >
-              ตกลง
-            </button>
-          </div>
-        </div>
-      )}
-
       <Features />
       <Footer />
     </>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { FaSearch, FaExchangeAlt, FaHeart, FaShoppingCart, FaUser, FaUserCircle, FaSignOutAlt, FaCog, FaClipboardList, FaDesktop } from 'react-icons/fa'
 import LoginModal from './LoginModal'
 import CartModal from '@/app/component/Navbar/CartModal'
+import AutoBuildModal from './AutoBuildModal'
 import BannerCarousel from './BannerCarousel'
 import Promotion from './Promotion'
 import CategoriesDropdown from './CategoriesDropdown'
@@ -33,6 +34,8 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   const router = useRouter()
   const [isLoginModalOpen, setLoginModalOpen] = useState(false)
   const [isCartModalOpen, setCartModalOpen] = useState(false)
+  const [isPCBuilderModalOpen, setPCBuilderModalOpen] = useState(false) // New state for PC Builder Modal
+  const [isAutoBuildModalOpen, setAutoBuildModalOpen] = useState(false)
   const [isPromotionOpen, setPromotionOpen] = useState(false)
   const [isCategoriesOpen, setCategoriesOpen] = useState(false)
   const [isSticky, setIsSticky] = useState(false)
@@ -220,13 +223,13 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
         <ul className="flex items-center space-x-2 ml-6">
           {/* ปุ่มจัดสเปคคอม */}
           <li>
-            <a
-              href="/pc-builder"
+            <button
+              onClick={() => setPCBuilderModalOpen(true)}
               className="flex items-center gap-2 px-3 py-2 rounded-full border border-white hover:bg-[#99ff33] transition-colors"
             >
               <FaDesktop size={18} />
               <span className="font-medium">จัดสเปคคอม</span>
-            </a>
+            </button>
           </li>
           {/* ปุ่มเปรียบเทียบ */}
           <li className="relative">
@@ -396,6 +399,59 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
       {/* Modal สำหรับตะกร้าสินค้า */}
       <CartModal isOpen={isCartModalOpen} onClose={() => setCartModalOpen(false)} />
 
+      {/* Modal เลือกโหมดจัดสเปคคอม */}
+      {isPCBuilderModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setPCBuilderModalOpen(false)}>
+          <div
+            className="relative bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-lg w-full mx-4 border border-white/50"
+            onClick={e => e.stopPropagation()}
+            style={{ animation: 'fadeIn 0.3s ease-out' }}
+          >
+            <button
+              onClick={() => setPCBuilderModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h3 className="text-2xl font-bold text-center mb-8 text-gray-800">เลือกโหมดจัดสเปคคอม</h3>
+
+            <div className="flex flex-col gap-4">
+              <a
+                href="/pc-builder"
+                className="group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300"
+              >
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <FaDesktop size={32} className="text-blue-600" />
+                </div>
+                <span className="text-lg font-bold text-gray-800">จัดสเปคคอมเอง</span>
+                <span className="text-sm text-gray-500 mt-1">เลือกอุปกรณ์ทีละชิ้นตามใจคุณ</span>
+              </a>
+
+              <button
+                onClick={() => {
+                  setPCBuilderModalOpen(false);
+                  setAutoBuildModalOpen(true);
+                }}
+                className="group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-gray-100 hover:border-green-500 hover:bg-green-50 transition-all duration-300 w-full"
+              >
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <span className="text-lg font-bold text-gray-800">จัดสเปคคอมตามงบจัดอัตโนมัติ</span>
+                <span className="text-sm text-gray-500 mt-1">ระบุงบประมาณ ระบบช่วยจัดให้</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <AutoBuildModal isOpen={isAutoBuildModalOpen} onClose={() => setAutoBuildModalOpen(false)} />
+
       {/* Spacer เมื่อ navbar เป็น fixed */}
       <div
         className="transition-all duration-500 ease-in-out overflow-hidden"
@@ -480,7 +536,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
       {showBanner && (
         <div>
           {/* Use banner images from public/Banners folder */}
-          <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/who1.png"]} height="h-150" />
+          <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/3.jpg"]} height="h-[600px]" />
         </div>
       )}
 

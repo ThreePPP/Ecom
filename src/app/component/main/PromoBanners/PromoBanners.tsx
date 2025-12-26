@@ -19,14 +19,14 @@ const PromoBanners = () => {
   const leftSlides: BannerSlide[] = [
     { id: 1, image: '/Banners/1.jpg', alt: 'Promotion' },
     { id: 2, image: '/Banners/2.jpg', alt: 'Promotion' },
-    { id: 3, image: '/Banners/3.png', alt: 'Promotion' },
+    { id: 3, image: '/Banners/3.jpg', alt: 'Promotion' },
   ]
 
   // ภาพสำหรับ Banner ขวา
   const rightSlides: BannerSlide[] = [
     { id: 1, image: '/Banners/1.jpg', alt: 'Promotion' },
     { id: 2, image: '/Banners/2.jpg', alt: 'Promotion' },
-    { id: 3, image: '/Banners/3.png', alt: 'Promotion' },
+    { id: 3, image: '/Banners/3.jpg', alt: 'Promotion' },
   ]
 
   // Auto-play สำหรับ Banner ซ้าย (เปลี่ยนภาพทุก 8 วินาที)
@@ -57,25 +57,25 @@ const PromoBanners = () => {
     <div className="bg-gray-50 w-full">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          
+
           {/* ==================== Banner ซ้าย ==================== */}
           <div className="relative overflow-hidden rounded-lg bg-gray-100 h-64 md:h-80 lg:h-96">
             {/* Container สำหรับเลื่อนภาพ */}
-            <div 
-              className="absolute inset-0 flex transition-transform duration-700" 
+            <div
+              className="absolute inset-0 flex transition-transform duration-700"
               style={{ transform: `translateX(-${leftIndex * 100}%)` }}
             >
               {leftSlides.map((slide) => (
                 <div key={slide.id} className="w-full flex-shrink-0 h-full">
-                  <img 
-                    src={slide.image} 
-                    alt={slide.alt} 
+                  <img
+                    src={slide.image}
+                    alt={slide.alt}
                     className="w-full h-full object-cover"
                   />
                 </div>
               ))}
             </div>
-            
+
             {/* Dots Indicator สำหรับ Banner ซ้าย */}
             {leftSlides.length > 1 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
@@ -83,9 +83,8 @@ const PromoBanners = () => {
                   <button
                     key={i}
                     onClick={() => setLeftIndex(i)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      i === leftIndex ? 'bg-white w-6' : 'bg-white/60'
-                    }`}
+                    className={`w-3 h-3 rounded-full transition-all ${i === leftIndex ? 'bg-white w-6' : 'bg-white/60'
+                      }`}
                     aria-label={`Go to left slide ${i + 1}`}
                   />
                 ))}
@@ -96,21 +95,21 @@ const PromoBanners = () => {
           {/* ==================== Banner ขวา ==================== */}
           <div className="relative overflow-hidden rounded-lg bg-gray-100 h-64 md:h-80 lg:h-96">
             {/* Container สำหรับเลื่อนภาพ */}
-            <div 
-              className="absolute inset-0 flex transition-transform duration-700" 
+            <div
+              className="absolute inset-0 flex transition-transform duration-700"
               style={{ transform: `translateX(-${rightIndex * 100}%)` }}
             >
               {rightSlides.map((slide) => (
                 <div key={slide.id} className="w-full flex-shrink-0 h-full">
-                  <img 
-                    src={slide.image} 
-                    alt={slide.alt} 
+                  <img
+                    src={slide.image}
+                    alt={slide.alt}
                     className="w-full h-full object-cover"
                   />
                 </div>
               ))}
             </div>
-            
+
             {/* Dots Indicator สำหรับ Banner ขวา */}
             {rightSlides.length > 1 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
@@ -118,16 +117,15 @@ const PromoBanners = () => {
                   <button
                     key={i}
                     onClick={() => setRightIndex(i)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      i === rightIndex ? 'bg-white w-6' : 'bg-white/60'
-                    }`}
+                    className={`w-3 h-3 rounded-full transition-all ${i === rightIndex ? 'bg-white w-6' : 'bg-white/60'
+                      }`}
                     aria-label={`Go to right slide ${i + 1}`}
                   />
                 ))}
               </div>
             )}
           </div>
-          
+
         </div>
       </div>
     </div>

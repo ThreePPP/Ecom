@@ -234,19 +234,7 @@ const AllCategory = () => {
                   </button>
                 ))}
 
-                {/* PC Builder Button - Separate */}
-                <button
-                  onClick={() => window.location.href = "/pc-builder"}
-                  className="w-full flex items-center justify-center py-3 px-2 rounded-xl transition-all duration-300 ease-in-out mt-4 shadow-md hover:shadow-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:scale-[1.02] active:scale-95 group relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
 
-                  {isSidebarOpen ? (
-                    <span className="relative z-10 text-white text-lg font-bold tracking-wide">จัดสเปคคอม</span>
-                  ) : (
-                    <span className="relative z-10 text-white text-sm font-bold">PC</span>
-                  )}
-                </button>
               </div>
             </div>
           </div>
