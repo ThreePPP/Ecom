@@ -334,17 +334,29 @@ export default function ProfilePage() {
                         </div>
                       </div>
 
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <p className="flex items-start gap-2">
-                          <span className="text-gray-400 min-w-[20px] pt-1"><FaPhone className="text-xs" /></span>
-                          {addr.phoneNumber}
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-gray-400 min-w-[20px] pt-1"><FaMapMarkerAlt className="text-xs" /></span>
-                          <span className="leading-relaxed">
-                            {addr.address}, {addr.district}, {addr.province} {addr.postalCode}
-                          </span>
-                        </p>
+                      <div className="text-sm text-gray-600 space-y-3 mt-4">
+                        <div className="group">
+                          <label className="block text-xs font-medium text-gray-400 mb-1">เบอร์โทรศัพท์</label>
+                          <div className="text-gray-900 font-medium">{addr.phoneNumber}</div>
+                        </div>
+                        <div className="group">
+                          <label className="block text-xs font-medium text-gray-400 mb-1">ที่อยู่</label>
+                          <div className="text-gray-900 leading-relaxed">{addr.address}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="group">
+                            <label className="block text-xs font-medium text-gray-400 mb-1">อำเภอ/เขต</label>
+                            <div className="text-gray-900">{addr.district}</div>
+                          </div>
+                          <div className="group">
+                            <label className="block text-xs font-medium text-gray-400 mb-1">จังหวัด</label>
+                            <div className="text-gray-900">{addr.province}</div>
+                          </div>
+                          <div className="group">
+                            <label className="block text-xs font-medium text-gray-400 mb-1">รหัสไปรษณีย์</label>
+                            <div className="text-gray-900">{addr.postalCode}</div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}

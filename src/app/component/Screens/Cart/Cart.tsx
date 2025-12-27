@@ -542,7 +542,7 @@ const CartPage = () => {
                     </div>
                   ) : savedAddresses.length > 0 ? (
                     <div className="mb-6">
-                      <h3 className="text-lg font-semibold mb-3">ที่อยู่ที่บันทึกไว้</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-black">ที่อยู่ที่บันทึกไว้</h3>
                       <div className="space-y-3">
                         {savedAddresses.map((addr) => (
                           <div
@@ -581,23 +581,42 @@ const CartPage = () => {
                           </div>
                         ))}
                       </div>
-                      <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="mt-4 pt-4 border-t border-gray-200 flex justify-end">
                         <button
                           onClick={() => {
-                            setSelectedAddressId("");
-                            setShippingAddress({
-                              fullName: "",
-                              phone: "",
-                              address: "",
-                              province: "",
-                              district: "",
-                              subdistrict: "",
-                              postalCode: "",
-                            });
+                            if (!selectedAddressId) {
+                              const defaultAddr = savedAddresses.find(a => a.isDefault) || savedAddresses[0];
+                              if (defaultAddr && defaultAddr._id) {
+                                handleSelectAddress(defaultAddr._id);
+                              }
+                            } else {
+                              setSelectedAddressId("");
+                              setShippingAddress({
+                                fullName: "",
+                                phone: "",
+                                address: "",
+                                province: "",
+                                district: "",
+                                subdistrict: "",
+                                postalCode: "",
+                              });
+                            }
                           }}
-                          className="text-red-600 hover:text-red-700 font-medium"
+                          className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors ${
+                            !selectedAddressId 
+                              ? "bg-gray-200 text-gray-700 hover:bg-gray-300" 
+                              : "bg-red-600 text-white hover:bg-red-700"
+                          }`}
                         >
-                          + ใช้ที่อยู่ใหม่
+                          {!selectedAddressId ? (
+                            <>
+                              <FaMinus size={12} /> ยกเลิก
+                            </>
+                          ) : (
+                            <>
+                              <FaPlus size={12} /> เพิ่มที่อยู่ใหม่
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -721,7 +740,7 @@ const CartPage = () => {
 
                       {/* Save Address Button - Show when using new address */}
                       {!selectedAddressId && (
-                        <div className="mt-6 pt-4 border-t border-gray-200">
+                        <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end">
                           <button
                             onClick={async () => {
                               try {
@@ -753,9 +772,9 @@ const CartPage = () => {
                                 alert(error.message || "เกิดข้อผิดพลาดในการบันทึกที่อยู่");
                               }
                             }}
-                            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2 shadow-sm"
                           >
-                            <FaMapMarkerAlt /> บันทึกที่อยู่นี้ไว้ในข้อมูลของฉัน
+                            <FaMapMarkerAlt /> บันทึกที่อยู่ใหม่
                           </button>
                         </div>
                       )}
