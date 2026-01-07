@@ -1,512 +1,388 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { addressAPI } from "@/app/lib/api";
-import Navbar from "@/app/component/Navbar/Navbar";
-import Features from "@/app/component/main/Features/Features";
-import Footer from "@/app/component/main/footer/footer";
-import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
-import {
-  FaMapMarkerAlt,
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaStar,
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-} from "react-icons/fa";
+import React, { useEffect, useState } from 'react'
+import { useAuth } from '@/app/context/AuthContext'
+import { useRouter } from 'next/navigation'
+import { FaUser, FaEnvelope, FaPhone, FaCoins, FaEdit, FaMapMarkerAlt, FaShoppingBag, FaHeart, FaHistory, FaPlus, FaTrash } from 'react-icons/fa'
+import Link from 'next/link'
+import { addressAPI } from '@/app/lib/api'
+import EditProfileModal from '../component/Profile/EditProfileModal'
+import AddressModal from '../component/Profile/AddressModal'
+import Navbar from '@/app/component/Navbar/Navbar'
+import Features from '@/app/component/main/Features/Features'
+import Footer from '@/app/component/main/footer/footer'
 
 interface Address {
-  _id?: string;
-  fullName: string;
-  phoneNumber: string;
-  address: string;
-  district: string;
-  province: string;
-  postalCode: string;
-  isDefault?: boolean;
+    _id: string
+    fullName: string
+    phoneNumber: string
+    address: string
+    province: string
+    district: string
+    subdistrict?: string
+    postalCode: string
+    isDefault?: boolean
 }
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, loading } = useAuth();
-  const router = useRouter();
+    const { user, isAuthenticated, loading } = useAuth()
+    const router = useRouter()
+    const [activeTab, setActiveTab] = useState('info')
+    const [addresses, setAddresses] = useState<Address[]>([])
+    const [loadingAddresses, setLoadingAddresses] = useState(false)
 
-  // States for addresses
-  const [addresses, setAddresses] = useState<Address[]>([]);
-  const [loadingAddresses, setLoadingAddresses] = useState(false);
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [formData, setFormData] = useState<Address>({
-    fullName: "",
-    phoneNumber: "",
-    address: "",
-    district: "",
-    province: "",
-    postalCode: "",
-    isDefault: false,
-  });
+    // Modal States
+    const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false)
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
+    const [editingAddress, setEditingAddress] = useState<Address | null>(null)
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push("/");
+    useEffect(() => {
+        if (!loading && !isAuthenticated) {
+            router.push('/')
+        }
+    }, [loading, isAuthenticated, router])
+
+    // Fetch addresses when tab is active or just initially
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchAddresses()
+        }
+    }, [isAuthenticated])
+
+    const fetchAddresses = async () => {
+        try {
+            setLoadingAddresses(true)
+            const response = await addressAPI.getAddresses()
+            if (response.success) {
+                setAddresses(response.data)
+            }
+        } catch (error) {
+            console.error('Error fetching addresses:', error)
+        } finally {
+            setLoadingAddresses(false)
+        }
     }
-    if (isAuthenticated) {
-      fetchAddresses();
+
+    const handleDeleteAddress = async (id: string) => {
+        if (!confirm('คุณต้องการลบที่อยู่นี้ใช่หรือไม่?')) return
+        try {
+            await addressAPI.deleteAddress(id)
+            fetchAddresses() // Refresh list
+        } catch (error) {
+            alert('เกิดข้อผิดพลาดในการลบที่อยู่')
+        }
     }
-  }, [isAuthenticated, loading, router]);
 
-  const fetchAddresses = async () => {
-    try {
-      setLoadingAddresses(true);
-      const response = await addressAPI.getAddresses();
-      if (response.success && response.data) {
-        setAddresses(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching addresses:", error);
-    } finally {
-      setLoadingAddresses(false);
+    const handleSetDefaultAddress = async (id: string) => {
+        try {
+            await addressAPI.setDefaultAddress(id)
+            fetchAddresses() // Refresh list
+        } catch (error) {
+            alert('เกิดข้อผิดพลาดในการตั้งค่าที่อยู่เริ่มต้น')
+        }
     }
-  };
 
-  const handleAddAddress = () => {
-    setEditingAddress(null);
-    setFormData({
-      fullName: user?.firstName + " " + user?.lastName || "",
-      phoneNumber: user?.phoneNumber || "",
-      address: "",
-      district: "",
-      province: "",
-      postalCode: "",
-      isDefault: addresses.length === 0,
-    });
-    setShowAddressForm(true);
-  };
-
-  const handleEditAddress = (address: Address) => {
-    setEditingAddress(address);
-    setFormData(address);
-    setShowAddressForm(true);
-  };
-
-  const handleSaveAddress = async () => {
-    try {
-      if (
-        !formData.fullName ||
-        !formData.phoneNumber ||
-        !formData.address ||
-        !formData.district ||
-        !formData.province ||
-        !formData.postalCode
-      ) {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
-      }
-
-      if (editingAddress && editingAddress._id) {
-        // Update existing address
-        await addressAPI.updateAddress(editingAddress._id, formData);
-        alert("แก้ไขที่อยู่สำเร็จ");
-      } else {
-        // Add new address
-        await addressAPI.addAddress(formData);
-        alert("เพิ่มที่อยู่สำเร็จ");
-      }
-
-      setShowAddressForm(false);
-      fetchAddresses();
-    } catch (error: any) {
-      alert(error.message || "เกิดข้อผิดพลาด");
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        )
     }
-  };
 
-  const handleDeleteAddress = async (addressId: string) => {
-    if (!confirm("คุณต้องการลบที่อยู่นี้หรือไม่?")) return;
+    if (!user) return null
 
-    try {
-      await addressAPI.deleteAddress(addressId);
-      alert("ลบที่อยู่สำเร็จ");
-      fetchAddresses();
-    } catch (error: any) {
-      alert(error.message || "เกิดข้อผิดพลาด");
+    // Helper to format currency/coins
+    const formatNumber = (num: number) => {
+        return num.toLocaleString()
     }
-  };
 
-  const handleSetDefault = async (addressId: string) => {
-    try {
-      await addressAPI.setDefaultAddress(addressId);
-      fetchAddresses();
-    } catch (error: any) {
-      alert(error.message || "เกิดข้อผิดพลาด");
-    }
-  };
-
-  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div>
-          <p className="text-gray-500 animate-pulse">กำลังโหลดข้อมูล...</p>
-        </div>
-      </div>
-    );
-  }
+        <>
+            <Navbar showBanner={false} showPromotion={false} />
+            <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-6xl mx-auto">
 
-  if (!isAuthenticated) {
-    return null;
-  }
+                    {/* Header Section */}
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900">บัญชีของฉัน</h1>
+                        <p className="mt-2 text-gray-600">จัดการข้อมูลส่วนตัวและตรวจสอบสถานะบัญชีของคุณ</p>
+                    </div>
 
-  return (
-    <>
-      <Navbar showBanner={false} showPromotion={false} />
-      <div className="min-h-screen bg-[#F9FAFB] pb-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div>
-              <Breadcrumb items={[{ label: 'ข้อมูลของฉัน' }]} />
-              <h1 className="text-3xl font-bold text-gray-900 mt-4 tracking-tight">ข้อมูลของฉัน</h1>
-              <p className="text-gray-500 mt-1 text-sm">จัดการข้อมูลส่วนตัวและที่อยู่สำหรับจัดส่งสินค้า</p>
-            </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                        {/* Sidebar Navigation */}
+                        <div className="lg:col-span-1">
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div className="p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                                    <div className="flex items-center gap-4">
+                                        <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm">
+                                            <FaUser size={24} className="text-white" />
+                                        </div>
+                                        <div className="overflow-hidden">
+                                            <p className="font-bold text-lg truncate">{user.firstName} {user.lastName}</p>
+                                            <p className="text-blue-100 text-sm truncate">{user.email}</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 flex items-center gap-2 bg-blue-800/30 px-3 py-1.5 rounded-lg w-fit">
+                                        <FaCoins className="text-yellow-400" />
+                                        <span className="font-semibold">{formatNumber(user.coins)} Coins</span>
+                                    </div>
+                                </div>
 
-            <a
-              href="/"
-              className="inline-flex items-center justify-center px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm"
-            >
-              กลับหน้าแรก
-            </a>
-          </div>
+                                <nav className="p-2">
+                                    <button
+                                        onClick={() => setActiveTab('info')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'info' ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
+                                    >
+                                        <FaUser size={18} />
+                                        <span>ข้อมูลส่วนตัว</span>
+                                    </button>
 
-          <div className="grid grid-cols-1 gap-8">
-            {/* User Information */}
-            <section className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-              <div className="flex items-center gap-3 mb-8 pb-4 border-b border-gray-50">
-                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                  <FaUser className="text-lg" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">ข้อมูลส่วนตัว</h2>
-                  <p className="text-xs text-gray-400">รายละเอียดบัญชีผู้ใช้ของคุณ</p>
-                </div>
-              </div>
+                                    <Link href="/orders" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all duration-200">
+                                        <FaHistory size={18} />
+                                        <span>ประวัติการสั่งซื้อ</span>
+                                    </Link>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                <div className="group">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5 group-hover:text-blue-600 transition-colors">
-                    ชื่อ
-                  </label>
-                  <div className="text-lg font-medium text-gray-900 border-b border-transparent group-hover:border-gray-100 pb-1 transition-all">
-                    {user?.firstName}
-                  </div>
-                </div>
+                                    <Link href="/wishlist" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all duration-200">
+                                        <FaHeart size={18} />
+                                        <span>รายการโปรด</span>
+                                    </Link>
 
-                <div className="group">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5 group-hover:text-blue-600 transition-colors">
-                    นามสกุล
-                  </label>
-                  <div className="text-lg font-medium text-gray-900 border-b border-transparent group-hover:border-gray-100 pb-1 transition-all">
-                    {user?.lastName}
-                  </div>
-                </div>
-
-                <div className="group">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5 group-hover:text-blue-600 transition-colors">
-                    อีเมล
-                  </label>
-                  <div className="flex items-center gap-3 text-lg font-medium text-gray-900 border-b border-transparent group-hover:border-gray-100 pb-1 transition-all">
-                    <FaEnvelope className="text-gray-300 text-sm" />
-                    {user?.email}
-                  </div>
-                </div>
-
-                <div className="group">
-                  <label className="block text-sm font-medium text-gray-400 mb-1.5 group-hover:text-blue-600 transition-colors">
-                    เบอร์โทรศัพท์
-                  </label>
-                  <div className="flex items-center gap-3 text-lg font-medium text-gray-900 border-b border-transparent group-hover:border-gray-100 pb-1 transition-all">
-                    <FaPhone className="text-gray-300 text-sm" />
-                    {user?.phoneNumber}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-3">
-                    สิทธิ์การใช้งาน
-                  </label>
-                  <div>
-                    <span
-                      className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide ${user?.role === "admin"
-                          ? "bg-red-50 text-red-600 ring-1 ring-red-100"
-                          : "bg-blue-50 text-blue-600 ring-1 ring-blue-100"
-                        }`}
-                    >
-                      {user?.role === "admin" ? "ผู้ดูแลระบบ" : "ผู้ใช้ทั่วไป"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Addresses Section */}
-            <section className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600">
-                    <FaMapMarkerAlt className="text-lg" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">ที่อยู่สำหรับจัดส่ง</h2>
-                    <p className="text-xs text-gray-400">จัดการที่อยู่สำหรับการจัดส่งสินค้าของคุณ</p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleAddAddress}
-                  className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl hover:bg-slate-800 transition-all duration-200 shadow-lg shadow-slate-200 font-medium text-sm"
-                >
-                  <FaPlus className="text-xs" /> เพิ่มที่อยู่ใหม่
-                </button>
-              </div>
-
-              {loadingAddresses ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-300 mb-4"></div>
-                  <span>กำลังโหลดข้อมูลที่อยู่...</span>
-                </div>
-              ) : addresses.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
-                    <FaMapMarkerAlt className="text-gray-300 text-2xl" />
-                  </div>
-                  <h3 className="text-gray-900 font-medium mb-1">ยังไม่มีที่อยู่จัดส่ง</h3>
-                  <p className="text-gray-500 text-sm mb-6">เริ่มเพิ่มที่อยู่ของคุณเพื่อความสะดวกในการสั่งซื้อ</p>
-                  <button
-                    onClick={handleAddAddress}
-                    className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
-                  >
-                    เพิ่มที่อยู่แรกของคุณ
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {addresses.map((addr) => (
-                    <div
-                      key={addr._id}
-                      className={`group relative rounded-2xl p-5 border transition-all duration-200 ${addr.isDefault
-                          ? "bg-white border-blue-200 shadow-sm ring-1 ring-blue-50"
-                          : "bg-white border-gray-100 hover:border-gray-300 hover:shadow-sm"
-                        }`}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-gray-900">{addr.fullName}</span>
-                          {addr.isDefault && (
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wider rounded-md">
-                              ค่าเริ่มต้น
-                            </span>
-                          )}
+                                    <button
+                                        onClick={() => setActiveTab('address')}
+                                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'address' ? 'bg-blue-50 text-blue-600 font-semibold shadow-sm' : 'text-gray-600 hover:bg-gray-50'}`}
+                                    >
+                                        <FaMapMarkerAlt size={18} />
+                                        <span>สมุดที่อยู่</span>
+                                    </button>
+                                </nav>
+                            </div>
                         </div>
-                        <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                          {!addr.isDefault && (
-                            <button
-                              onClick={() => addr._id && handleSetDefault(addr._id)}
-                              className="p-2 text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 rounded-lg transition-colors"
-                              title="ตั้งเป็นค่าเริ่มต้น"
-                            >
-                              <FaStar />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleEditAddress(addr)}
-                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="แก้ไข"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => addr._id && handleDeleteAddress(addr._id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="ลบ"
-                          >
-                            <FaTrash />
-                          </button>
+
+                        {/* Main Content Area */}
+                        <div className="lg:col-span-3">
+                            {activeTab === 'info' && (
+                                <div className="space-y-6">
+
+                                    {/* Personal Info Card */}
+                                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                        <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                                <FaUser className="text-blue-500" />
+                                                ข้อมูลพื้นฐาน
+                                            </h2>
+                                            <button
+                                                onClick={() => setIsEditProfileModalOpen(true)}
+                                                className="text-sm px-4 py-2 bg-white border border-gray-200 shadow-sm rounded-full text-gray-600 hover:text-blue-600 hover:border-blue-200 transition-all duration-200 flex items-center gap-2 font-medium"
+                                            >
+                                                <FaEdit size={14} />
+                                                แก้ไขข้อมูล
+                                            </button>
+                                        </div>
+
+                                        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                            {/* Name Group */}
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</label>
+                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-blue-200 transition-colors group">
+                                                    <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500 group-hover:scale-110 transition-transform duration-200">
+                                                        <FaUser size={16} />
+                                                    </div>
+                                                    <span className="font-medium text-gray-900">{user.firstName} {user.lastName}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Email Group */}
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">อีเมล</label>
+                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-blue-200 transition-colors group">
+                                                    <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500 group-hover:scale-110 transition-transform duration-200">
+                                                        <FaEnvelope size={16} />
+                                                    </div>
+                                                    <span className="font-medium text-gray-900">{user.email}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Phone Group */}
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">เบอร์โทรศัพท์</label>
+                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-blue-200 transition-colors group">
+                                                    <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500 group-hover:scale-110 transition-transform duration-200">
+                                                        <FaPhone size={16} />
+                                                    </div>
+                                                    <span className="font-medium text-gray-900">{user.phoneNumber || "-"}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* User Role Group (Optional showcase) */}
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-gray-500 uppercase tracking-wider">สถานะสมาชิก</label>
+                                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-blue-200 transition-colors group">
+                                                    <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500 group-hover:scale-110 transition-transform duration-200">
+                                                        <FaUser size={16} />
+                                                    </div>
+                                                    <span className="font-medium text-gray-900 capitalize">{user.role}</span>
+                                                    {user.role === 'admin' && (
+                                                        <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full font-bold ml-auto">Admin</span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    {/* Account Stats / Quick Links - Optional but good for "My Page" */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-purple-200 relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <FaShoppingBag size={80} />
+                                            </div>
+                                            <p className="text-purple-100 font-medium">คำสั่งซื้อ</p>
+                                            <h3 className="text-3xl font-bold mt-1">ดูประวัติ</h3>
+                                            <Link href="/orders" className="mt-4 inline-block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold backdrop-blur-sm transition-colors">
+                                                ตรวจสอบ
+                                            </Link>
+                                        </div>
+
+                                        <div className="bg-gradient-to-br from-pink-500 to-red-500 rounded-2xl p-6 text-white shadow-lg shadow-pink-200 relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <FaHeart size={80} />
+                                            </div>
+                                            <p className="text-pink-100 font-medium">รายการโปรด</p>
+                                            <h3 className="text-3xl font-bold mt-1">สินค้าที่ชอบ</h3>
+                                            <Link href="/wishlist" className="mt-4 inline-block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold backdrop-blur-sm transition-colors">
+                                                ดูรายการ
+                                            </Link>
+                                        </div>
+
+                                        <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-200 relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                <FaCoins size={80} />
+                                            </div>
+                                            <p className="text-yellow-100 font-medium">Coin Balance</p>
+                                            <h3 className="text-3xl font-bold mt-1">{formatNumber(user.coins)}</h3>
+                                            <Link href="/coins" className="mt-4 inline-block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold backdrop-blur-sm transition-colors">
+                                                เติมเงิน
+                                            </Link>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            )}
+
+                            {activeTab === 'address' && (
+                                <div className="space-y-6">
+                                    <div className="flex justify-between items-center">
+                                        <h2 className="text-xl font-bold text-gray-800">สมุดที่อยู่</h2>
+                                        <button
+                                            onClick={() => {
+                                                setEditingAddress(null)
+                                                setIsAddressModalOpen(true)
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                                        >
+                                            <FaPlus size={14} />
+                                            เพิ่มที่อยู่ใหม่
+                                        </button>
+                                    </div>
+
+                                    {loadingAddresses ? (
+                                        <div className="text-center py-12">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                                            <p className="mt-2 text-gray-500">กำลังโหลดข้อมูล...</p>
+                                        </div>
+                                    ) : addresses.length === 0 ? (
+                                        <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm">
+                                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <FaMapMarkerAlt size={24} className="text-gray-400" />
+                                            </div>
+                                            <h3 className="text-lg font-medium text-gray-900">ยังไม่มีที่อยู่</h3>
+                                            <p className="text-gray-50 mt-1 mb-6">คุณยังไม่ได้เพิ่มที่อยู่สำหรับจัดส่งสินค้า</p>
+                                            <button
+                                                onClick={() => {
+                                                    setEditingAddress(null)
+                                                    setIsAddressModalOpen(true)
+                                                }}
+                                                className="px-6 py-2 bg-blue-50 text-blue-600 rounded-full font-medium hover:bg-blue-100 transition-colors"
+                                            >
+                                                เพิ่มที่อยู่ตอนนี้
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {addresses.map((addr) => (
+                                                <div key={addr._id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:border-blue-200 transition-all group relative">
+                                                    {addr.isDefault && (
+                                                        <span className="absolute top-4 right-4 px-2 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full">
+                                                            ค่าเริ่มต้น
+                                                        </span>
+                                                    )}
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="flex-shrink-0 mt-1">
+                                                            <FaMapMarkerAlt className="text-gray-400 group-hover:text-blue-500 transition-colors" size={20} />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <h3 className="font-bold text-gray-900">{addr.fullName}</h3>
+                                                            <p className="text-gray-500 text-sm mt-1">{addr.phoneNumber}</p>
+                                                            <p className="text-gray-600 mt-2 text-sm leading-relaxed">
+                                                                {addr.address} {addr.subdistrict} <br />
+                                                                {addr.district} {addr.province} {addr.postalCode}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-5 pt-4 border-t border-gray-50 flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        {!addr.isDefault && (
+                                                            <button
+                                                                onClick={() => handleSetDefaultAddress(addr._id)}
+                                                                className="text-xs text-gray-500 hover:text-blue-600 font-medium"
+                                                            >
+                                                                ตั้งเป็นค่าเริ่มต้น
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingAddress(addr)
+                                                                setIsAddressModalOpen(true)
+                                                            }}
+                                                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                                                            title="แก้ไข"
+                                                        >
+                                                            <FaEdit size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteAddress(addr._id)}
+                                                            className="text-gray-400 hover:text-red-500 transition-colors"
+                                                            title="ลบ"
+                                                        >
+                                                            <FaTrash size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                      </div>
-
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <p className="flex items-start gap-2">
-                          <span className="text-gray-400 min-w-[20px] pt-1"><FaPhone className="text-xs" /></span>
-                          {addr.phoneNumber}
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-gray-400 min-w-[20px] pt-1"><FaMapMarkerAlt className="text-xs" /></span>
-                          <span className="leading-relaxed">
-                            {addr.address}, {addr.district}, {addr.province} {addr.postalCode}
-                          </span>
-                        </p>
-                      </div>
                     </div>
-                  ))}
                 </div>
-              )}
-            </section>
-          </div>
 
-          {/* Address Form Modal */}
-          {showAddressForm && (
-            <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-              <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transform transition-all scale-100">
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900">
-                      {editingAddress ? "แก้ไขที่อยู่" : "เพิ่มที่อยู่ใหม่"}
-                    </h3>
-                    <button
-                      onClick={() => setShowAddressForm(false)}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
+                <EditProfileModal
+                    isOpen={isEditProfileModalOpen}
+                    onClose={() => setIsEditProfileModalOpen(false)}
+                    user={user}
+                />
 
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          ชื่อ - นามสกุล *
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.fullName}
-                          onChange={(e) =>
-                            setFormData({ ...formData, fullName: e.target.value })
-                          }
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
-                          placeholder="เช่น สมชาย ใจดี"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          เบอร์โทรศัพท์ *
-                        </label>
-                        <input
-                          type="tel"
-                          value={formData.phoneNumber}
-                          onChange={(e) =>
-                            setFormData({ ...formData, phoneNumber: e.target.value })
-                          }
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
-                          placeholder="เช่น 0812345678"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        ที่อยู่ *
-                      </label>
-                      <textarea
-                        value={formData.address}
-                        onChange={(e) =>
-                          setFormData({ ...formData, address: e.target.value })
-                        }
-                        rows={3}
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400 resize-none"
-                        placeholder="บ้านเลขที่, ซอย, ถนน, หมู่บ้าน..."
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          อำเภอ / เขต *
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.district}
-                          onChange={(e) =>
-                            setFormData({ ...formData, district: e.target.value })
-                          }
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          จังหวัด *
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.province}
-                          onChange={(e) =>
-                            setFormData({ ...formData, province: e.target.value })
-                          }
-                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        รหัสไปรษณีย์ *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.postalCode}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            postalCode: e.target.value,
-                          })
-                        }
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <input
-                        type="checkbox"
-                        id="isDefault"
-                        checked={formData.isDefault}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            isDefault: e.target.checked,
-                          })
-                        }
-                        className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                      />
-                      <label htmlFor="isDefault" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                        ตั้งเป็นที่อยู่เริ่มต้นสำหรับการจัดส่ง
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-4 mt-10">
-                    <button
-                      onClick={() => setShowAddressForm(false)}
-                      className="flex-1 px-6 py-3 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
-                    >
-                      ยกเลิก
-                    </button>
-                    <button
-                      onClick={handleSaveAddress}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-medium rounded-xl hover:shadow-lg hover:to-slate-800 transition-all shadow-md"
-                    >
-                      บันทึกข้อมูล
-                    </button>
-                  </div>
-                </div>
-              </div>
+                <AddressModal
+                    isOpen={isAddressModalOpen}
+                    onClose={() => setIsAddressModalOpen(false)}
+                    addressToEdit={editingAddress}
+                    onSuccess={fetchAddresses}
+                />
             </div>
-          )}
-        </div>
-      </div>
-      <Features />
-      <Footer />
-    </>
-  );
+            <Features />
+            <Footer />
+        </>
+    )
 }

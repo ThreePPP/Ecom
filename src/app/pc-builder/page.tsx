@@ -531,7 +531,7 @@ export default function PCBuilderPage() {
                   <p className="text-xl font-bold text-gray-800">{calculateTotal().toLocaleString()} coins</p>
                 </div>
                 <div className="flex justify-between items-center mb-4 text-sm text-gray-500">
-                  <span>จัดส่งทันทีภายใน 5 ชั่วโมง:</span>
+                  <span>จัดส่งภายใน 1-4 วัน</span>
                   <span className="text-red-600 font-bold">ฟรี</span>
                 </div>
                 <button
@@ -613,16 +613,16 @@ export default function PCBuilderPage() {
           <div className="flex flex-col lg:flex-row gap-6">
 
             {/* Left Sidebar - Component List */}
-            <div className="w-full lg:w-1/4 bg-white rounded-lg shadow-sm p-4 h-fit sticky top-24">
+            <div className="w-full lg:w-1/4 bg-gradient-to-b from-gray-900 to-black rounded-2xl shadow-2xl p-5 h-fit sticky top-24">
 
               {/* Auto Build Section */}
 
 
-              <div className="flex justify-between items-center mb-4 border-b pb-4">
-                <h2 className="text-lg font-bold text-gray-800">รายการอุปกรณ์</h2>
+              <div className="flex justify-between items-center mb-5 pb-4 border-b border-gray-700">
+                <h2 className="text-lg font-bold text-white tracking-wide">รายการอุปกรณ์</h2>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500">ยอดรวมทั้งสิ้น</p>
-                  <p className="text-xl font-bold text-red-600">{calculateTotal().toLocaleString()} coins</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">ยอดรวม</p>
+                  <p className="text-xl font-bold text-yellow-500">{calculateTotal().toLocaleString()} <span className="text-sm text-gray-400">coins</span></p>
                 </div>
               </div>
 
@@ -631,9 +631,9 @@ export default function PCBuilderPage() {
                 const { compatible, message } = checkSocketCompatibility();
                 if (message) {
                   return (
-                    <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${compatible
-                      ? 'bg-green-50 text-green-700 border border-green-200'
-                      : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                    <div className={`mb-4 p-3 rounded-xl text-sm font-medium backdrop-blur-sm ${compatible
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                      : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                       }`}>
                       {message}
                     </div>
@@ -650,18 +650,19 @@ export default function PCBuilderPage() {
                   return (
                     <div
                       key={component.id}
-                      className={`p-3 rounded-lg border transition-all cursor-pointer ${isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
-                        }`}
+                      className={`p-3 rounded-xl transition-all duration-300 cursor-pointer active:scale-95 ${isActive
+                        ? 'bg-[#D3D3D3] shadow-lg shadow-blue-500/20'
+                        : 'bg-[#D3D3D3] hover:bg-gray-300'}`}
                       onClick={() => setActiveComponentId(component.id)}
                     >
                       {selected ? (
                         <div className="flex flex-col gap-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-blue-600">{component.name}</span>
-                            <span className="text-sm font-bold text-gray-600">{selected.price.toLocaleString()} coins</span>
+                            <span className="text-sm font-semibold text-blue-600">{component.name}</span>
+                            <span className={`text-sm font-bold ${isActive ? 'text-gray-900' : 'text-gray-900'}`}>{selected.price.toLocaleString()} <span className={`${isActive ? 'text-gray-700' : 'text-gray-700'} text-xs`}>coins</span></span>
                           </div>
                           <div className="flex gap-3 items-start">
-                            <div className="w-12 h-12 bg-white border rounded p-1 flex-shrink-0 flex items-center justify-center">
+                            <div className="w-12 h-12 bg-gray-900 border border-gray-700 rounded-lg p-1 flex-shrink-0 flex items-center justify-center">
                               <img
                                 src={selected.images?.[0] || selected.image || '/placeholder.jpg'}
                                 alt={selected.name}
@@ -669,14 +670,14 @@ export default function PCBuilderPage() {
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs text-gray-700 line-clamp-2 mb-1">{selected.name}</p>
+                              <p className={`text-xs line-clamp-2 mb-1 ${isActive ? 'text-gray-800' : 'text-gray-800'}`}>{selected.name}</p>
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(`/products/${selected._id}`, '_blank');
                                   }}
-                                  className="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full hover:bg-red-200"
+                                  className="bg-red-500/20 text-red-600 text-[10px] px-2 py-0.5 rounded-full hover:bg-red-500/30 transition-colors"
                                 >
                                   รายละเอียด
                                 </button>
@@ -688,7 +689,7 @@ export default function PCBuilderPage() {
                                 e.stopPropagation();
                                 handleRemoveComponent(component.id);
                               }}
-                              className="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center flex-shrink-0 transition-colors"
+                              className="w-8 h-8 rounded-full bg-red-500/20 text-red-600 hover:bg-red-500/40 flex items-center justify-center flex-shrink-0 transition-colors"
                             >
                               <FaTrash size={12} />
                             </button>
@@ -696,19 +697,19 @@ export default function PCBuilderPage() {
                         </div>
                       ) : (
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center p-2">
+                          <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center p-2 border border-gray-700">
                             <img
                               src={component.icon}
                               alt={component.name}
-                              className="w-full h-full object-contain opacity-50"
+                              className="w-full h-full object-contain invert brightness-200"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = '/icons/cpu.png';
                               }}
                             />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">{component.name}</p>
-                            <p className="text-xs text-gray-400">ยังไม่ได้เลือก</p>
+                            <p className={`text-sm font-medium ${isActive ? 'text-gray-900' : 'text-gray-900'}`}>{component.name}</p>
+                            <p className={`text-xs ${isActive ? 'text-gray-700' : 'text-gray-700'}`}>ยังไม่ได้เลือก</p>
                           </div>
                         </div>
                       )}
@@ -720,7 +721,7 @@ export default function PCBuilderPage() {
               {/* Action Buttons */}
               <div className="mt-6 space-y-3">
                 <button
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md flex items-center justify-center gap-2 transition-colors"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
                   onClick={() => setShowSummary(true)}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -731,7 +732,7 @@ export default function PCBuilderPage() {
                 </button>
 
                 <button
-                  className="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md transition-colors"
+                  className="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 border border-gray-700 hover:border-gray-600"
                   onClick={() => setSelectedComponents({})}
                 >
                   รีเซ็ต

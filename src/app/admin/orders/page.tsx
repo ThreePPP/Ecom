@@ -14,6 +14,8 @@ interface Order {
     email: string;
   };
   items: Array<{
+    name?: string;
+    image?: string;
     product: {
       name: string;
       price: number;
@@ -385,8 +387,8 @@ function OrdersContent() {
                 </h2>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`w-2 h-2 rounded-full ${selectedOrder.orderStatus === 'delivered' ? 'bg-green-500' :
-                      selectedOrder.orderStatus === 'cancelled' ? 'bg-red-500' :
-                        'bg-orange-500'
+                    selectedOrder.orderStatus === 'cancelled' ? 'bg-red-500' :
+                      'bg-orange-500'
                     }`} />
                   <p className="text-sm text-gray-500">
                     {new Date(selectedOrder.createdAt).toLocaleDateString('th-TH', {
@@ -458,13 +460,13 @@ function OrdersContent() {
                     <div key={index} className="flex gap-4 p-4 rounded-xl bg-white/40 border border-white/60 hover:bg-white/60 transition-colors">
                       <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
-                          src={item.product.image}
-                          alt={item.product.name}
+                          src={item.image || item.product?.image}
+                          alt={item.name || item.product?.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 flex flex-col justify-center">
-                        <p className="text-gray-900 font-medium line-clamp-2">{item.product.name}</p>
+                        <p className="text-gray-900 font-medium line-clamp-2">{item.name || item.product?.name}</p>
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <span className="text-gray-500">จำนวน: {item.quantity}</span>
                           <span className="text-gray-300">|</span>
@@ -504,10 +506,10 @@ function OrdersContent() {
                           (selectedOrder.orderStatus === 'cancelled' && status.value !== 'cancelled')
                         }
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all transform active:scale-95 ${selectedOrder.orderStatus === status.value
-                            ? `bg-${status.color}-100 text-${status.color}-700 ring-2 ring-${status.color}-500 ring-offset-2 ring-offset-white/80`
-                            : selectedOrder.orderStatus === 'delivered' || selectedOrder.orderStatus === 'cancelled'
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : `bg-white border border-gray-200 text-gray-600 hover:bg-${status.color}-50 hover:text-${status.color}-600 hover:border-${status.color}-200`
+                          ? `bg-${status.color}-100 text-${status.color}-700 ring-2 ring-${status.color}-500 ring-offset-2 ring-offset-white/80`
+                          : selectedOrder.orderStatus === 'delivered' || selectedOrder.orderStatus === 'cancelled'
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : `bg-white border border-gray-200 text-gray-600 hover:bg-${status.color}-50 hover:text-${status.color}-600 hover:border-${status.color}-200`
                           }`}
                       >
                         {status.label}

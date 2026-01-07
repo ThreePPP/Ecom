@@ -45,88 +45,98 @@ const Bestsell = () => {
     fetchBestSellers();
   }, []);
 
+
   return (
-    <div className="bg-gray-50 w-full">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header Section with Categories */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-orange-500 text-2xl">🔥</span>
-            <h2 className="text-xl font-bold text-gray-800">สินค้าแนะนำ</h2>
+    <div className="bg-white w-full py-12">
+      <div className="container mx-auto px-4">
+        {/* Minimal Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+              <span className="text-orange-500 text-sm">🔥</span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">สินค้าแนะนำ</h2>
           </div>
         </div>
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="bg-gray-200 animate-pulse rounded-lg h-80"></div>
+              <div key={i} className="bg-gray-50 rounded-2xl h-80 animate-pulse"></div>
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-20 bg-gray-50 rounded-2xl text-gray-400 font-light">
             ไม่มีสินค้าแนะนำในขณะนี้
           </div>
         ) : (
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {products.map((product) => {
               const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
 
               return (
                 <div
                   key={product._id}
-                  className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                  className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-gray-100/50 flex flex-col"
                   onClick={() => window.location.href = `/products/${product._id}`}
                 >
-                  <div className="relative">
-                    <div className="bg-gray-200 aspect-square flex items-center justify-center overflow-hidden">
-                      <img
-                        src={imageUrl}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="absolute top-2 left-2">
+                  <div className="relative aspect-square overflow-hidden bg-gray-50">
+                    <img
+                      src={imageUrl}
+                      alt={product.name}
+                      className="w-full h-full object-cover mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+
+                    {/* Floating Badges */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
                       {product.category && (
-                        <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded mb-1">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/90 backdrop-blur-md text-gray-900 border border-gray-100 shadow-sm">
                           {product.category}
-                        </div>
+                        </span>
                       )}
                       {product.condition && (
-                        <div className={`text-white text-xs px-2 py-1 rounded font-medium ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
-                            product.condition === 'สภาพดี' ? 'bg-blue-500' :
-                              product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
-                                'bg-gray-500'
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm backdrop-blur-md border ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-50/90 text-green-700 border-green-100' :
+                          product.condition === 'สภาพดี' ? 'bg-blue-50/90 text-blue-700 border-blue-100' :
+                            product.condition === 'สภาพพอใช้' ? 'bg-yellow-50/90 text-yellow-700 border-yellow-100' :
+                              'bg-gray-50/90 text-gray-700 border-gray-100'
                           }`}>
                           {product.condition}
-                        </div>
+                        </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="p-4">
-                    <h3 className="text-sm font-medium text-gray-900 mb-2 line-clamp-2 min-h-[40px]">
+                  <div className="p-5 flex flex-col flex-1">
+                    <h3 className="text-sm font-medium text-gray-700 mb-2 line-clamp-2 min-h-[40px] group-hover:text-black transition-colors leading-relaxed">
                       {product.name}
                     </h3>
 
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-orange-600 font-bold text-lg">
-                        {product.price.toLocaleString()} coins
-                      </span>
-                    </div>
+                    <div className="mt-auto pt-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-bold text-gray-900">
+                            {product.price.toLocaleString()} coins
+                          </span>
+                        </div>
+                      </div>
 
-                    <AddToCartButton
-                      onClick={() => {
-                        addToCart({
-                          id: product._id,
-                          name: product.name,
-                          price: Number(product.price) || 0,
-                          image: imageUrl,
-                          images: product.images
-                        });
-                        showCartToast('เพิ่มสินค้าลงตะกร้า');
-                      }}
-                    />
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <AddToCartButton
+                          className="w-full !rounded-xl !bg-black hover:!bg-gray-800 !text-white !h-10 !text-sm font-medium shadow-none transition-all"
+                          onClick={() => {
+                            addToCart({
+                              id: product._id,
+                              name: product.name,
+                              price: Number(product.price) || 0,
+                              image: imageUrl,
+                              images: product.images
+                            });
+                            showCartToast('เพิ่มสินค้าลงตะกร้า');
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
@@ -139,3 +149,4 @@ const Bestsell = () => {
 };
 
 export default Bestsell;
+

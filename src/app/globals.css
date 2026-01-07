@@ -18,7 +18,8 @@
   }
 }
 
-html, body {
+html,
+body {
   height: auto;
   min-height: 100%;
   overflow-x: hidden;
@@ -35,6 +36,7 @@ body {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -64,11 +66,13 @@ html {
 .scrollbar-hide {
   scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
-  scroll-padding: 0 48px; /* padding for smooth snap */
+  scroll-padding: 0 48px;
+  /* padding for smooth snap */
 }
 
-.scrollbar-hide > * {
-  scroll-snap-align: center; /* เปลี่ยนเป็น center เพื่อความนุ่มนวล */
+.scrollbar-hide>* {
+  scroll-snap-align: center;
+  /* เปลี่ยนเป็น center เพื่อความนุ่มนวล */
   scroll-snap-stop: normal;
 }
 
@@ -88,4 +92,23 @@ html {
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.2);
 }

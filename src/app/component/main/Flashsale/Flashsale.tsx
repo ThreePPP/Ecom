@@ -1,11 +1,11 @@
 "use client"
 
 import React, { useRef, useState, useEffect } from "react";
-import { FaShoppingCart, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
 import { useToast } from "@/app/component/Toast/Toast";
 import { productAPI } from "@/app/lib/api";
-import WishlistButton from "@/app/component/WishlistButton/WishlistButton";
+
 
 interface Product {
   _id: string;
@@ -77,84 +77,105 @@ const useCountdown = (endTime?: string) => {
 };
 
 // Product Card Component
+// Product Card Component
+import AddToCartButton from "@/app/component/AddToCartButton/AddToCartButton";
+
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const productCountdown = useCountdown(product.flashSaleEndTime);
+  const { addToCart } = useCart();
+  const { showCartToast } = useToast();
 
   // Calculate discount percentage
   const originalPrice = product.originalPrice || product.oldPrice || product.price * 1.2;
   const discountPercent = product.discount || Math.round(((originalPrice - product.price) / originalPrice) * 100);
 
+  const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
+
   return (
     <div
-      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all flex-shrink-0 cursor-pointer"
+      className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-gray-100/50 flex flex-col flex-shrink-0"
       style={{ width: '240px' }}
       onClick={() => window.location.href = `/products/${product._id}`}
     >
-      {/* Discount Badge */}
-      <div className="relative">
-        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-          -{discountPercent}%
-        </div>
-        {/* Wishlist Button */}
-        <WishlistButton
-          productId={product._id}
-          size="sm"
-          className="absolute top-10 left-2 z-20"
-          onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
+      <div className="relative aspect-square overflow-hidden bg-gray-50">
+        <img
+          src={imageUrl}
+          alt={product.name}
+          className="w-full h-full object-cover mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
+
+        {/* Floating Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10 items-start">
           {product.category && (
-            <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/90 backdrop-blur-md text-gray-900 border border-gray-100 shadow-sm">
               {product.category}
-            </div>
+            </span>
           )}
           {product.condition && (
-            <div className={`text-white text-xs px-2 py-1 rounded font-medium ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-500' :
-                product.condition === 'สภาพดี' ? 'bg-blue-500' :
-                  product.condition === 'สภาพพอใช้' ? 'bg-yellow-500' :
-                    'bg-gray-500'
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm backdrop-blur-md border ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-50/90 text-green-700 border-green-100' :
+              product.condition === 'สภาพดี' ? 'bg-blue-50/90 text-blue-700 border-blue-100' :
+                product.condition === 'สภาพพอใช้' ? 'bg-yellow-50/90 text-yellow-700 border-yellow-100' :
+                  'bg-gray-50/90 text-gray-700 border-gray-100'
               }`}>
               {product.condition}
-            </div>
+            </span>
           )}
         </div>
 
-        {/* Product Image */}
-        <div className="w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-          <img
-            src={product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg'}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
+        {/* Discount Badge */}
+        <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl z-20 shadow-sm">
+          -{discountPercent}%
         </div>
       </div>
 
-      {/* Product Info */}
-      <div className="p-3">
+      <div className="p-4 flex flex-col flex-1">
         {/* Product Name */}
-        <h3 className="text-xs text-gray-700 mb-2 line-clamp-2 h-8">
+        <h3 className="text-sm font-medium text-gray-700 mb-2 line-clamp-2 h-10 group-hover:text-black transition-colors leading-relaxed">
           {product.name}
         </h3>
 
-        {/* Countdown Button */}
+        {/* Flash Sale Timer */}
         {!productCountdown.isExpired && (
-          <button className="w-full bg-red-600 text-white text-xs py-2 px-3 rounded-md mb-2 font-medium">
-            เหลืออีก {productCountdown.days}D {productCountdown.hours}:{productCountdown.minutes.toString().padStart(2, '0')}:{productCountdown.seconds.toString().padStart(2, '0')}
-          </button>
+          <div className="mb-2 text-xs font-medium text-red-600 bg-red-50 border border-red-500 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 w-fit">
+            <span>⚡</span>
+            <span>เหลือ {productCountdown.days}D {productCountdown.hours}:{productCountdown.minutes.toString().padStart(2, '0')}:{productCountdown.seconds.toString().padStart(2, '0')}</span>
+          </div>
         )}
 
-        {/* Price Section */}
-        <div className="flex items-baseline gap-2">
-          <span className="text-red-600 font-bold text-lg">
-            {product.price.toLocaleString()} coins
-          </span>
-          <span className="text-gray-400 line-through text-xs">
-            {originalPrice.toLocaleString()} coins
-          </span>
+        <div className="mt-auto pt-2 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-bold text-gray-900">
+                  {product.price.toLocaleString()} coins
+                </span>
+                <span className="text-xs text-gray-400 line-through">
+                  {originalPrice.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div onClick={(e) => e.stopPropagation()}>
+            <AddToCartButton
+              className="w-full !rounded-xl !bg-black hover:!bg-gray-800 !text-white !h-9 !text-sm font-medium shadow-none transition-all"
+              onClick={() => {
+                addToCart({
+                  id: product._id,
+                  name: product.name,
+                  price: Number(product.price) || 0,
+                  oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
+                  image: imageUrl,
+                  images: product.images
+                });
+                showCartToast('เพิ่มสินค้าลงตะกร้า');
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -162,7 +183,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 };
 
 const Flashsale = () => {
-  const { addToCart } = useCart();
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
@@ -221,19 +242,7 @@ const Flashsale = () => {
     products: categoryProducts,
   }));
 
-  const { showCartToast } = useToast();
 
-  const handleAddToCart = (product: Product) => {
-    addToCart({
-      id: product._id,
-      name: product.name,
-      price: Number(product.price) || 0,
-      oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
-      image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
-      images: product.images
-    });
-    showCartToast('เพิ่มสินค้าลงตะกร้า');
-  };
 
   const scrollLeft = () => {
     if (currentIndex > 0) {
@@ -313,8 +322,8 @@ const Flashsale = () => {
             onClick={scrollLeft}
             disabled={currentIndex === 0}
             className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${currentIndex === 0
-                ? 'bg-gray-400 cursor-not-allowed opacity-50'
-                : 'bg-black hover:bg-gray-800'
+              ? 'bg-gray-400 cursor-not-allowed opacity-50'
+              : 'bg-black hover:bg-gray-800'
               }`}
             aria-label="Scroll left"
           >
@@ -326,8 +335,8 @@ const Flashsale = () => {
             onClick={scrollRight}
             disabled={currentIndex >= Math.max(0, products.length - 5)}
             className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${currentIndex >= Math.max(0, products.length - 5)
-                ? 'bg-gray-400 cursor-not-allowed opacity-50'
-                : 'bg-black hover:bg-gray-800'
+              ? 'bg-gray-400 cursor-not-allowed opacity-50'
+              : 'bg-black hover:bg-gray-800'
               }`}
             aria-label="Scroll right"
           >
@@ -356,8 +365,8 @@ const Flashsale = () => {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
-                    ? 'bg-red-600 w-8'
-                    : 'bg-gray-300 w-2 hover:bg-gray-400'
+                  ? 'bg-red-600 w-8'
+                  : 'bg-gray-300 w-2 hover:bg-gray-400'
                   }`}
                 aria-label={`Go to slide ${index + 1}`}
               />

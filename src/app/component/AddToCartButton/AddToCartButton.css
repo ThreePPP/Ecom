@@ -18,10 +18,10 @@
 }
 
 .add-to-cart-button:hover:not(:disabled) {
-  background-color: #99ff33;
-  color: #1f2937;
+  background-color: #1f2937;
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(153, 255, 51, 0.4);
+  box-shadow: 0 4px 12px rgba(31, 41, 55, 0.4);
 }
 
 .add-to-cart-button:active:not(:disabled) {
@@ -54,15 +54,19 @@
   0% {
     transform: scale(1) rotate(0deg);
   }
+
   25% {
     transform: scale(0.8) rotate(-10deg);
   }
+
   50% {
     transform: scale(1.3) rotate(10deg);
   }
+
   75% {
     transform: scale(0.9) rotate(-5deg);
   }
+
   100% {
     transform: scale(1) rotate(0deg);
   }
@@ -92,6 +96,7 @@
     transform: translate(-50%, -50%) scale(0);
     opacity: 1;
   }
+
   100% {
     transform: translate(-50%, -50%) scale(2.5);
     opacity: 0;
@@ -112,31 +117,50 @@
   position: absolute;
   width: 8px;
   height: 8px;
-  background: linear-gradient(135deg, #99ff33 0%, #66cc00 100%);
+  background: linear-gradient(135deg, #9ca3af 0%, #4b5563 100%);
   border-radius: 50%;
   animation: flyToCart 0.5s ease-out forwards;
   animation-delay: var(--delay, 0s);
 }
 
-.flying-item.item-1 { --angle: -60deg; --distance: 30px; }
-.flying-item.item-2 { --angle: -30deg; --distance: 35px; }
-.flying-item.item-3 { --angle: 0deg; --distance: 40px; }
-.flying-item.item-4 { --angle: 30deg; --distance: 35px; }
-.flying-item.item-5 { --angle: 60deg; --distance: 30px; }
+.flying-item.item-1 {
+  --angle: -60deg;
+  --distance: 30px;
+}
+
+.flying-item.item-2 {
+  --angle: -30deg;
+  --distance: 35px;
+}
+
+.flying-item.item-3 {
+  --angle: 0deg;
+  --distance: 40px;
+}
+
+.flying-item.item-4 {
+  --angle: 30deg;
+  --distance: 35px;
+}
+
+.flying-item.item-5 {
+  --angle: 60deg;
+  --distance: 30px;
+}
 
 @keyframes flyToCart {
   0% {
     transform: translate(0, 0) scale(1);
     opacity: 1;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
-    transform: 
-      translateX(calc(cos(var(--angle, 0deg)) * var(--distance, 30px)))
-      translateY(calc(-30px + sin(var(--angle, 0deg)) * 10px))
-      scale(0);
+    transform:
+      translateX(calc(cos(var(--angle, 0deg)) * var(--distance, 30px))) translateY(calc(-30px + sin(var(--angle, 0deg)) * 10px)) scale(0);
     opacity: 0;
   }
 }
@@ -145,51 +169,90 @@
 .flying-item.item-1 {
   animation: flyItem1 0.5s ease-out forwards;
 }
+
 .flying-item.item-2 {
   animation: flyItem2 0.5s ease-out forwards;
   animation-delay: 0.05s;
 }
+
 .flying-item.item-3 {
   animation: flyItem3 0.5s ease-out forwards;
   animation-delay: 0.1s;
 }
+
 .flying-item.item-4 {
   animation: flyItem4 0.5s ease-out forwards;
   animation-delay: 0.15s;
 }
+
 .flying-item.item-5 {
   animation: flyItem5 0.5s ease-out forwards;
   animation-delay: 0.2s;
 }
 
 @keyframes flyItem1 {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(-25px, -30px) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-25px, -30px) scale(0);
+    opacity: 0;
+  }
 }
 
 @keyframes flyItem2 {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(-12px, -35px) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-12px, -35px) scale(0);
+    opacity: 0;
+  }
 }
 
 @keyframes flyItem3 {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(0, -40px) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(0, -40px) scale(0);
+    opacity: 0;
+  }
 }
 
 @keyframes flyItem4 {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(12px, -35px) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(12px, -35px) scale(0);
+    opacity: 0;
+  }
 }
 
 @keyframes flyItem5 {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(25px, -30px) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(25px, -30px) scale(0);
+    opacity: 0;
+  }
 }
 
 /* Success State */
 .add-to-cart-button.success {
-  background-color: #22c55e !important;
+  background-color: #1f2937 !important;
   color: white !important;
 }
 
@@ -199,7 +262,7 @@
   left: 50%;
   width: 100%;
   height: 100%;
-  border: 2px solid #22c55e;
+  border: 2px solid #4b5563;
   border-radius: 0.75rem;
   transform: translate(-50%, -50%);
   animation: successRing 0.4s ease-out forwards;
@@ -211,6 +274,7 @@
     transform: translate(-50%, -50%) scale(0.8);
     opacity: 1;
   }
+
   100% {
     transform: translate(-50%, -50%) scale(1.2);
     opacity: 0;
@@ -224,18 +288,24 @@
 }
 
 @keyframes buttonShake {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateX(0);
   }
+
   20% {
     transform: translateX(-3px);
   }
+
   40% {
     transform: translateX(3px);
   }
+
   60% {
     transform: translateX(-2px);
   }
+
   80% {
     transform: translateX(2px);
   }
@@ -249,12 +319,10 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.3) 50%,
-    transparent 60%
-  );
+  background: linear-gradient(45deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 60%);
   transform: translateX(-100%);
   transition: none;
 }
@@ -267,6 +335,7 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -280,7 +349,7 @@
   right: -10px;
   font-size: 12px;
   font-weight: bold;
-  color: #99ff33;
+  color: #e5e7eb;
   animation: plusPop 0.4s ease-out forwards;
 }
 
@@ -289,10 +358,12 @@
     transform: scale(0);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.5);
     opacity: 1;
   }
+
   100% {
     transform: scale(0) translateY(-20px);
     opacity: 0;
@@ -305,10 +376,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 4px 12px rgba(153, 255, 51, 0.4);
+
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(31, 41, 55, 0.4);
   }
+
   50% {
-    box-shadow: 0 4px 20px rgba(153, 255, 51, 0.6);
+    box-shadow: 0 4px 20px rgba(31, 41, 55, 0.6);
   }
 }

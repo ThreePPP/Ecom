@@ -46,7 +46,8 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedItems.size === cart.length) {
+    const validCount = cart.filter(item => selectedItems.has(item.id)).length;
+    if (validCount === cart.length && cart.length > 0) {
       setSelectedItems(new Set());
     } else {
       setSelectedItems(new Set(cart.map(item => item.id)));
@@ -100,9 +101,9 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {cart.map((item) => (
+              {cart.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={`${item.id}-${index}`}
                   className="bg-white p-4 flex gap-3 hover:bg-gray-50 transition-colors"
                 >
                   {/* Checkbox */}
@@ -110,8 +111,8 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                     <button
                       onClick={() => toggleSelectItem(item.id)}
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedItems.has(item.id)
-                          ? 'bg-blue-600 border-blue-600'
-                          : 'border-gray-300 hover:border-blue-400'
+                        ? 'bg-blue-600 border-blue-600'
+                        : 'border-gray-300 hover:border-blue-400'
                         }`}
                     >
                       {selectedItems.has(item.id) && (
@@ -123,7 +124,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                   {/* Product Image */}
                   <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                     <Image
-                      src={item.image}
+                      src={item.image || '/placeholder.jpg'}
                       alt={item.name}
                       width={80}
                       height={80}
@@ -198,16 +199,16 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                 className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
               >
                 <div
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedItems.size === cart.length
-                      ? 'bg-blue-600 border-blue-600'
-                      : 'border-gray-300'
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${cart.length > 0 && cart.filter(item => selectedItems.has(item.id)).length === cart.length
+                    ? 'bg-blue-600 border-blue-600'
+                    : 'border-gray-300'
                     }`}
                 >
-                  {selectedItems.size === cart.length && (
+                  {cart.length > 0 && cart.filter(item => selectedItems.has(item.id)).length === cart.length && (
                     <FaCheck size={10} className="text-white" />
                   )}
                 </div>
-                <span>เลือกทั้งหมด ({selectedItems.size}/{cart.length})</span>
+                <span>เลือกทั้งหมด ({cart.filter(item => selectedItems.has(item.id)).length}/{cart.length})</span>
               </button>
               <span className="text-sm text-gray-600">
                 รวม: <span className="font-bold text-red-600 text-base">{getSelectedTotal().toLocaleString()} coins</span>
@@ -220,8 +221,8 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                 onClick={handleCheckout}
                 disabled={selectedItems.size === 0}
                 className={`w-full px-6 py-3.5 rounded-lg font-bold text-base transition-all ${selectedItems.size === 0
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg'
                   }`}
               >
                 สั่งซื้อ ({selectedItems.size} ชิ้น) {getSelectedTotal().toLocaleString()} coins

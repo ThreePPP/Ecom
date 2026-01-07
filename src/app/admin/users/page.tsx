@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI, coinAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
-import { FaCoins, FaPlus, FaMinus } from 'react-icons/fa';
+import { FaCoins, FaPlus, FaMinus, FaMapMarkerAlt } from 'react-icons/fa';
 
 interface CoinStats {
   totalSpent: number;
@@ -15,6 +15,16 @@ interface CoinStats {
     type: 'earn' | 'spend' | 'topup';
     amount: number;
   } | null;
+}
+
+interface ShippingAddress {
+  fullName: string;
+  phoneNumber: string;
+  address: string;
+  district: string;
+  province: string;
+  postalCode: string;
+  isDefault: boolean;
 }
 
 interface User {
@@ -27,6 +37,7 @@ interface User {
   isVerified: boolean;
   coins: number;
   coinStats?: CoinStats;
+  shippingAddresses: ShippingAddress[];
   createdAt: string;
 }
 
@@ -298,6 +309,9 @@ export default function AdminUsersPage() {
                     เบอร์โทร
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    ที่อยู่จัดส่ง
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     🪙 Coins
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -356,6 +370,23 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{user.phoneNumber || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 max-w-xs">
+                          {(() => {
+                            const defaultAddress = user.shippingAddresses?.find(a => a.isDefault) || user.shippingAddresses?.[0];
+                            return defaultAddress ? (
+                              <div className="flex items-start gap-1">
+                                <FaMapMarkerAlt className="mt-1 text-orange-500 flex-shrink-0" />
+                                <span>
+                                  {defaultAddress.address} {defaultAddress.district} {defaultAddress.province} {defaultAddress.postalCode}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            );
+                          })()}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="space-y-1">

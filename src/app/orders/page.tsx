@@ -1,198 +1,248 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@/app/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { orderAPI } from "@/app/lib/api";
-import Navbar from "@/app/component/Navbar/Navbar";
-import Features from "@/app/component/main/Features/Features";
-import Footer from "@/app/component/main/footer/footer";
-import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { FaBox, FaCalendar, FaChevronLeft, FaSearch, FaFilter, FaMoneyBillWave, FaTruck, FaCheckCircle, FaTimesCircle, FaClock } from 'react-icons/fa'
 
-interface Order {
-  _id: string;
-  orderNumber: string;
-  total: number;
-  orderStatus: string;
-  paymentStatus: string;
-  createdAt: string;
-  items: any[];
+import { useAuth } from '@/app/context/AuthContext'
+import Navbar from '@/app/component/Navbar/Navbar'
+import Footer from '@/app/component/main/footer/footer'
+import { orderAPI } from '@/app/lib/api'
+
+// Order interface based on what we see in controller and expected UI needs
+interface OrderItem {
+    _id: string
+    name: string
+    quantity: number
+    price: number
+    image: string
+    product?: any
 }
 
-export default function OrdersPage() {
-  const { isAuthenticated, loading } = useAuth();
-  const router = useRouter();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState(true);
+interface Order {
+    _id: string
+    orderNumber: string
+    createdAt: string
+    orderStatus: string
+    paymentStatus: string
+    total: number
+    items: OrderItem[]
+}
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push("/");
+export default function MyOrdersPage() {
+    const { user, isAuthenticated, loading: authLoading } = useAuth()
+    const router = useRouter()
+    const [orders, setOrders] = useState<Order[]>([])
+    const [loading, setLoading] = useState(true)
+    const [filterStatus, setFilterStatus] = useState('all')
+
+    useEffect(() => {
+        if (!authLoading && !isAuthenticated) {
+            router.push('/login')
+        }
+    }, [authLoading, isAuthenticated, router])
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchOrders()
+        }
+    }, [isAuthenticated])
+
+    const fetchOrders = async () => {
+        try {
+            setLoading(true)
+            const response = await orderAPI.getMyOrders()
+            if (response.success) {
+                setOrders(response.data.orders)
+            }
+        } catch (error) {
+            console.error('Failed to fetch orders:', error)
+        } finally {
+            setLoading(false)
+        }
     }
-  }, [isAuthenticated, loading, router]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchOrders();
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'pending': return 'text-yellow-600 bg-yellow-100'
+            case 'processing': return 'text-blue-600 bg-blue-100'
+            case 'shipped': return 'text-indigo-600 bg-indigo-100'
+            case 'delivered': return 'text-green-600 bg-green-100'
+            case 'cancelled': return 'text-red-600 bg-red-100'
+            default: return 'text-gray-600 bg-gray-100'
+        }
     }
-  }, [isAuthenticated]);
 
-  const fetchOrders = async () => {
-    try {
-      const response = await orderAPI.getMyOrders();
-      if (response.success) {
-        setOrders(response.data.orders);
-      }
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoadingOrders(false);
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case 'pending': return 'รอดำเนินการ'
+            case 'processing': return 'กำลังเตรียมจัดส่ง'
+            case 'shipped': return 'อยู่ระหว่างจัดส่ง'
+            case 'delivered': return 'จัดส่งสำเร็จ'
+            case 'cancelled': return 'ยกเลิกแล้ว'
+            default: return status
+        }
     }
-  };
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, { bg: string; text: string; border: string }> = {
-      pending: { bg: "bg-yellow-50", text: "text-yellow-700", border: "border-yellow-200" },
-      processing: { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200" },
-      shipped: { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
-      delivered: { bg: "bg-green-50", text: "text-green-700", border: "border-green-200" },
-      cancelled: { bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
-    };
-    return colors[status] || { bg: "bg-gray-50", text: "text-gray-700", border: "border-gray-200" };
-  };
+    const getPaymentStatusIcon = (status: string) => {
+        if (status === 'paid') return <FaCheckCircle className="text-green-500" />
+        return <FaClock className="text-yellow-500" />
+    }
 
-  const getStatusText = (status: string) => {
-    const texts: Record<string, string> = {
-      pending: "รอดำเนินการ",
-      processing: "กำลังดำเนินการ",
-      shipped: "จัดส่งแล้ว",
-      delivered: "สำเร็จ",
-      cancelled: "ยกเลิก",
-    };
-    return texts[status] || status;
-  };
+    const filteredOrders = filterStatus === 'all'
+        ? orders
+        : orders.filter(order => order.orderStatus === filterStatus)
 
-  if (loading || loadingOrders) {
+    if (authLoading || loading) {
+        return (
+            <>
+                <Navbar />
+                <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+                <Footer />
+            </>
+        )
+    }
+
+    if (!isAuthenticated) return null
+
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
-          <p className="text-gray-500 animate-pulse">กำลังโหลดข้อมูลคำสั่งซื้อ...</p>
-        </div>
-      </div>
-    );
-  }
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+            <Navbar showBanner={false} />
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  return (
-    <>
-      <Navbar showBanner={false} showPromotion={false} />
-      <div className="min-h-screen bg-white">
-        <div className="max-w-5xl mx-auto px-4 py-8">
-          <Breadcrumb items={[{ label: 'หน้าแรก', href: '/' }, { label: 'คำสั่งซื้อของฉัน' }]} />
-
-          <div className="mt-8 mb-10">
-            <h1 className="text-3xl font-bold text-gray-900">
-              คำสั่งซื้อของฉัน
-            </h1>
-            <p className="text-gray-500 mt-2">ตรวจสอบสถานะและประวัติการสั่งซื้อของคุณ</p>
-          </div>
-
-          {orders.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
-              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">ยังไม่มีคำสั่งซื้อ</h3>
-              <p className="text-gray-500 mb-8">เริ่มช้อปปิ้งสินค้าไอทีและคอมพิวเตอร์ประกอบที่คุณถูกใจ</p>
-              <a
-                href="/"
-                className="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-200"
-              >
-                เลือกซื้อสินค้า
-              </a>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {orders.map((order) => {
-                const statusStyle = getStatusColor(order.orderStatus);
-                return (
-                  <div
-                    key={order._id}
-                    className="bg-white rounded-2xl shadow-sm hover:shadow-md border border-gray-100 p-6 transition-all duration-200 group"
-                  >
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-bold text-lg text-gray-900 group-hover:text-orange-600 transition-colors">
-                            คำสั่งซื้อ: {order.orderNumber}
-                          </h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}>
-                            {getStatusText(order.orderStatus)}
-                          </span>
+            <main className="flex-grow py-8 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-6xl mx-auto">
+                    {/* Header with Breadcrumb-ish return */}
+                    <div className="flex items-center gap-4 mb-8">
+                        <Link href="/profile" className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-100 transition-colors">
+                            <FaChevronLeft className="text-gray-600" />
+                        </Link>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">คำสั่งซื้อของฉัน</h1>
+                            <p className="text-gray-500 text-sm">รายการคำสั่งซื้อทั้งหมดของคุณ</p>
                         </div>
-                        <p className="text-sm text-gray-500 flex items-center gap-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          {new Date(order.createdAt).toLocaleDateString("th-TH", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                        <p className="text-sm text-gray-500 mt-2">
-                          สินค้า {order.items.length} รายการ
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-4 md:pt-0">
-                        <div className="text-right">
-                          <p className="text-xs text-gray-500 mb-1">ยอดรวมทั้งหมด</p>
-                          <div className="text-2xl font-bold text-gray-900">
-                            {order.total.toLocaleString()} <span className="text-sm font-normal text-gray-600">coins</span>
-                          </div>
-                        </div>
-
-                        <a
-                          href={`/orders/${order._id}`}
-                          className="flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium px-4 py-2 hover:bg-orange-50 rounded-lg transition-colors"
-                        >
-                          ดูรายละเอียด
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
-                        </a>
-                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
 
-          <div className="mt-12">
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white font-medium rounded-xl hover:bg-gray-900 transition-colors shadow-lg shadow-gray-200"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              กลับหน้าแรก
-            </a>
-          </div>
+                    {/* Filter Tabs */}
+                    <div className="mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                        <div className="flex gap-2 min-w-max">
+                            {[
+                                { id: 'all', label: 'ทั้งหมด' },
+                                { id: 'pending', label: 'ที่ต้องชำระ' },
+                                { id: 'processing', label: 'ที่ต้องจัดส่ง' },
+                                { id: 'delivered', label: 'สำเร็จ' },
+                                { id: 'cancelled', label: 'ยกเลิก' },
+                            ].map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setFilterStatus(tab.id)}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${filterStatus === tab.id
+                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+                                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Orders List */}
+                    {filteredOrders.length === 0 ? (
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <FaBox className="text-gray-300 text-3xl" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900">ไม่พบคำสั่งซื้อ</h3>
+                            <p className="text-gray-500 mt-1 mb-6">คุณยังไม่มีประวัติการสั่งซื้อในหมวดหมู่นี้</p>
+                            <Link href="/" className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all shadow-sm shadow-blue-200">
+                                ไปเลือกซื้อสินค้า
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {filteredOrders.map((order) => (
+                                <div key={order._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:border-blue-200 transition-all">
+                                    {/* Order Header */}
+                                    <div className="px-6 py-4 border-b border-gray-50 bg-gray-50/30 flex flex-wrap gap-4 justify-between items-center">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2 text-gray-900 font-bold">
+                                                <FaBox className="text-blue-500" />
+                                                <span>{order.orderNumber}</span>
+                                            </div>
+                                            <span className="text-gray-400 text-sm">|</span>
+                                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                                                <FaCalendar size={12} />
+                                                <span>{new Date(order.createdAt).toLocaleDateString('th-TH', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}</span>
+                                            </div>
+                                        </div>
+                                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${getStatusColor(order.orderStatus)}`}>
+                                            {getStatusText(order.orderStatus)}
+                                        </div>
+                                    </div>
+
+                                    {/* Order Items Preview */}
+                                    <div className="p-6">
+                                        {order.items.map((item, index) => (
+                                            <div key={index} className="flex gap-4 mb-4 last:mb-0">
+                                                <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                                                    <img
+                                                        src={item.image}
+                                                        alt={item.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-medium text-gray-900 line-clamp-1">{item.name}</h4>
+                                                    <p className="text-sm text-gray-500 mt-1">x {item.quantity}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="font-semibold text-gray-900">฿{item.price.toLocaleString()}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Order Footer */}
+                                    <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
+                                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                                            <span>ยอดคำสั่งซื้อรวม:</span>
+                                            <span className="text-xl font-bold text-blue-600">฿{order.total.toLocaleString()}</span>
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            {order.paymentStatus === 'pending' && order.orderStatus !== 'cancelled' && (
+                                                <Link
+                                                    href={`/payment/${order._id}`}
+                                                    className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded-lg shadow-sm shadow-orange-200 hover:bg-orange-600 transition-colors"
+                                                >
+                                                    ชำระเงิน
+                                                </Link>
+                                            )}
+                                            <Link
+                                                href={`/orders/${order._id}`}
+                                                className="px-4 py-2 bg-white border border-gray-200 text-gray-600 text-sm font-semibold rounded-lg hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all"
+                                            >
+                                                ดูรายละเอียด
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </main>
+
+            <Footer />
         </div>
-      </div>
-      <Features />
-      <Footer />
-    </>
-  );
+    )
 }

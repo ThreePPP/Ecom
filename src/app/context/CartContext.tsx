@@ -18,16 +18,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Convert old format to new format if needed
         const normalizedCart = parsedCart.map((item: any) => ({
           ...item,
-          price: typeof item.price === 'string' 
-            ? parseFloat(item.price.replace(/[^0-9.-]+/g, '')) 
+          quantity: Number(item.quantity) || 1,
+          price: typeof item.price === 'string'
+            ? parseFloat(item.price.replace(/[^0-9.-]+/g, ''))
             : Number(item.price),
-          oldPrice: item.oldPrice 
+          oldPrice: item.oldPrice
             ? (typeof item.oldPrice === 'string'
               ? parseFloat(item.oldPrice.replace(/[^0-9.-]+/g, ''))
               : Number(item.oldPrice))
             : undefined,
         }));
-        setCart(normalizedCart);
+
+        // Deduplicate items with same ID
+        const mergedCart = normalizedCart.reduce((acc: CartItem[], current: CartItem) => {
+          const existingItem = acc.find((item) => item.id === current.id);
+          if (existingItem) {
+            existingItem.quantity += current.quantity;
+          } else {
+            acc.push(current);
+          }
+          return acc;
+        }, [] as CartItem[]);
+
+        setCart(mergedCart);
       } catch (error) {
         console.error('Error loading cart from localStorage:', error);
         localStorage.removeItem('cart');
@@ -55,18 +68,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('selectedItemIds', JSON.stringify(selectedItemIds));
   }, [selectedItemIds]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, quantity: number = 1) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
-      
+
       if (existingItem) {
         return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
-        return [...prevCart, { ...product, quantity: 1 }];
+        return [...prevCart, { ...product, quantity: quantity }];
       }
     });
   };

@@ -446,7 +446,7 @@ const CartPage = () => {
 
                             {/* Product Details */}
                             <div className="flex-1">
-                              <h3 className="text-lg font-medium text-gray-800 mb-2">
+                              <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2">
                                 {item.name}
                               </h3>
                               <div className="flex items-center gap-3 mb-4">

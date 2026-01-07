@@ -76,16 +76,14 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      for (let i = 0; i < quantity; i++) {
-        addToCart({
-          id: product._id,
-          name: product.name,
-          price: Number(product.price) || 0,
-          oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
-          image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
-          images: product.images
-        });
-      }
+      addToCart({
+        id: product._id,
+        name: product.name,
+        price: Number(product.price) || 0,
+        oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
+        image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
+        images: product.images
+      }, quantity);
       showCartToast(`เพิ่มสินค้า ${quantity} ชิ้น ลงตะกร้า`);
     }
   };
@@ -169,8 +167,8 @@ const ProductDetailPage = () => {
                       key={index}
                       onClick={() => setSelectedImage(index)}
                       className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index
-                          ? 'border-red-600'
-                          : 'border-gray-200 hover:border-gray-400'
+                        ? 'border-red-600'
+                        : 'border-gray-200 hover:border-gray-400'
                         }`}
                     >
                       <img
@@ -212,9 +210,9 @@ const ProductDetailPage = () => {
                   <div>
                     <span className="font-semibold">สภาพสินค้า:</span>{' '}
                     <span className={`font-medium ${product.condition === 'สภาพเหมือนใหม่' ? 'text-green-600' :
-                        product.condition === 'สภาพดี' ? 'text-blue-600' :
-                          product.condition === 'สภาพพอใช้' ? 'text-yellow-600' :
-                            'text-gray-600'
+                      product.condition === 'สภาพดี' ? 'text-blue-600' :
+                        product.condition === 'สภาพพอใช้' ? 'text-yellow-600' :
+                          'text-gray-600'
                       }`}>
                       {product.condition}
                     </span>
@@ -227,8 +225,8 @@ const ProductDetailPage = () => {
                 <button
                   onClick={handleAddToCompare}
                   className={`p-2 rounded-full transition-colors ${isInCompare(product._id)
-                      ? 'bg-yellow-100 text-yellow-600'
-                      : 'hover:bg-gray-100 text-gray-600'
+                    ? 'bg-yellow-100 text-yellow-600'
+                    : 'hover:bg-gray-100 text-gray-600'
                     }`}
                   title={isInCompare(product._id) ? 'อยู่ในรายการเปรียบเทียบแล้ว' : 'เปรียบเทียบสินค้า'}
                 >

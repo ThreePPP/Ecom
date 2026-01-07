@@ -69,8 +69,8 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
 
   useEffect(() => {
     const handleScroll = () => {
-      // เมื่อเลื่อนลงเกิน 100px จะทำให้ navbar ติด
-      if (window.scrollY > 100) {
+      // เมื่อเลื่อนลงเกิน 50px จะทำให้ navbar ติด
+      if (window.scrollY > 50) {
         setIsSticky(true)
       } else {
         setIsSticky(false)
@@ -148,55 +148,60 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
   }
 
   return (
-    <div>
+    <div className='relative font-sans'>
       {/* Main Navbar */}
-      <div className={`flex items-center px-10 py-4 bg-gradient-to-r from-white to-white text-gray-800 transition-all duration-500 ease-in-out ${isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-2xl transform scale-100' : ''
+      <div className={`flex items-center px-6 lg:px-12 py-3 bg-white/95 backdrop-blur-md text-gray-800 transition-all duration-300 ease-in-out border-b border-gray-100 z-50 ${isSticky ? 'fixed top-0 left-0 right-0 shadow-sm' : 'relative'
         }`}>
-        <a href="/"><img src="/Logo/logo_B.png" alt="" className='h-20 w-58' /></a>
+
+        {/* LOGO */}
+        <a href="/" className="mr-8 shrink-0">
+          <img src="/Logo/logo_B.png" alt="FavorPC" className='h-16 w-auto object-contain' />
+        </a>
 
         {/* Search with Dropdown */}
-        <div className="relative flex-1 max-w-3xl mx-auto" ref={searchRef}>
+        <div className="relative flex-1 max-w-2xl" ref={searchRef}>
           <form
-            className="flex bg-white rounded-full border-2 border-gray-200 focus-within:border-blue-400 transition-colors"
+            className="flex items-center w-full bg-gray-50 rounded-full border border-gray-200 focus-within:bg-white focus-within:border-gray-400 focus-within:shadow-sm transition-all duration-200 overflow-hidden"
             onSubmit={handleSearchSubmit}
           >
+            <div className="pl-4 text-gray-500">
+              <FaSearch size={16} />
+            </div>
             <input
               type="text"
               placeholder="ค้นหาสินค้า..."
               value={searchQuery}
               onChange={handleSearchInputChange}
               onFocus={() => searchQuery.trim().length >= 2 && setShowSearchDropdown(true)}
-              className="flex-1 px-5 py-2 rounded-l-full bg-transparent text-gray-800 focus:outline-none"
+              className="flex-1 px-3 py-2.5 bg-transparent text-gray-800 text-sm focus:outline-none placeholder-gray-500"
             />
-            <button type="submit" className="flex items-center gap-2 px-6 py-2 bg-gray-700 text-white rounded-r-full font-semibold border-gray-700 hover:bg-[#99ff33] hover:text-gray-700 transition-colors">
-              <FaSearch />
-            </button>
           </form>
 
           {/* Search Results Dropdown */}
           {showSearchDropdown && searchQuery.trim().length >= 2 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[400px] overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-[400px] overflow-y-auto custom-scrollbar">
               {isSearching ? (
-                <div className="p-4 text-center text-gray-500">
-                  <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <div className="p-4 text-center text-gray-500 text-sm">
+                  <div className="animate-spin w-5 h-5 border-2 border-gray-800 border-t-transparent rounded-full mx-auto mb-2"></div>
                   กำลังค้นหา...
                 </div>
               ) : searchResults.length > 0 ? (
-                <>
+                <div className="py-2">
                   {searchResults.map((product) => (
                     <div
                       key={product._id}
                       onClick={() => handleProductClick(product._id)}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-b-0 transition-colors"
                     >
-                      <div className="text-gray-400">
-                        <FaSearch size={14} />
+                      <div className="text-gray-300">
+                        <FaSearch size={12} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 truncate">
-                          <span className="text-blue-600">{product.category}</span>
-                          {' '}
+                        <p className="text-sm text-gray-800 truncate font-medium">
                           {product.name}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          <span className="text-blue-600 font-medium">{product.category}</span>
                         </p>
                       </div>
                     </div>
@@ -204,14 +209,14 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
                   {searchResults.length >= 8 && (
                     <div
                       onClick={handleSearchSubmit as any}
-                      className="px-4 py-3 text-center text-blue-600 hover:bg-blue-50 cursor-pointer font-medium"
+                      className="px-4 py-3 text-center text-blue-600 hover:text-blue-700 hover:bg-gray-50 cursor-pointer text-sm font-medium transition-colors"
                     >
                       ดูผลลัพธ์ทั้งหมด →
                     </div>
                   )}
-                </>
+                </div>
               ) : (
-                <div className="p-4 text-center text-gray-500">
+                <div className="p-6 text-center text-gray-400 text-sm">
                   ไม่พบสินค้าที่ตรงกับ "{searchQuery}"
                 </div>
               )}
@@ -219,88 +224,102 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
           )}
         </div>
 
-        {/* เมนูด้านขวา สามารถเพิ่มตามต้องการ */}
-        <ul className="flex items-center space-x-2 ml-6">
-          {/* ปุ่มจัดสเปคคอม */}
+        {/* Right Menu */}
+        <ul className="flex items-center space-x-3 ml-auto">
+          {/* PC Builder Button */}
           <li>
             <button
               onClick={() => setPCBuilderModalOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-full border border-white hover:bg-[#99ff33] transition-colors"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-800 transition-all shadow-sm hover:shadow"
+            >
+              <FaDesktop size={14} />
+              <span className="text-sm font-medium">จัดสเปคคอม</span>
+            </button>
+            <button
+              onClick={() => setPCBuilderModalOpen(true)}
+              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 text-gray-700 transition-colors"
             >
               <FaDesktop size={18} />
-              <span className="font-medium">จัดสเปคคอม</span>
             </button>
           </li>
-          {/* ปุ่มเปรียบเทียบ */}
+
+          <div className="h-6 w-px bg-gray-200 mx-2 hidden lg:block"></div>
+
+          {/* Compare */}
           <li className="relative">
             <a
               href="/compare"
-              className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-[#99ff33] relative"
+              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 text-gray-800 transition-colors relative"
+              title="เปรียบเทียบสินค้า"
             >
-              <FaExchangeAlt size={20} />
+              <FaExchangeAlt size={18} />
               {getCompareCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-black text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
                   {getCompareCount()}
                 </span>
               )}
             </a>
           </li>
-          {/* ปุ่มรายการโปรด */}
+
+          {/* Wishlist */}
           <li className="relative">
             <a
               href="/wishlist"
-              className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-[#99ff33] relative"
+              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 text-gray-800 transition-colors relative"
+              title="รายการโปรด"
             >
-              <FaHeart size={20} />
+              <FaHeart size={18} />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
                   {wishlistCount}
                 </span>
               )}
             </a>
           </li>
-          {/* ปุ่มตะกร้าสินค้า */}
+
+          {/* Cart */}
           <li className="relative">
             <button
               onClick={() => setCartModalOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-full border border-white hover:bg-[#99ff33] relative"
+              className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 text-gray-800 transition-colors relative"
+              title="ตะกร้าสินค้า"
             >
-              <FaShoppingCart size={20} />
+              <FaShoppingCart size={18} />
               {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-black text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
                   {getTotalItems()}
                 </span>
               )}
             </button>
           </li>
-          {/* ปุ่มแสดงเหรียญ (Coins) - อยู่ข้างซ้ายของ Profile */}
+
+          {/* Coins Display */}
           {isAuthenticated && (
-            <li className="relative">
+            <li className="relative hidden md:block">
               <a
                 href="/coins"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-800 font-semibold shadow-md cursor-pointer hover:from-yellow-500 hover:to-yellow-600 transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 text-gray-700 text-sm font-medium border border-yellow-100 hover:border-yellow-300 transition-all"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <circle cx="10" cy="10" r="9" fill="#fbbf24" stroke="#d97706" strokeWidth="1.5" />
-                  <text x="10" y="14" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#92400e">฿</text>
-                </svg>
-                <span className="font-bold">{(user?.coins || 0).toLocaleString()}</span>
+                <div className="w-4 h-4 rounded-full bg-yellow-400 flex items-center justify-center text-[10px] text-yellow-800 font-bold">฿</div>
+                <span>{(user?.coins || 0).toLocaleString()}</span>
               </a>
             </li>
           )}
-          {/* ปุ่มเข้าสู่ระบบ / บัญชีผู้ใช้ */}
-          <li className="relative" ref={dropdownRef}>
+
+          {/* User Profile / Login */}
+          <li className="relative pl-2" ref={dropdownRef}>
             {isAuthenticated ? (
               <>
                 <button
-                  className="flex items-center gap-2 px-5 py-2 rounded-full border border-white font-semibold transition-colors"
-                  style={{ backgroundColor: '#99ff33' }}
+                  className="flex items-center gap-2 text-sm font-medium text-gray-900 hover:text-black transition-colors"
                   onClick={() => setDropdownOpen(!isDropdownOpen)}
                 >
-                  <FaUserCircle size={20} />
-                  <span>{user?.firstName}</span>
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 border border-gray-200">
+                    <FaUser size={14} />
+                  </div>
+                  <span className="hidden sm:inline-block max-w-[100px] truncate">{user?.firstName}</span>
                   <svg
-                    className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                    className={`w-3 h-3 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -311,70 +330,72 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="text-sm text-gray-900 font-semibold">
+                  <div className="absolute right-0 mt-3 w-60 bg-white rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.08)] py-2 z-50 border border-gray-100 overflow-hidden ring-1 ring-black/5">
+                    <div className="px-5 py-3 border-b border-gray-50 bg-gray-50/50">
+                      <p className="text-sm text-gray-900 font-semibold truncate">
                         {user?.firstName} {user?.lastName}
                       </p>
                       <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                       {isAdmin && (
-                        <span className="inline-block mt-1 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                        <span className="inline-block mt-1 px-2 py-0.5 bg-black text-white text-[10px] rounded animate-pulse">
                           Admin
                         </span>
                       )}
                     </div>
 
-                    <a
-                      href="/profile"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      <FaUser className="text-gray-500" />
-                      ข้อมูลของฉัน
-                    </a>
+                    <div className="py-1">
+                      <a
+                        href="/profile"
+                        className="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        <FaUser className="text-gray-400" size={14} />
+                        ข้อมูลของฉัน
+                      </a>
 
-                    <a
-                      href="/orders"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      <FaClipboardList className="text-gray-500" />
-                      คำสั่งซื้อของฉัน
-                    </a>
+                      <a
+                        href="/orders"
+                        className="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        <FaClipboardList className="text-gray-400" size={14} />
+                        คำสั่งซื้อของฉัน
+                      </a>
 
-                    <a
-                      href="/wishlist"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      <FaHeart className="text-gray-500" />
-                      รายการโปรด
-                    </a>
+                      <a
+                        href="/wishlist"
+                        className="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-black transition-colors"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        <FaHeart className="text-gray-400" size={14} />
+                        รายการโปรด
+                      </a>
+                    </div>
 
                     {isAdmin && (
                       <>
-                        <div className="border-t border-gray-200 my-2"></div>
+                        <div className="border-t border-gray-50 my-1"></div>
                         <a
                           href="/admin"
-                          className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold"
+                          className="flex items-center gap-3 px-5 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
-                          <FaCog className="text-red-600" />
+                          <FaCog className="text-red-500" size={14} />
                           Admin Panel
                         </a>
                       </>
                     )}
 
-                    <div className="border-t border-gray-200 my-2"></div>
+                    <div className="border-t border-gray-50 my-1"></div>
 
                     <button
                       onClick={() => {
                         setDropdownOpen(false)
                         logout()
                       }}
-                      className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="flex items-center gap-3 w-full px-5 py-2.5 text-sm text-gray-500 hover:bg-gray-50 hover:text-red-600 transition-colors"
                     >
-                      <FaSignOutAlt className="text-gray-500" />
+                      <FaSignOutAlt className="text-gray-400" size={14} />
                       ออกจากระบบ
                     </button>
                   </div>
@@ -382,8 +403,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
               </>
             ) : (
               <button
-                className="flex items-center px-5 py-2 rounded-full border border-white hover:bg-[#ccff66] font-semibold transition-colors"
-                style={{ backgroundColor: '#ccff66' }}
+                className="flex items-center px-6 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-gray-800 transition-all shadow-sm"
                 onClick={() => setLoginModalOpen(true)}
               >
                 เข้าสู่ระบบ
@@ -401,32 +421,32 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
 
       {/* Modal เลือกโหมดจัดสเปคคอม */}
       {isPCBuilderModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setPCBuilderModalOpen(false)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setPCBuilderModalOpen(false)}>
           <div
-            className="relative bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-lg w-full mx-4 border border-white/50"
+            className="relative bg-white p-8 rounded-3xl shadow-2xl max-w-lg w-full mx-4"
             onClick={e => e.stopPropagation()}
-            style={{ animation: 'fadeIn 0.3s ease-out' }}
+            style={{ animation: 'fadeIn 0.2s ease-out' }}
           >
             <button
               onClick={() => setPCBuilderModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <h3 className="text-2xl font-bold text-center mb-8 text-gray-800">เลือกโหมดจัดสเปคคอม</h3>
+            <h3 className="text-2xl font-bold text-center mb-8 text-gray-900">เลือกโหมดจัดสเปคคอม</h3>
 
             <div className="flex flex-col gap-4">
               <a
                 href="/pc-builder"
-                className="group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-gray-100 hover:border-blue-500 hover:bg-blue-50 transition-all duration-300"
+                className="group flex flex-col items-center justify-center p-6 rounded-2xl border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300"
               >
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <FaDesktop size={32} className="text-blue-600" />
+                <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                  <FaDesktop size={24} className="text-gray-800" />
                 </div>
-                <span className="text-lg font-bold text-gray-800">จัดสเปคคอมเอง</span>
+                <span className="text-lg font-bold text-gray-900">จัดสเปคคอมเอง</span>
                 <span className="text-sm text-gray-500 mt-1">เลือกอุปกรณ์ทีละชิ้นตามใจคุณ</span>
               </a>
 
@@ -435,14 +455,14 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
                   setPCBuilderModalOpen(false);
                   setAutoBuildModalOpen(true);
                 }}
-                className="group flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-gray-100 hover:border-green-500 hover:bg-green-50 transition-all duration-300 w-full"
+                className="group flex flex-col items-center justify-center p-6 rounded-2xl border border-gray-200 hover:border-black hover:bg-gray-50 transition-all duration-300 w-full"
               >
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                  <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="text-lg font-bold text-gray-800">จัดสเปคคอมตามงบจัดอัตโนมัติ</span>
+                <span className="text-lg font-bold text-gray-900">จัดสเปคคอมตามงบจัดอัตโนมัติ</span>
                 <span className="text-sm text-gray-500 mt-1">ระบุงบประมาณ ระบบช่วยจัดให้</span>
               </button>
             </div>
@@ -454,89 +474,80 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
 
       {/* Spacer เมื่อ navbar เป็น fixed */}
       <div
-        className="transition-all duration-500 ease-in-out overflow-hidden"
+        className="transition-all duration-300 ease-in-out"
         style={{ height: isSticky ? '88px' : '0' }}
       ></div>
 
-      {/* Secondary Menu Bar */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="px-10 py-3">
-          <nav className="flex items-center space-x-8 text-gray-700">
-            {/* Categories with icon */}
+      {/* Secondary Menu Bar - Clean Minimalist */}
+      <div className="bg-white border-b border-gray-100 relative z-40">
+        <div className="container mx-auto px-6 lg:px-12">
+          <nav className="flex items-center space-x-8 text-sm font-medium text-gray-800 h-12">
+            {/* Categories */}
             <button
               onClick={() => {
                 setCategoriesOpen(!isCategoriesOpen);
-                setPromotionOpen(false); // Close Promotion when opening Categories
+                setPromotionOpen(false);
               }}
-              className="flex items-center space-x-2 cursor-pointer hover:text-blue-600"
+              className={`flex items-center space-x-2 h-full border-b-2 transition-colors ${isCategoriesOpen ? 'border-black text-black' : 'border-transparent hover:text-black'}`}
             >
-              <div className="w-4 h-4 bg-gray-600 rounded-sm flex items-center justify-center">
-                <div className="grid grid-cols-2 gap-px">
-                  <div className="w-1 h-1 bg-white rounded-xs"></div>
-                  <div className="w-1 h-1 bg-white rounded-xs"></div>
-                  <div className="w-1 h-1 bg-white rounded-xs"></div>
-                  <div className="w-1 h-1 bg-white rounded-xs"></div>
-                </div>
+              <div className="grid grid-cols-2 gap-0.5">
+                <div className={`w-1 h-1 rounded-[1px] ${isCategoriesOpen ? 'bg-black' : 'bg-gray-400 group-hover:bg-black'}`}></div>
+                <div className={`w-1 h-1 rounded-[1px] ${isCategoriesOpen ? 'bg-black' : 'bg-gray-400 group-hover:bg-black'}`}></div>
+                <div className={`w-1 h-1 rounded-[1px] ${isCategoriesOpen ? 'bg-black' : 'bg-gray-400 group-hover:bg-black'}`}></div>
+                <div className={`w-1 h-1 rounded-[1px] ${isCategoriesOpen ? 'bg-black' : 'bg-gray-400 group-hover:bg-black'}`}></div>
               </div>
-              <span className="font-medium">หมวดหมู่สินค้า</span>
-              <svg
-                className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+              <span>หมวดหมู่สินค้า</span>
             </button>
+
+            {/* Separator */}
+            <div className="h-4 w-px bg-gray-200"></div>
 
             {/* Other menu items */}
             <button
               onClick={() => {
                 setPromotionOpen(!isPromotionOpen);
-                setCategoriesOpen(false); // Close Categories when opening Promotion
+                setCategoriesOpen(false);
               }}
-              className="hover:text-blue-600 transition-colors flex items-center gap-1"
+              className={`h-full border-b-2 transition-colors flex items-center gap-1 ${isPromotionOpen ? 'border-black text-black' : 'border-transparent hover:text-black'}`}
               style={{ display: showPromotion ? 'flex' : 'none' }}
             >
               โปรโมชันออนไลน์
-              <svg
-                className={`w-4 h-4 transition-transform ${isPromotionOpen ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
             </button>
-            <a href="#" className="hover:text-blue-600 transition-colors">คู่มือการช็อปปิ้งและบริการหลังการขาย</a>
-            <a href="/contact" className="hover:text-blue-600 transition-colors">ติดต่อเรา</a>
+
+            <a href="#" className="h-full flex items-center border-b-2 border-transparent hover:text-black hover:border-gray-200 transition-all">
+              คู่มือการช็อปปิ้ง
+            </a>
+
+            <a href="/contact" className="h-full flex items-center border-b-2 border-transparent hover:text-black hover:border-gray-200 transition-all">
+              ติดต่อเรา
+            </a>
           </nav>
         </div>
       </div>
 
-      {/* Categories Dropdown with slide animation */}
+      {/* Categories Dropdown */}
       <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${isCategoriesOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'
+        className={`absolute left-0 right-0 bg-white border-b border-gray-100 shadow-xl overflow-hidden transition-all duration-300 ease-in-out z-30 ${isCategoriesOpen ? 'max-h-[600px] opacity-100 visible' : 'max-h-0 opacity-0 invisible'
           }`}
       >
         <CategoriesDropdown />
       </div>
 
-      {/* Promotion Dropdown with slide animation */}
+      {/* Promotion Dropdown */}
       {showPromotion && (
         <div
-          className={`overflow-hidden transition-all duration-300 ease-in-out ${isPromotionOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'
+          className={`absolute left-0 right-0 bg-white border-b border-gray-100 shadow-xl overflow-hidden transition-all duration-300 ease-in-out z-30 ${isPromotionOpen ? 'max-h-[600px] opacity-100 visible' : 'max-h-0 opacity-0 invisible'
             }`}
         >
           <Promotion />
         </div>
       )}
 
-      {/* Banner carousel placed under secondary menu */}
+      {/* Banner carousel */}
       {showBanner && (
-        <div>
-          {/* Use banner images from public/Banners folder */}
-          <BannerCarousel images={["/Banners/sf1.jpg", "/Banners/who.png", "/Banners/3.jpg"]} height="h-[600px]" />
+        <div className="relative z-10 transition-opacity duration-500">
+          {/* Add a fade-in effect or spacing if needed */}
+          <BannerCarousel images={["/Banners/mb1.jpg", "/Banners/mb2.jpg", "/Banners/sf1.jpg"]} height="h-[500px] md:h-[600px]" />
         </div>
       )}
 

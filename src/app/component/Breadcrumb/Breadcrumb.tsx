@@ -17,19 +17,19 @@ export default function Breadcrumb({ items, theme = 'default' }: BreadcrumbProps
   const router = useRouter();
 
   // กำหนดสีตามธีม
-  const colors = theme === 'white' 
+  const colors = theme === 'white'
     ? {
-        home: 'text-white hover:text-blue-100',
-        separator: 'text-blue-200',
-        link: 'text-white hover:text-blue-100',
-        current: 'text-white font-medium'
-      }
+      home: 'text-white hover:text-blue-100',
+      separator: 'text-blue-200',
+      link: 'text-white hover:text-blue-100',
+      current: 'text-white font-medium'
+    }
     : {
-        home: 'text-gray-600 hover:text-orange-500',
-        separator: 'text-gray-400',
-        link: 'text-gray-600 hover:text-orange-500',
-        current: 'text-gray-900 font-medium'
-      };
+      home: 'text-gray-600 hover:text-orange-500',
+      separator: 'text-gray-400',
+      link: 'text-gray-600 hover:text-orange-500',
+      current: 'text-gray-900 font-medium'
+    };
 
   return (
     <div className="mb-4">
