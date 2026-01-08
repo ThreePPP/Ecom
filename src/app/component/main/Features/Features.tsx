@@ -43,15 +43,15 @@ const Features = () => {
 
   const serviceBanners = [
     {
-      image: "/Banners/fast 3.jpg",
+      image: "/Banners/f1.jpg",
       alt: "Chat & Shop ช้อปผ่านแชท",
     },
     {
-      image: "/Banners/fast 3.jpg",
+      image: "/Banners/f2.jpg",
       alt: "รับร้าน 1 ชม. 1hr Pick up",
     },
     {
-      image: "/Banners/fast 3.jpg",
+      image: "/Banners/f3.jpg",
       alt: "Fast Delivery ส่งเร็ว 3 hr.",
     },
   ];
@@ -64,12 +64,13 @@ const Features = () => {
           <h2 className="text-3xl font-bold text-gray-800 mb-6">บริการเสริมช่วยช้อป</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {serviceBanners.map((banner, index) => (
-              <div key={index} className="relative w-full h-64 md:h-72 rounded-lg overflow-hidden shadow-md cursor-pointer hover:shadow-xl transition-shadow">
+              <div key={index} className="relative w-full rounded-lg overflow-hidden shadow-md cursor-pointer hover:shadow-xl transition-shadow">
                 <Image
                   src={banner.image}
                   alt={banner.alt}
-                  fill
-                  className="object-cover"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
                 />
               </div>
             ))}

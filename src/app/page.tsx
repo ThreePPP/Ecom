@@ -13,10 +13,18 @@ const page = () => {
   return (
     <div>
       <Navbar />
-      <PromoBanners />
-      <Flashsale />
-      <Bestsell />
-      <AllCategory />
+      <div id="promotions">
+        <PromoBanners />
+      </div>
+      <div id="flashsale">
+        <Flashsale />
+      </div>
+      <div id="bestsell">
+        <Bestsell />
+      </div>
+      <div id="allcategory">
+        <AllCategory />
+      </div>
       <Features />
       <Footer />
     </div>

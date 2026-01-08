@@ -28,6 +28,8 @@ interface Order {
     paymentStatus: string
     total: number
     items: OrderItem[]
+    trackingNumber?: string
+    carrier?: string
 }
 
 export default function MyOrdersPage() {
@@ -212,13 +214,26 @@ export default function MyOrdersPage() {
                                     </div>
 
                                     {/* Order Footer */}
-                                    <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center">
-                                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            <span>ยอดคำสั่งซื้อรวม:</span>
-                                            <span className="text-xl font-bold text-blue-600">฿{order.total.toLocaleString()}</span>
+                                    <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                        <div className="flex flex-col gap-2 w-full sm:w-auto">
+                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                <span>ยอดคำสั่งซื้อรวม:</span>
+                                                <span className="text-xl font-bold text-blue-600">฿{order.total.toLocaleString()}</span>
+                                            </div>
+                                            {order.trackingNumber && (
+                                                <div className="flex flex-col gap-1 w-fit">
+                                                    <div className="flex items-center gap-2 text-sm text-gray-600 px-0 py-1.5">
+                                                        <FaTruck className="text-gray-500" />
+                                                        <span className="font-medium">
+                                                            {order.carrier ? `${order.carrier}: ` : 'เลขพัสดุ: '}
+                                                            {order.trackingNumber}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
-                                        <div className="flex gap-3">
+                                        <div className="flex gap-3 w-full sm:w-auto justify-end">
                                             {order.paymentStatus === 'pending' && order.orderStatus !== 'cancelled' && (
                                                 <Link
                                                     href={`/payment/${order._id}`}

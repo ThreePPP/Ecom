@@ -298,6 +298,40 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response): Promis
   }
 };
 
+// @desc    Update tracking number
+// @route   PUT /api/orders/:id/tracking
+// @access  Private/Admin
+export const updateTrackingNumber = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { trackingNumber, carrier } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404).json({
+        success: false,
+        message: 'ไม่พบออเดอร์',
+      });
+      return;
+    }
+
+    order.trackingNumber = trackingNumber;
+    order.carrier = carrier;
+    await order.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'อัพเดทเลขพัสดุสำเร็จ',
+      data: { order },
+    });
+  } catch (error: any) {
+    console.error('Update tracking status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'เกิดข้อผิดพลาดในการอัพเดทเลขพัสดุ',
+    });
+  }
+};
+
 // @desc    Get all orders (Admin)
 // @route   GET /api/orders/admin/all
 // @access  Private/Admin

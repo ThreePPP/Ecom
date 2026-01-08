@@ -19,14 +19,14 @@ const PromoBanners = () => {
   const leftSlides: BannerSlide[] = [
     { id: 1, image: '/Banners/1.jpg', alt: 'Promotion' },
     { id: 2, image: '/Banners/2.jpg', alt: 'Promotion' },
-    { id: 3, image: '/Banners/3.jpg', alt: 'Promotion' },
+    { id: 3, image: '/Banners/fe2.png', alt: 'Promotion' },
   ]
 
   // ภาพสำหรับ Banner ขวา
   const rightSlides: BannerSlide[] = [
-    { id: 1, image: '/Banners/1.jpg', alt: 'Promotion' },
-    { id: 2, image: '/Banners/2.jpg', alt: 'Promotion' },
-    { id: 3, image: '/Banners/3.jpg', alt: 'Promotion' },
+    { id: 1, image: '/Banners/3.jpg', alt: 'Promotion' },
+    { id: 2, image: '/Banners/4.jpg', alt: 'Promotion' },
+    { id: 3, image: '/Banners/5.jpg', alt: 'Promotion' },
   ]
 
   // Auto-play สำหรับ Banner ซ้าย (เปลี่ยนภาพทุก 8 วินาที)

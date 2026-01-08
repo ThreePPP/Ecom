@@ -51,7 +51,7 @@ const ContactPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-gray-900 mb-2">โทรศัพท์</h3>
             <p className="text-gray-500 text-sm mb-1">ติดต่อสอบถามได้ที่</p>
             <span className="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-              06X XXX XXXX
+              06X-XXX-XXXX
             </span>
           </a>
 

@@ -40,6 +40,8 @@ interface Order {
   paidAt?: string;
   orderStatus: string;
   createdAt: string;
+  trackingNumber?: string;
+  carrier?: string;
 }
 
 export default function AdminOrdersPage() {
@@ -62,6 +64,15 @@ function OrdersContent() {
   const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [trackingNo, setTrackingNo] = useState('');
+  const [carrier, setCarrier] = useState('');
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setTrackingNo(selectedOrder.trackingNumber || '');
+      setCarrier(selectedOrder.carrier || '');
+    }
+  }, [selectedOrder]);
 
   useEffect(() => {
     if (!authLoading && !isAdmin) {
@@ -136,6 +147,23 @@ function OrdersContent() {
       }
     } catch (err: any) {
       alert(err.message || 'เกิดข้อผิดพลาดในการลบคำสั่งซื้อ');
+    }
+  };
+
+  const handleUpdateTracking = async () => {
+    if (!selectedOrder) return;
+
+    try {
+      const response = await orderAPI.updateTrackingNumber(selectedOrder._id, trackingNo, carrier);
+
+      if (response.success) {
+        alert('บันทึกเลขพัสดุสำเร็จ');
+        fetchOrders(); // Refresh list to get updated data
+        // Update selected order locally to reflect changes immediately/persist modal state
+        setSelectedOrder(prev => prev ? { ...prev, trackingNumber: trackingNo, carrier: carrier } : null);
+      }
+    } catch (err: any) {
+      alert(err.message || 'เกิดข้อผิดพลาดในการบันทึกเลขพัสดุ');
     }
   };
 
@@ -516,6 +544,36 @@ function OrdersContent() {
                       </button>
                     ))}
                   </div>
+
+
+                  {/* Tracking Number */}
+                  <div className="space-y-3 pt-4 border-t border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-900">Track & Trace (ติดตามพัสดุ)</h3>
+                    <div className="grid grid-cols-1 gap-3">
+                      <input
+                        type="text"
+                        value={carrier}
+                        onChange={(e) => setCarrier(e.target.value)}
+                        placeholder="ชื่อบริษัทขนส่ง (เช่น Kerry, Flash)..."
+                        className="px-4 py-2 bg-gray-100 text-gray-900 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      />
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={trackingNo}
+                          onChange={(e) => setTrackingNo(e.target.value)}
+                          placeholder="เลขพัสดุ..."
+                          className="flex-1 px-4 py-2 bg-gray-100 text-gray-900 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        />
+                        <button
+                          onClick={handleUpdateTracking}
+                          className="px-6 py-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 font-medium transition-colors"
+                        >
+                          บันทึก
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Summary */}
@@ -567,3 +625,4 @@ function OrdersContent() {
     </div>
   );
 }
+

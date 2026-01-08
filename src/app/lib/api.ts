@@ -250,6 +250,13 @@ export const orderAPI = {
     });
   },
 
+  updateTrackingNumber: async (id: string, trackingNumber: string, carrier: string) => {
+    return fetchAPI(`/orders/${id}/tracking`, {
+      method: 'PUT',
+      body: JSON.stringify({ trackingNumber, carrier }),
+    });
+  },
+
   deleteOrder: async (id: string) => {
     return fetchAPI(`/orders/${id}`, {
       method: 'DELETE',

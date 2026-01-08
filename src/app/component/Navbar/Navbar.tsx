@@ -514,7 +514,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
               โปรโมชันออนไลน์
             </button>
 
-            <a href="#" className="h-full flex items-center border-b-2 border-transparent hover:text-black hover:border-gray-200 transition-all">
+            <a href="/guide" className="h-full flex items-center border-b-2 border-transparent hover:text-black hover:border-gray-200 transition-all">
               คู่มือการช็อปปิ้ง
             </a>
 
@@ -547,7 +547,7 @@ const Navbar: React.FC<NavbarProps> = ({ showBanner = true, showPromotion = true
       {showBanner && (
         <div className="relative z-10 transition-opacity duration-500">
           {/* Add a fade-in effect or spacing if needed */}
-          <BannerCarousel images={["/Banners/mb1.jpg", "/Banners/mb2.jpg", "/Banners/sf1.jpg"]} height="h-[500px] md:h-[600px]" />
+          <BannerCarousel images={["/Banners/mb1.jpg", "/Banners/b3.jpg", "/Banners/mb2.jpg"]} height="h-[500px] md:h-[600px]" />
         </div>
       )}
 

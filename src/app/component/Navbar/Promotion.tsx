@@ -51,24 +51,6 @@ const Promotion = () => {
       icon: '⚡',
       badge: 'Hot',
       action: scrollToFlashSale
-    },
-    {
-      id: 3,
-      title: 'Shock Price',
-      subtitle: 'ราคาช็อค',
-      bgColor: 'from-amber-400 via-orange-500 to-red-500',
-      icon: '💥',
-      badge: 'ใหม่',
-      action: () => console.log('Shock Price clicked')
-    },
-    {
-      id: 4,
-      title: 'ผ่อน 0%',
-      subtitle: 'นานสูงสุด 10 เดือน',
-      bgColor: 'from-emerald-500 via-teal-600 to-cyan-600',
-      icon: '💳',
-      badge: 'ฟรี',
-      action: () => console.log('Installment clicked')
     }
   ]
 
@@ -87,7 +69,7 @@ const Promotion = () => {
           </div>
 
           {/* Promotion Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+          <div className="grid grid-cols-2 gap-3 md:gap-5 max-w-3xl mx-auto">
             {promotions.map((promo, index) => (
               <div
                 key={promo.id}
@@ -127,12 +109,12 @@ const Promotion = () => {
                     <div className="text-4xl md:text-5xl mb-2 transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12">
                       {promo.icon}
                     </div>
-                    
+
                     {/* Title */}
                     <h3 className="text-white font-bold text-lg md:text-xl lg:text-2xl mb-1 drop-shadow-lg">
                       {promo.title}
                     </h3>
-                    
+
                     {/* Subtitle */}
                     {promo.subtitle && (
                       <p className="text-white/90 font-medium text-xs md:text-sm drop-shadow-md">
@@ -163,11 +145,11 @@ const Promotion = () => {
 
       {/* Enhanced Code Modal */}
       {showCodeModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
           onClick={() => setShowCodeModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-3xl p-6 md:p-10 max-w-md w-full transform transition-all animate-scaleIn shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
@@ -189,12 +171,12 @@ const Promotion = () => {
                   <div className="w-24 h-24 bg-blue-500/20 rounded-full animate-ping"></div>
                 </div>
               </div>
-              
+
               {/* Title */}
               <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
                 รับโค้ดส่วนลด!
               </h2>
-              
+
               {/* Description */}
               <p className="text-gray-600 mb-8 text-sm md:text-base">
                 ลด <span className="font-bold text-blue-600">50 บาท</span> สำหรับการสั่งซื้อออนไลน์
@@ -222,8 +204,8 @@ const Promotion = () => {
                   w-full font-bold py-4 px-6 rounded-xl mb-3
                   transform transition-all duration-300 hover:scale-105
                   shadow-lg hover:shadow-xl
-                  ${copiedCode 
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' 
+                  ${copiedCode
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
                     : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700'
                   }
                 `}
