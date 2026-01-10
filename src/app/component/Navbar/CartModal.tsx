@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useCart } from '@/app/context/CartContext';
 import { useToast } from '@/app/component/Toast/Toast';
 import { useRouter } from 'next/navigation';
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface CartModalProps {
   isOpen: boolean;
@@ -124,7 +125,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
                   {/* Product Image */}
                   <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                     <Image
-                      src={item.image || '/placeholder.jpg'}
+                      src={getImageUrl(item.image) || '/placeholder.jpg'}
                       alt={item.name}
                       width={80}
                       height={80}

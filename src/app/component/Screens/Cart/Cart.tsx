@@ -24,6 +24,7 @@ import Navbar from "@/app/component/Navbar/Navbar";
 import Features from "@/app/component/main/Features/Features";
 import Footer from "@/app/component/main/footer/footer";
 import { addressAPI } from "@/app/lib/api";
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface ShippingAddress {
   _id?: string;
@@ -436,7 +437,7 @@ const CartPage = () => {
                             {/* Product Image */}
                             <div className="w-32 h-32 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                               <Image
-                                src={item.image || "/placeholder-product.jpg"}
+                                src={getImageUrl(item.image) || "/placeholder-product.jpg"}
                                 alt={item.name}
                                 width={128}
                                 height={128}

@@ -9,6 +9,7 @@ import { useAuth } from '@/app/context/AuthContext'
 import Navbar from '@/app/component/Navbar/Navbar'
 import Footer from '@/app/component/main/footer/footer'
 import { orderAPI } from '@/app/lib/api'
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 // Reuse interfaces or import if possible, but for page file it's okay to define locally or stick to 'any' for speed if types aren't shared. 
 // Ideally should be in a types file.
@@ -240,7 +241,7 @@ export default function OrderDetailPage() {
                                     <div key={index} className="p-6 flex gap-4">
                                         <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
                                             <img
-                                                src={item.image || item.product?.images?.[0] || '/placeholder.jpg'}
+                                                src={getImageUrl(item.image || item.product?.images?.[0]) || '/placeholder.jpg'}
                                                 alt={item.name}
                                                 className="w-full h-full object-cover"
                                             />

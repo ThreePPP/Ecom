@@ -9,6 +9,7 @@ import { useAuth } from '@/app/context/AuthContext'
 import Navbar from '@/app/component/Navbar/Navbar'
 import Footer from '@/app/component/main/footer/footer'
 import { orderAPI } from '@/app/lib/api'
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 // Order interface based on what we see in controller and expected UI needs
 interface OrderItem {
@@ -197,7 +198,7 @@ export default function MyOrdersPage() {
                                             <div key={index} className="flex gap-4 mb-4 last:mb-0">
                                                 <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
                                                     <img
-                                                        src={item.image}
+                                                        src={getImageUrl(item.image)}
                                                         alt={item.name}
                                                         className="w-full h-full object-cover"
                                                     />

@@ -155,7 +155,7 @@ const ProductDetailPage = () => {
               {/* Main Image */}
               <div className="bg-gray-100 rounded-xl mb-4 aspect-square flex items-center justify-center overflow-hidden">
                 <img
-                  src={images[selectedImage]}
+                  src={getImageUrl(images[selectedImage])}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -174,7 +174,7 @@ const ProductDetailPage = () => {
                         }`}
                     >
                       <img
-                        src={img}
+                        src={getImageUrl(img)}
                         alt={`${product.name} ${index + 1}`}
                         className="w-full h-full object-cover"
                       />

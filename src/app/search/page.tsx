@@ -9,6 +9,7 @@ import Footer from '../component/main/footer/footer';
 import Breadcrumb from '../component/Breadcrumb/Breadcrumb';
 import WishlistButton from '../component/WishlistButton/WishlistButton';
 import AddToCartButton from '../component/AddToCartButton/AddToCartButton';
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Product {
   _id: string;
@@ -135,7 +136,7 @@ function SearchContent() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {sortedProducts.map((product) => {
-                const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
+                const imageUrl = getImageUrl(product.coverImage || product.images?.[0] || product.image) || '/placeholder.jpg';
                 return (
                   <div
                     key={product._id}

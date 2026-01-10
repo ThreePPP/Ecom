@@ -10,6 +10,7 @@ import { useToast } from '../component/Toast/Toast';
 import Navbar from '../component/Navbar/Navbar';
 import Features from '../component/main/Features/Features';
 import Footer from '../component/main/footer/footer';
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Product {
   _id: string;
@@ -576,7 +577,7 @@ export default function PCBuilderPage() {
                         return (
                           <div key={comp.id} className="border rounded-lg p-4 flex gap-4 items-center">
                             <div className="w-20 h-20 bg-gray-100 rounded p-2 flex-shrink-0 flex items-center justify-center">
-                              <img src={product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg'} className="w-full h-full object-contain" />
+                              <img src={getImageUrl(product.coverImage || product.images?.[0] || product.image) || '/placeholder.jpg'} className="w-full h-full object-contain" />
                             </div>
                             <div>
                               <span className="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full mb-1 inline-block">{comp.name}</span>
@@ -664,7 +665,7 @@ export default function PCBuilderPage() {
                           <div className="flex gap-3 items-start">
                             <div className="w-12 h-12 bg-gray-900 border border-gray-700 rounded-lg p-1 flex-shrink-0 flex items-center justify-center">
                               <img
-                                src={selected.images?.[0] || selected.image || '/placeholder.jpg'}
+                                src={getImageUrl(selected.images?.[0] || selected.image) || '/placeholder.jpg'}
                                 alt={selected.name}
                                 className="w-full h-full object-contain"
                               />
@@ -860,7 +861,7 @@ export default function PCBuilderPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {sortedProducts.map((product) => {
                       const isSelected = selectedComponents[activeComponentId]?._id === product._id;
-                      const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
+                      const imageUrl = getImageUrl(product.coverImage || product.images?.[0] || product.image) || '/placeholder.jpg';
 
                       return (
                         <div

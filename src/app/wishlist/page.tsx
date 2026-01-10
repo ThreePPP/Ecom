@@ -11,6 +11,7 @@ import Features from "@/app/component/main/Features/Features";
 import Footer from "@/app/component/main/footer/footer";
 import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 import AddToCartButton from "@/app/component/AddToCartButton/AddToCartButton";
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 export default function WishlistPage() {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -130,7 +131,7 @@ export default function WishlistPage() {
                   onClick={() => router.push(`/products/${item.product._id}`)}
                 >
                   <img
-                    src={item.product.coverImage || item.product.images?.[0] || '/placeholder.jpg'}
+                    src={getImageUrl(item.product.coverImage || item.product.images?.[0]) || '/placeholder.jpg'}
                     alt={item.product.name}
                     className="w-full h-full object-cover object-center"
                   />
