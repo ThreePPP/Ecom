@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI, coinAPI } from '../../lib/api';
@@ -41,7 +41,7 @@ interface User {
   createdAt: string;
 }
 
-export default function AdminUsersPage() {
+function AdminUsersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const highlightUserId = searchParams.get('highlight');
@@ -729,5 +729,20 @@ export default function AdminUsersPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminUsersPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
+        </div>
+      </div>
+    }>
+      <AdminUsersContent />
+    </Suspense>
   );
 }
