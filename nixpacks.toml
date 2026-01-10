@@ -1,0 +1,26 @@
+# Nixpacks Configuration for Combined Frontend + Backend
+
+[phases.setup]
+nixPkgs = ["nodejs-20_x", "npm-9_x"]
+
+[phases.install]
+# Install dependencies for both root (frontend) and server (backend)
+cmds = [
+    "npm install",
+    "cd server && npm install"
+]
+
+[phases.build]
+# Build both applications
+# API URL must be set for Next.js build time if Static Generation is used, 
+# but for rewrites we generally want it to be relative or handle at runtime.
+cmds = [
+    "npm run build",
+    "npm run server:build"
+]
+
+[start]
+# Run both servers in parallel
+# Backend forced to port 5000
+# Frontend runs on default PORT (usually 3000 or provided by Dokploy)
+cmd = "export PORT_BACKEND=5000 && (cd server && PORT=5000 node dist/server.js) & npm start"
