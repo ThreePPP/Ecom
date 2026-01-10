@@ -24,7 +24,8 @@ router.post(
       }
 
       // สร้าง URL ของรูปภาพ
-      const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      // ใช้ Relative path แทน Absolute path เพื่อป้องกันปัญหา Mixed Content หรือ External URL ผิดพลาด
+      const imageUrl = `/uploads/${req.file.filename}`;
 
       res.status(200).json({
         success: true,
@@ -69,7 +70,7 @@ router.post(
         filename: file.filename,
         originalname: file.originalname,
         size: file.size,
-        url: `${req.protocol}://${req.get('host')}/uploads/${file.filename}`,
+        url: `/uploads/${file.filename}`, // ใช้ Relative path
       }));
 
       res.status(200).json({
