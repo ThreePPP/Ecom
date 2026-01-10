@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { productAPI } from '@/app/lib/api';
 import Breadcrumb from '@/app/component/Breadcrumb/Breadcrumb';
@@ -149,7 +149,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, selecte
     );
 };
 
-export default function AutoPCBuilderPage() {
+function AutoPCBuilderContent() {
     const [budget, setBudget] = useState<number>(0);
     const [isAutoBuilding, setIsAutoBuilding] = useState(false);
     const [selectedComponents, setSelectedComponents] = useState<Record<string, Product | null>>({});
@@ -865,5 +865,20 @@ export default function AutoPCBuilderPage() {
             <Features />
             <Footer />
         </>
+    );
+}
+
+export default function AutoPCBuilderPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                    <p className="text-gray-600">กำลังโหลดข้อมูล...</p>
+                </div>
+            </div>
+        }>
+            <AutoPCBuilderContent />
+        </Suspense>
     );
 }
