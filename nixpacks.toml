@@ -1,7 +1,7 @@
 # Nixpacks Configuration for Combined Frontend + Backend
 
 [phases.setup]
-nixPkgs = ["nodejs-20_x", "npm-9_x"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
 # Install dependencies for both root (frontend) and server (backend)
