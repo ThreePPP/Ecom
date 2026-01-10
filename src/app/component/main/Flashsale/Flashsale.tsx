@@ -5,6 +5,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useCart } from "@/app/context/CartContext";
 import { useToast } from "@/app/component/Toast/Toast";
 import { productAPI } from "@/app/lib/api";
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 
 interface Product {
@@ -93,7 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const originalPrice = product.originalPrice || product.oldPrice || product.price * 1.2;
   const discountPercent = product.discount || Math.round(((originalPrice - product.price) / originalPrice) * 100);
 
-  const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
+  const rawImageUrl = product.coverImage || product.images?.[0] || product.image;
+  const imageUrl = getImageUrl(rawImageUrl);
 
   return (
     <div

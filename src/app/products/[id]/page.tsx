@@ -12,6 +12,7 @@ import Breadcrumb from "@/app/component/Breadcrumb/Breadcrumb";
 import Features from "@/app/component/main/Features/Features";
 import Footer from "@/app/component/main/footer/footer";
 import WishlistButton from "@/app/component/WishlistButton/WishlistButton";
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Product {
   _id: string;
@@ -76,12 +77,13 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (product) {
+      const rawImageUrl = product.coverImage || product.images?.[0] || product.image;
       addToCart({
         id: product._id,
         name: product.name,
         price: Number(product.price) || 0,
         oldPrice: product.oldPrice ? Number(product.oldPrice) : product.originalPrice ? Number(product.originalPrice) : undefined,
-        image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
+        image: getImageUrl(rawImageUrl),
         images: product.images
       }, quantity);
       showCartToast(`เพิ่มสินค้า ${quantity} ชิ้น ลงตะกร้า`);

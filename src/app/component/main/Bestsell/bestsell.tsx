@@ -5,6 +5,7 @@ import { productAPI } from "@/app/lib/api";
 import { useCart } from "@/app/context/CartContext";
 import { useToast } from "@/app/component/Toast/Toast";
 import AddToCartButton from "@/app/component/AddToCartButton/AddToCartButton";
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Product {
   _id: string;
@@ -73,7 +74,8 @@ const Bestsell = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {products.map((product) => {
-              const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
+              const rawImageUrl = product.coverImage || product.images?.[0] || product.image;
+              const imageUrl = getImageUrl(rawImageUrl);
 
               return (
                 <div

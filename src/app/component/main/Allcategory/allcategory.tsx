@@ -5,6 +5,7 @@ import { productAPI } from "@/app/lib/api";
 import { useCart } from "@/app/context/CartContext";
 import { useToast } from "@/app/component/Toast/Toast";
 import AddToCartButton from "@/app/component/AddToCartButton/AddToCartButton";
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Product {
   _id: string;
@@ -22,7 +23,8 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
-  const imageUrl = product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg';
+  const rawImageUrl = product.coverImage || product.images?.[0] || product.image;
+  const imageUrl = getImageUrl(rawImageUrl);
 
   const getConditionBadge = () => {
     if (!product.condition) return null;
@@ -176,11 +178,12 @@ const AllCategory = () => {
   };
 
   const handleAddToCart = (product: Product) => {
+    const rawImageUrl = product.coverImage || product.images?.[0] || product.image;
     addToCart({
       id: product._id,
       name: product.name,
       price: Number(product.price) || 0,
-      image: product.coverImage || product.images?.[0] || product.image || '/placeholder.jpg',
+      image: getImageUrl(rawImageUrl),
       images: product.images
     });
     showCartToast('เพิ่มสินค้าลงตะกร้า');
