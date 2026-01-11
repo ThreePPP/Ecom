@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { adminAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
+import { useToast } from '@/app/component/Toast/Toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -35,6 +36,7 @@ interface OrphanImage {
 export default function AdminImagesPage() {
   const router = useRouter();
   const { isAdmin, loading: authLoading } = useAuth();
+  const { showSuccessToast, showErrorToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [checking, setChecking] = useState(false);
@@ -208,7 +210,7 @@ export default function AdminImagesPage() {
       setOrphanImages(orphans);
     } catch (err: any) {
       console.error('Error checking orphan images:', err);
-      alert(err.message || 'ไม่สามารถตรวจสอบรูปภาพที่ไม่ได้ใช้งานได้');
+      showErrorToast(err.message || 'ไม่สามารถตรวจสอบรูปภาพที่ไม่ได้ใช้งานได้');
     } finally {
       setChecking(false);
     }
@@ -254,12 +256,12 @@ export default function AdminImagesPage() {
         ));
         // Refresh products
         fetchProducts();
-        alert('ลบรูปภาพที่เสียออกจากสินค้าแล้ว');
+        showSuccessToast('ลบรูปภาพที่เสียออกจากสินค้าแล้ว');
       } else {
         throw new Error('ไม่สามารถอัพเดทสินค้าได้');
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาด');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาด');
     }
   };
 
@@ -280,12 +282,12 @@ export default function AdminImagesPage() {
 
       if (response.ok) {
         setOrphanImages(prev => prev.filter(o => o.filename !== orphan.filename));
-        alert('ลบไฟล์รูปภาพแล้ว');
+        showSuccessToast('ลบไฟล์รูปภาพแล้ว');
       } else {
         throw new Error('ไม่สามารถลบไฟล์ได้');
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาด');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาด');
     }
   };
 
@@ -403,7 +405,7 @@ export default function AdminImagesPage() {
     setSelectedBroken(new Set());
     fetchProducts();
     setIsDeleting(false);
-    alert(`ลบสำเร็จ ${successCount} รูป${failCount > 0 ? `, ล้มเหลว ${failCount} รูป` : ''}`);
+    showSuccessToast(`ลบสำเร็จ ${successCount} รูป${failCount > 0 ? `, ล้มเหลว ${failCount} รูป` : ''}`);
   };
 
   // Delete selected orphan images
@@ -442,7 +444,7 @@ export default function AdminImagesPage() {
     setOrphanImages(prev => prev.filter(o => !selectedOrphans.has(o.filename)));
     setSelectedOrphans(new Set());
     setIsDeleting(false);
-    alert(`ลบสำเร็จ ${successCount} ไฟล์${failCount > 0 ? `, ล้มเหลว ${failCount} ไฟล์` : ''}`);
+    showSuccessToast(`ลบสำเร็จ ${successCount} ไฟล์${failCount > 0 ? `, ล้มเหลว ${failCount} ไฟล์` : ''}`);
   };
 
   // Get image type label

@@ -9,6 +9,7 @@ import Footer from '../component/main/footer/footer';
 import Breadcrumb from '../component/Breadcrumb/Breadcrumb';
 import WishlistButton from '../component/WishlistButton/WishlistButton';
 import AddToCartButton from '../component/AddToCartButton/AddToCartButton';
+import { useToast } from '../component/Toast/Toast';
 import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Product {
@@ -31,6 +32,7 @@ interface Product {
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { showErrorToast } = useToast();
   const query = searchParams.get('q') || '';
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -148,7 +150,7 @@ function SearchContent() {
                       productId={product._id}
                       size="sm"
                       className="absolute top-2 left-2 z-20"
-                      onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
+                      onLoginRequired={() => showErrorToast('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
                     />
 
                     {/* Condition Badge */}

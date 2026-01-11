@@ -15,7 +15,7 @@ interface CartModalProps {
 
 const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
   const { cart, updateQuantity, removeFromCart, setSelectedItems: saveSelectedItems, selectedItemIds } = useCart();
-  const { showToast } = useToast();
+  const { showToast, showErrorToast } = useToast();
   const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
@@ -63,7 +63,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
 
   const handleCheckout = () => {
     if (selectedItems.size === 0) {
-      alert('กรุณาเลือกสินค้าที่ต้องการสั่งซื้อ');
+      showErrorToast('กรุณาเลือกสินค้าที่ต้องการสั่งซื้อ');
       return;
     }
     // Save selected items to context

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import type { types } from "@/app/util/types";
 import { authAPI } from "@/app/lib/api";
+import { useToast } from "@/app/component/Toast/Toast";
 
 const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
+  const { showSuccessToast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -56,7 +58,7 @@ const RegisterModal: React.FC<types> = ({ isOpen, onClose, onOpen }) => {
       });
 
       if (response.success) {
-        alert("สมัครสมาชิกสำเร็จ!");
+        showSuccessToast("สมัครสมาชิกสำเร็จ!");
         onClose?.();
         window.location.reload(); // Reload to update user state
       }

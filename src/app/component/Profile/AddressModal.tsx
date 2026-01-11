@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { FaTimes, FaMapMarkerAlt } from 'react-icons/fa'
 import { addressAPI } from '@/app/lib/api'
+import { useToast } from '../Toast/Toast'
 
 interface Address {
     _id?: string
@@ -22,6 +23,7 @@ interface AddressModalProps {
 }
 
 export default function AddressModal({ isOpen, onClose, addressToEdit, onSuccess }: AddressModalProps) {
+    const { showSuccessToast, showErrorToast } = useToast()
     const [formData, setFormData] = useState<Address>({
         fullName: '',
         phoneNumber: '',
@@ -73,10 +75,10 @@ export default function AddressModal({ isOpen, onClose, addressToEdit, onSuccess
             }
             onSuccess()
             onClose()
-            alert('บันทึกที่อยู่เรียบร้อยแล้ว')
+            showSuccessToast('บันทึกที่อยู่เรียบร้อยแล้ว')
         } catch (error) {
             console.error('Error saving address:', error)
-            alert('เกิดข้อผิดพลาดในการบันทึกที่อยู่')
+            showErrorToast('เกิดข้อผิดพลาดในการบันทึกที่อยู่')
         } finally {
             setLoading(false)
         }

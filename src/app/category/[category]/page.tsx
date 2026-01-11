@@ -8,6 +8,7 @@ import Features from '../../component/main/Features/Features';
 import Footer from '../../component/main/footer/footer';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 import WishlistButton from '../../component/WishlistButton/WishlistButton';
+import { useToast } from '../../component/Toast/Toast';
 import AddToCartButton from '../../component/AddToCartButton/AddToCartButton';
 import { getImageUrl } from "@/app/utils/imageUrl";
 
@@ -32,6 +33,7 @@ interface Product {
 export default function CategoryPage() {
   const params = useParams();
   const router = useRouter();
+  const { showErrorToast } = useToast();
   const category = decodeURIComponent(params.category as string);
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -919,7 +921,7 @@ export default function CategoryPage() {
                           productId={product._id}
                           size="sm"
                           className="absolute top-2 left-2 z-20"
-                          onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
+                          onLoginRequired={() => showErrorToast('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
                         />
 
                         {/* Product Number and Condition Badges */}

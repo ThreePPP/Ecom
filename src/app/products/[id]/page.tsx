@@ -45,7 +45,7 @@ const ProductDetailPage = () => {
   const router = useRouter();
   const { addToCart } = useCart();
   const { addToCompare, isInCompare } = useCompare();
-  const { showCartToast, showToast } = useToast();
+  const { showCartToast, showToast, showErrorToast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -238,7 +238,7 @@ const ProductDetailPage = () => {
                   productId={product._id}
                   size="lg"
                   showBackground={false}
-                  onLoginRequired={() => alert('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
+                  onLoginRequired={() => showErrorToast('กรุณาเข้าสู่ระบบก่อนเพิ่มสินค้าในรายการโปรด')}
                 />
               </div>
 

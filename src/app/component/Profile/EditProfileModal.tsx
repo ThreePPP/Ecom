@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import { authAPI } from '@/app/lib/api'
 import { useAuth } from '@/app/context/AuthContext'
+import { useToast } from '../Toast/Toast'
 
 interface EditProfileModalProps {
     isOpen: boolean
@@ -11,6 +12,7 @@ interface EditProfileModalProps {
 
 export default function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProps) {
     const { refreshUser } = useAuth()
+    const { showSuccessToast, showErrorToast } = useToast()
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -35,10 +37,10 @@ export default function EditProfileModal({ isOpen, onClose, user }: EditProfileM
             await authAPI.updateProfile(formData)
             await refreshUser()
             onClose()
-            alert('บันทึกข้อมูลเรียบร้อยแล้ว')
+            showSuccessToast('บันทึกข้อมูลเรียบร้อยแล้ว')
         } catch (error) {
             console.error('Error updating profile:', error)
-            alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
+            showErrorToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล')
         } finally {
             setLoading(false)
         }

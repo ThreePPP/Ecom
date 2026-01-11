@@ -51,7 +51,7 @@ const CartPage = () => {
     clearSelectedItems,
   } = useCart();
   const { user, refreshUser } = useAuth();
-  const { showToast } = useToast();
+  const { showToast, showSuccessToast, showErrorToast } = useToast();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [promoCode, setPromoCode] = useState("");
@@ -203,7 +203,7 @@ const CartPage = () => {
 
   const handleNextStep = () => {
     if (currentStep === 1 && displayItems.length === 0) {
-      alert("กรุณาเลือกสินค้าก่อนดำเนินการต่อ");
+      showErrorToast("กรุณาเลือกสินค้าก่อนดำเนินการต่อ");
       return;
     }
     if (currentStep === 2) {
@@ -216,7 +216,7 @@ const CartPage = () => {
         !shippingAddress.district ||
         !shippingAddress.postalCode
       ) {
-        alert("กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วน");
+        showErrorToast("กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วน");
         return;
       }
     }
@@ -240,11 +240,11 @@ const CartPage = () => {
 
   const handleCompleteOrder = async () => {
     if (!paymentMethod) {
-      alert("กรุณาเลือกช่องทางการชำระเงิน");
+      showErrorToast("กรุณาเลือกช่องทางการชำระเงิน");
       return;
     }
     if (!acceptTerms) {
-      alert("กรุณายอมรับเงื่อนไขและข้อตกลงในการใช้บริการ");
+      showErrorToast("กรุณายอมรับเงื่อนไขและข้อตกลงในการใช้บริการ");
       return;
     }
 
@@ -260,7 +260,7 @@ const CartPage = () => {
       // Check if user is authenticated
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ');
+        showErrorToast('กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ');
         router.push('/');
         return;
       }
@@ -319,11 +319,11 @@ const CartPage = () => {
         // Show success modal
         setShowSuccessModal(true);
       } else {
-        alert(`เกิดข้อผิดพลาด: ${result.message || 'ไม่สามารถสร้างคำสั่งซื้อได้'}`);
+        showErrorToast(`เกิดข้อผิดพลาด: ${result.message || 'ไม่สามารถสร้างคำสั่งซื้อได้'}`);
       }
     } catch (error: any) {
       console.error('Error creating order:', error);
-      alert(`เกิดข้อผิดพลาด: ${error.message || 'ไม่สามารถสร้างคำสั่งซื้อได้'}`);
+      showErrorToast(`เกิดข้อผิดพลาด: ${error.message || 'ไม่สามารถสร้างคำสั่งซื้อได้'}`);
     }
   };
 
@@ -753,7 +753,7 @@ const CartPage = () => {
                                   !shippingAddress.province ||
                                   !shippingAddress.postalCode
                                 ) {
-                                  alert("กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วนก่อนบันทึก");
+                                  showErrorToast("กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วนก่อนบันทึก");
                                   return;
                                 }
 
@@ -767,10 +767,10 @@ const CartPage = () => {
                                   isDefault: savedAddresses.length === 0,
                                 });
 
-                                alert("บันทึกที่อยู่สำเร็จ!");
+                                showSuccessToast("บันทึกที่อยู่สำเร็จ!");
                                 fetchSavedAddresses();
                               } catch (error: any) {
-                                alert(error.message || "เกิดข้อผิดพลาดในการบันทึกที่อยู่");
+                                showErrorToast(error.message || "เกิดข้อผิดพลาดในการบันทึกที่อยู่");
                               }
                             }}
                             className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2 shadow-sm"

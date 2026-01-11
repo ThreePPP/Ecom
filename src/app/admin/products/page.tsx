@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { productAPI, adminAPI } from '../../lib/api';
 import MultipleImageUpload from '../../component/ImageUpload/MultipleImageUpload';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
+import { useToast } from '@/app/component/Toast/Toast';
 
 interface Product {
   _id: string;
@@ -37,6 +38,7 @@ interface Product {
 export default function AdminProductsPage() {
   const router = useRouter();
   const { isAdmin, loading: authLoading } = useAuth();
+  const { showSuccessToast, showErrorToast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -309,19 +311,19 @@ export default function AdminProductsPage() {
       }
 
       if (response.success) {
-        alert(editingProduct ? 'อัพเดทสินค้าสำเร็จ' : 'เพิ่มสินค้าสำเร็จ');
+        showSuccessToast(editingProduct ? 'อัพเดทสินค้าสำเร็จ' : 'เพิ่มสินค้าสำเร็จ');
         handleCloseModal();
         fetchProducts();
       }
     } catch (err: any) {
       // จัดการกับ 401 Unauthorized errors
       if (err.message?.includes('401') || err.message?.includes('ยืนยันตัวตน') || err.message?.includes('เข้าสู่ระบบ') || err.message?.includes('สิทธิ์')) {
-        alert('เซสชันหมดอายุหรือไม่มีสิทธิ์เข้าถึง กรุณาเข้าสู่ระบบใหม่');
+        showErrorToast('เซสชันหมดอายุหรือไม่มีสิทธิ์เข้าถึง กรุณาเข้าสู่ระบบใหม่');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         router.push('/');
       } else {
-        alert(err.message || 'เกิดข้อผิดพลาด');
+        showErrorToast(err.message || 'เกิดข้อผิดพลาด');
       }
     }
   };
@@ -335,18 +337,18 @@ export default function AdminProductsPage() {
       const response = await productAPI.deleteProduct(productId);
 
       if (response.success) {
-        alert('ลบสินค้าสำเร็จ');
+        showSuccessToast('ลบสินค้าสำเร็จ');
         fetchProducts();
       }
     } catch (err: any) {
       // จัดการกับ 401 Unauthorized errors
       if (err.message?.includes('401') || err.message?.includes('ยืนยันตัวตน') || err.message?.includes('เข้าสู่ระบบ') || err.message?.includes('สิทธิ์')) {
-        alert('เซสชันหมดอายุหรือไม่มีสิทธิ์เข้าถึง กรุณาเข้าสู่ระบบใหม่');
+        showErrorToast('เซสชันหมดอายุหรือไม่มีสิทธิ์เข้าถึง กรุณาเข้าสู่ระบบใหม่');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         router.push('/');
       } else {
-        alert(err.message || 'เกิดข้อผิดพลาด');
+        showErrorToast(err.message || 'เกิดข้อผิดพลาด');
       }
     }
   };

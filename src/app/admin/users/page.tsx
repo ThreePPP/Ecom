@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { adminAPI, coinAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 import { FaCoins, FaPlus, FaMinus, FaMapMarkerAlt } from 'react-icons/fa';
+import { useToast } from '@/app/component/Toast/Toast';
 
 interface CoinStats {
   totalSpent: number;
@@ -52,6 +53,7 @@ function AdminUsersContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<'all' | 'user' | 'admin'>('all');
   const highlightedRef = useRef<HTMLTableRowElement>(null);
+  const { showSuccessToast, showErrorToast } = useToast();
 
   // Add coins modal state
   const [showAddCoinsModal, setShowAddCoinsModal] = useState(false);
@@ -111,11 +113,11 @@ function AdminUsersContent() {
       const response = await adminAPI.updateUserRole(userId, newRole);
 
       if (response.success) {
-        alert('เปลี่ยนสิทธิ์สำเร็จ');
+        showSuccessToast('เปลี่ยนสิทธิ์สำเร็จ');
         fetchUsers();
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาด');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาด');
     }
   };
 
@@ -128,11 +130,11 @@ function AdminUsersContent() {
       const response = await adminAPI.deleteUser(userId);
 
       if (response.success) {
-        alert('ลบผู้ใช้สำเร็จ');
+        showSuccessToast('ลบผู้ใช้สำเร็จ');
         fetchUsers();
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาด');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาด');
     }
   };
 
@@ -148,7 +150,7 @@ function AdminUsersContent() {
 
     const amount = parseInt(addCoinsAmount);
     if (!amount || amount <= 0) {
-      alert('กรุณาระบุจำนวน coins ที่ถูกต้อง');
+      showErrorToast('กรุณาระบุจำนวน coins ที่ถูกต้อง');
       return;
     }
 
@@ -161,13 +163,13 @@ function AdminUsersContent() {
       });
 
       if (response.success) {
-        alert(response.message || 'เพิ่ม coins สำเร็จ');
+        showSuccessToast(response.message || 'เพิ่ม coins สำเร็จ');
         setShowAddCoinsModal(false);
         setSelectedUser(null);
         fetchUsers();
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาดในการเพิ่ม coins');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาดในการเพิ่ม coins');
     } finally {
       setAddingCoins(false);
     }
@@ -185,12 +187,12 @@ function AdminUsersContent() {
 
     const amount = parseInt(removeCoinsAmount);
     if (!amount || amount <= 0) {
-      alert('กรุณาระบุจำนวน coins ที่ถูกต้อง');
+      showErrorToast('กรุณาระบุจำนวน coins ที่ถูกต้อง');
       return;
     }
 
     if (amount > (selectedUser.coins || 0)) {
-      alert(`ไม่สามารถหัก coins ได้เกินยอดปัจจุบัน (${(selectedUser.coins || 0).toLocaleString()} coins)`);
+      showErrorToast(`ไม่สามารถหัก coins ได้เกินยอดปัจจุบัน (${(selectedUser.coins || 0).toLocaleString()} coins)`);
       return;
     }
 
@@ -203,13 +205,13 @@ function AdminUsersContent() {
       });
 
       if (response.success) {
-        alert(response.message || 'หัก coins สำเร็จ');
+        showSuccessToast(response.message || 'หัก coins สำเร็จ');
         setShowRemoveCoinsModal(false);
         setSelectedUser(null);
         fetchUsers();
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาดในการหัก coins');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาดในการหัก coins');
     } finally {
       setRemovingCoins(false);
     }

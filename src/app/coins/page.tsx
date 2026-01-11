@@ -8,6 +8,7 @@ import Navbar from '../component/Navbar/Navbar';
 import Features from '../component/main/Features/Features';
 import Footer from '../component/main/footer/footer';
 import Breadcrumb from '../component/Breadcrumb/Breadcrumb';
+import { useToast } from '../component/Toast/Toast';
 
 interface CoinTransaction {
   _id: string;
@@ -32,6 +33,7 @@ interface TopupRequest {
 export default function CoinsPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { showSuccessToast } = useToast();
   const [transactions, setTransactions] = useState<CoinTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentBalance, setCurrentBalance] = useState(0);
@@ -341,7 +343,7 @@ export default function CoinsPage() {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText('1234567890');
-                          alert('คัดลอกเลขบัญชีแล้ว!');
+                          showSuccessToast('คัดลอกเลขบัญชีแล้ว!');
                         }}
                         className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                         title="คัดลอก"

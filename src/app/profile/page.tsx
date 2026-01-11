@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { addressAPI } from '@/app/lib/api'
 import EditProfileModal from '../component/Profile/EditProfileModal'
 import AddressModal from '../component/Profile/AddressModal'
+import { useToast } from '../component/Toast/Toast'
 import Navbar from '@/app/component/Navbar/Navbar'
 import Features from '@/app/component/main/Features/Features'
 import Footer from '@/app/component/main/footer/footer'
@@ -26,6 +27,7 @@ interface Address {
 
 export default function ProfilePage() {
     const { user, isAuthenticated, loading } = useAuth()
+    const { showErrorToast } = useToast()
     const router = useRouter()
     const [activeTab, setActiveTab] = useState('info')
     const [addresses, setAddresses] = useState<Address[]>([])
@@ -69,7 +71,7 @@ export default function ProfilePage() {
             await addressAPI.deleteAddress(id)
             fetchAddresses() // Refresh list
         } catch (error) {
-            alert('เกิดข้อผิดพลาดในการลบที่อยู่')
+            showErrorToast('เกิดข้อผิดพลาดในการลบที่อยู่')
         }
     }
 
@@ -78,7 +80,7 @@ export default function ProfilePage() {
             await addressAPI.setDefaultAddress(id)
             fetchAddresses() // Refresh list
         } catch (error) {
-            alert('เกิดข้อผิดพลาดในการตั้งค่าที่อยู่เริ่มต้น')
+            showErrorToast('เกิดข้อผิดพลาดในการตั้งค่าที่อยู่เริ่มต้น')
         }
     }
 

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { orderAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
+import { useToast } from '@/app/component/Toast/Toast';
 
 interface Order {
   _id: string;
@@ -59,6 +60,7 @@ export default function AdminOrdersPage() {
 function OrdersContent() {
   const router = useRouter();
   const { isAdmin, loading: authLoading } = useAuth();
+  const { showSuccessToast, showErrorToast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -123,12 +125,12 @@ function OrdersContent() {
       const response = await orderAPI.updateOrderStatus(orderId, newStatus);
 
       if (response.success) {
-        alert('อัพเดทสถานะสำเร็จ');
+        showSuccessToast('อัพเดทสถานะสำเร็จ');
         fetchOrders();
         setSelectedOrder(null);
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาด');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาด');
     }
   };
 
@@ -141,12 +143,12 @@ function OrdersContent() {
       const response = await orderAPI.deleteOrder(orderId);
 
       if (response.success) {
-        alert('ลบคำสั่งซื้อสำเร็จ');
+        showSuccessToast('ลบคำสั่งซื้อสำเร็จ');
         fetchOrders();
         setSelectedOrder(null);
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาดในการลบคำสั่งซื้อ');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาดในการลบคำสั่งซื้อ');
     }
   };
 
@@ -157,13 +159,13 @@ function OrdersContent() {
       const response = await orderAPI.updateTrackingNumber(selectedOrder._id, trackingNo, carrier);
 
       if (response.success) {
-        alert('บันทึกเลขพัสดุสำเร็จ');
+        showSuccessToast('บันทึกเลขพัสดุสำเร็จ');
         fetchOrders(); // Refresh list to get updated data
         // Update selected order locally to reflect changes immediately/persist modal state
         setSelectedOrder(prev => prev ? { ...prev, trackingNumber: trackingNo, carrier: carrier } : null);
       }
     } catch (err: any) {
-      alert(err.message || 'เกิดข้อผิดพลาดในการบันทึกเลขพัสดุ');
+      showErrorToast(err.message || 'เกิดข้อผิดพลาดในการบันทึกเลขพัสดุ');
     }
   };
 
