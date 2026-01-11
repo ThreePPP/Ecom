@@ -55,11 +55,11 @@ const PromoBanners = () => {
 
   return (
     <div className="bg-gray-50 w-full">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 w-full">
 
           {/* ==================== Banner ซ้าย ==================== */}
-          <div className="relative overflow-hidden rounded-lg bg-gray-100 h-64 md:h-80 lg:h-96">
+          <div className="relative overflow-hidden rounded-lg bg-gray-100 h-40 sm:h-56 md:h-64 lg:h-80 xl:h-96">
             {/* Container สำหรับเลื่อนภาพ */}
             <div
               className="absolute inset-0 flex transition-transform duration-700"
@@ -78,12 +78,12 @@ const PromoBanners = () => {
 
             {/* Dots Indicator สำหรับ Banner ซ้าย */}
             {leftSlides.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
                 {leftSlides.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setLeftIndex(i)}
-                    className={`w-3 h-3 rounded-full transition-all ${i === leftIndex ? 'bg-white w-6' : 'bg-white/60'
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${i === leftIndex ? 'bg-white w-4 sm:w-6' : 'bg-white/60'
                       }`}
                     aria-label={`Go to left slide ${i + 1}`}
                   />
@@ -93,7 +93,7 @@ const PromoBanners = () => {
           </div>
 
           {/* ==================== Banner ขวา ==================== */}
-          <div className="relative overflow-hidden rounded-lg bg-gray-100 h-64 md:h-80 lg:h-96">
+          <div className="relative overflow-hidden rounded-lg bg-gray-100 h-40 sm:h-56 md:h-64 lg:h-80 xl:h-96">
             {/* Container สำหรับเลื่อนภาพ */}
             <div
               className="absolute inset-0 flex transition-transform duration-700"
@@ -112,12 +112,12 @@ const PromoBanners = () => {
 
             {/* Dots Indicator สำหรับ Banner ขวา */}
             {rightSlides.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
                 {rightSlides.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setRightIndex(i)}
-                    className={`w-3 h-3 rounded-full transition-all ${i === rightIndex ? 'bg-white w-6' : 'bg-white/60'
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all ${i === rightIndex ? 'bg-white w-4 sm:w-6' : 'bg-white/60'
                       }`}
                     aria-label={`Go to right slide ${i + 1}`}
                   />

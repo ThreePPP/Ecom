@@ -332,39 +332,39 @@ const CartPage = () => {
       <Navbar showBanner={false} showPromotion={false} />
       <div className="min-h-screen bg-gray-50">
 
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
           {/* Progress Steps */}
-          <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center justify-center mb-4 sm:mb-6 lg:mb-8 overflow-x-auto pb-2">
             <div className="flex items-center">
               <div className="flex items-center">
                 <div
-                  className={`w-10 h-10 ${currentStep >= 1 ? "bg-red-600" : "bg-gray-300"
-                    } text-white rounded-full flex items-center justify-center font-bold cursor-pointer`}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 ${currentStep >= 1 ? "bg-red-600" : "bg-gray-300"
+                    } text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base cursor-pointer`}
                   onClick={() => setCurrentStep(1)}
                 >
                   1
                 </div>
                 <span
-                  className={`ml-2 font-semibold ${currentStep >= 1 ? "text-red-600" : "text-gray-400"
+                  className={`ml-1.5 sm:ml-2 font-semibold text-xs sm:text-sm ${currentStep >= 1 ? "text-red-600" : "text-gray-400"
                     }`}
                 >
                   ตะกร้าสินค้า
                 </span>
               </div>
               <div
-                className={`w-20 h-1 ${currentStep >= 2 ? "bg-red-600" : "bg-gray-300"
-                  } mx-4`}
+                className={`w-10 sm:w-16 lg:w-20 h-1 ${currentStep >= 2 ? "bg-red-600" : "bg-gray-300"
+                  } mx-2 sm:mx-4`}
               ></div>
               <div className="flex items-center">
                 <div
-                  className={`w-10 h-10 ${currentStep >= 2 ? "bg-red-600" : "bg-gray-300"
-                    } text-white rounded-full flex items-center justify-center font-bold cursor-pointer`}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 ${currentStep >= 2 ? "bg-red-600" : "bg-gray-300"
+                    } text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base cursor-pointer`}
                   onClick={() => currentStep >= 2 && setCurrentStep(2)}
                 >
                   2
                 </div>
                 <span
-                  className={`ml-2 ${currentStep >= 2
+                  className={`ml-1.5 sm:ml-2 text-xs sm:text-sm ${currentStep >= 2
                     ? "text-red-600 font-semibold"
                     : "text-gray-400"
                     }`}
@@ -373,19 +373,19 @@ const CartPage = () => {
                 </span>
               </div>
               <div
-                className={`w-20 h-1 ${currentStep >= 3 ? "bg-red-600" : "bg-gray-300"
-                  } mx-4`}
+                className={`w-10 sm:w-16 lg:w-20 h-1 ${currentStep >= 3 ? "bg-red-600" : "bg-gray-300"
+                  } mx-2 sm:mx-4`}
               ></div>
               <div className="flex items-center">
                 <div
-                  className={`w-10 h-10 ${currentStep >= 3 ? "bg-red-600" : "bg-gray-300"
-                    } text-white rounded-full flex items-center justify-center font-bold cursor-pointer`}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 ${currentStep >= 3 ? "bg-red-600" : "bg-gray-300"
+                    } text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base cursor-pointer`}
                   onClick={() => currentStep >= 3 && setCurrentStep(3)}
                 >
                   3
                 </div>
                 <span
-                  className={`ml-2 ${currentStep >= 3
+                  className={`ml-1.5 sm:ml-2 text-xs sm:text-sm ${currentStep >= 3
                     ? "text-red-600 font-semibold"
                     : "text-gray-400"
                     }`}
@@ -396,7 +396,7 @@ const CartPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Left Side - Cart Items / Shipping / Payment */}
             <div className="lg:col-span-2">
               {/* Step 1: Cart Items */}
@@ -413,15 +413,15 @@ const CartPage = () => {
                   )}
 
                   {displayItems.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow p-12 text-center">
-                      <p className="text-gray-500 text-xl mb-4">
+                    <div className="bg-white rounded-lg shadow p-6 sm:p-12 text-center">
+                      <p className="text-gray-500 text-base sm:text-xl mb-4">
                         {cart.length > 0
                           ? "กรุณาเลือกสินค้าที่ต้องการสั่งซื้อ"
                           : "ตะกร้าสินค้าว่างเปล่า"}
                       </p>
                       <button
                         onClick={() => router.push("/")}
-                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
                       >
                         เริ่มช็อปปิ้ง
                       </button>
@@ -431,11 +431,11 @@ const CartPage = () => {
                       {displayItems.map((item) => (
                         <div
                           key={item.id}
-                          className="p-6 border-b border-gray-200 last:border-b-0"
+                          className="p-3 sm:p-4 lg:p-6 border-b border-gray-200 last:border-b-0"
                         >
-                          <div className="flex gap-6">
+                          <div className="flex gap-3 sm:gap-4 lg:gap-6">
                             {/* Product Image */}
-                            <div className="w-32 h-32 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                               <Image
                                 src={getImageUrl(item.image) || "/placeholder-product.jpg"}
                                 alt={item.name}
@@ -446,16 +446,16 @@ const CartPage = () => {
                             </div>
 
                             {/* Product Details */}
-                            <div className="flex-1">
-                              <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-sm sm:text-base lg:text-lg font-medium text-gray-800 mb-1 sm:mb-2 line-clamp-2">
                                 {item.name}
                               </h3>
-                              <div className="flex items-center gap-3 mb-4">
-                                <span className="text-red-600 font-bold text-xl">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-2 sm:mb-4">
+                                <span className="text-red-600 font-bold text-base sm:text-lg lg:text-xl">
                                   {Number(item.price).toLocaleString()} coins
                                 </span>
                                 {item.oldPrice && (
-                                  <span className="text-gray-400 text-sm line-through">
+                                  <span className="text-gray-400 text-xs sm:text-sm line-through">
                                     {Number(item.oldPrice).toLocaleString()} coins
                                   </span>
                                 )}
@@ -468,32 +468,32 @@ const CartPage = () => {
                                     onClick={() =>
                                       updateQuantity(item.id, item.quantity - 1)
                                     }
-                                    className="px-4 py-2 hover:bg-gray-100 transition-colors"
+                                    className="px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 hover:bg-gray-100 transition-colors"
                                   >
                                     <FaMinus
-                                      size={14}
-                                      className="text-gray-600"
+                                      size={12}
+                                      className="text-gray-600 sm:w-3.5 sm:h-3.5"
                                     />
                                   </button>
-                                  <span className="px-6 py-2 font-bold text-lg border-x-2 border-gray-300 text-gray-800">
+                                  <span className="px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 font-bold text-sm sm:text-base lg:text-lg border-x-2 border-gray-300 text-gray-800">
                                     {item.quantity}
                                   </span>
                                   <button
                                     onClick={() =>
                                       updateQuantity(item.id, item.quantity + 1)
                                     }
-                                    className="px-4 py-2 hover:bg-gray-100 transition-colors"
+                                    className="px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 hover:bg-gray-100 transition-colors"
                                   >
-                                    <FaPlus size={14} className="text-gray-600" />
+                                    <FaPlus size={12} className="text-gray-600 sm:w-3.5 sm:h-3.5" />
                                   </button>
                                 </div>
 
                                 {/* Remove Button */}
                                 <button
                                   onClick={() => handleRemoveFromCart(item.id, item.name)}
-                                  className="flex items-center gap-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                 >
-                                  <FaTrash size={16} />
+                                  <FaTrash size={14} className="sm:w-4 sm:h-4" />
                                 </button>
                               </div>
                             </div>
@@ -526,12 +526,12 @@ const CartPage = () => {
 
               {/* Step 2: Shipping Address */}
               {currentStep === 2 && (
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                      <FaMapMarkerAlt className="text-red-600 text-xl" />
+                <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-full flex items-center justify-center">
+                      <FaMapMarkerAlt className="text-red-600 text-lg sm:text-xl" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
                       เลือกที่อยู่สำหรับจัดส่ง
                     </h2>
                   </div>
@@ -933,14 +933,14 @@ const CartPage = () => {
             {/* Right Side - Order Summary */}
             {displayItems.length > 0 && (
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-lg shadow p-6 sticky top-24">
-                  <h2 className="text-xl font-bold text-gray-800 mb-4">
+                <div className="bg-white rounded-lg shadow p-4 sm:p-6 sticky top-[60px] sm:top-20 lg:top-24">
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">
                     ยอดรวมทั้งหมด
                   </h2>
 
                   {/* Promo Code Input */}
-                  <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                  <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                       <FaTag className="text-red-600" />
                       โค้ดส่วนลด
                     </label>
@@ -990,19 +990,19 @@ const CartPage = () => {
                     )}
                   </div>
 
-                  <div className="border-t pt-4 mb-6">
+                  <div className="border-t pt-3 sm:pt-4 mb-4 sm:mb-6">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-gray-800">
+                      <span className="text-base sm:text-lg font-bold text-gray-800">
                         ยอดรวม
                       </span>
-                      <span className="text-2xl font-bold text-red-600">
+                      <span className="text-xl sm:text-2xl font-bold text-red-600">
                         {total.toLocaleString(undefined, {
                           minimumFractionDigits: 0,
                           maximumFractionDigits: 0,
                         })} coins
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
                       ยอดรวมทั้งหมด
                     </p>
                   </div>
@@ -1042,11 +1042,11 @@ const CartPage = () => {
                   )}
 
                   {/* Navigation Buttons */}
-                  <div className="space-y-3 mb-4">
+                  <div className="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
                     {currentStep < 3 ? (
                       <button
                         onClick={handleNextStep}
-                        className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-bold text-lg"
+                        className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-bold text-sm sm:text-base lg:text-lg"
                       >
                         {currentStep === 1
                           ? "ดำเนินการต่อ"
@@ -1058,7 +1058,7 @@ const CartPage = () => {
                       <button
                         onClick={handleCompleteOrder}
                         disabled={!acceptTerms}
-                        className={`w-full px-6 py-3 rounded-lg transition-all font-bold text-lg ${acceptTerms
+                        className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg transition-all font-bold text-sm sm:text-base lg:text-lg ${acceptTerms
                           ? "bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-md hover:shadow-lg"
                           : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
                           }`}
@@ -1070,12 +1070,12 @@ const CartPage = () => {
                     {currentStep > 1 && (
                       <button
                         onClick={handlePreviousStep}
-                        className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-bold"
+                        className="w-full px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-bold text-sm sm:text-base"
                       >
                         ย้อนกลับ
                       </button>
-                    )}
-                  </div>
+                    )
+                  }</n                  </div>
 
                   {/* Service Information */}
                   <div className="space-y-3 pt-4 border-t">

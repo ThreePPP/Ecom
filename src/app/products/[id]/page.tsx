@@ -140,7 +140,7 @@ const ProductDetailPage = () => {
       {/* Navbar */}
       <Navbar showBanner={false} showPromotion={false} />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
         {/* Breadcrumb */}
         <Breadcrumb items={[
           { label: product.category || 'สินค้า', href: `/category/${encodeURIComponent(product.category || 'สินค้า')}` },
@@ -148,12 +148,12 @@ const ProductDetailPage = () => {
         ]} />
 
         {/* Main Product Section */}
-        <div className="bg-white rounded-2xl shadow-sm p-8 mb-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
             {/* Left: Images */}
             <div>
               {/* Main Image */}
-              <div className="bg-gray-100 rounded-xl mb-4 aspect-square flex items-center justify-center overflow-hidden">
+              <div className="bg-gray-100 rounded-lg sm:rounded-xl mb-3 sm:mb-4 aspect-square flex items-center justify-center overflow-hidden">
                 <img
                   src={getImageUrl(images[selectedImage])}
                   alt={product.name}
@@ -163,12 +163,12 @@ const ProductDetailPage = () => {
 
               {/* Thumbnail Images */}
               {images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
+                <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 touch-scroll">
                   {images.map((img, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index
+                      className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-md sm:rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index
                         ? 'border-red-600'
                         : 'border-gray-200 hover:border-gray-400'
                         }`}
@@ -187,17 +187,17 @@ const ProductDetailPage = () => {
             {/* Right: Product Info */}
             <div>
               {/* Stock Badge */}
-              <div className="inline-block bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full mb-4">
+              <div className="inline-block bg-green-100 text-green-700 text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 rounded-full mb-2 sm:mb-4">
                 มีสินค้า
               </div>
 
               {/* Product Name */}
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2 sm:mb-4 leading-tight">
                 {product.name}
               </h1>
 
               {/* Brand, SKU and Condition */}
-              <div className="flex gap-4 text-sm text-gray-600 mb-6">
+              <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">
                 {product.brand && (
                   <div>
                     <span className="font-semibold">แบรนด์:</span> {product.brand}
@@ -223,7 +223,7 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Action Icons */}
-              <div className="flex gap-4 mb-6">
+              <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <button
                   onClick={handleAddToCompare}
                   className={`p-2 rounded-full transition-colors ${isInCompare(product._id)
@@ -243,46 +243,46 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Price */}
-              <div className="mb-8">
-                <div className="text-4xl font-bold text-gray-900">
+              <div className="mb-4 sm:mb-8">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
                   {product.price ? product.price.toLocaleString() : '0'} coins
                 </div>
               </div>
 
               {/* Quantity Selector */}
-              <div className="mb-8">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-700 mr-2">จำนวน</span>
+              <div className="mb-4 sm:mb-8">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="text-xs sm:text-sm font-semibold text-gray-700 mr-1 sm:mr-2">จำนวน</span>
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 flex items-center justify-center border border-red-600 text-red-600 rounded hover:bg-red-50 transition-colors"
+                    className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-red-600 text-red-600 rounded hover:bg-red-50 transition-colors"
                   >
-                    <FaMinus className="text-sm" />
+                    <FaMinus className="text-xs sm:text-sm" />
                   </button>
-                  <div className="w-12 h-10 flex items-center justify-center border border-gray-300 rounded text-lg font-semibold text-gray-900">
+                  <div className="w-10 h-8 sm:w-12 sm:h-10 flex items-center justify-center border border-gray-300 rounded text-base sm:text-lg font-semibold text-gray-900">
                     {quantity}
                   </div>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 flex items-center justify-center border border-red-600 text-red-600 rounded hover:bg-red-50 transition-colors"
+                    className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center border border-red-600 text-red-600 rounded hover:bg-red-50 transition-colors"
                   >
-                    <FaPlus className="text-sm" />
+                    <FaPlus className="text-xs sm:text-sm" />
                   </button>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-red-600 text-red-600 px-6 py-4 rounded-xl font-bold text-lg hover:bg-red-50 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-red-600 text-red-600 px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base lg:text-lg hover:bg-red-50 transition-colors"
                 >
-                  <FaShoppingBag />
+                  <FaShoppingBag className="text-sm sm:text-base" />
                   เพิ่มในตะกร้า
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="flex-1 bg-red-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-red-700 transition-colors"
+                  className="flex-1 bg-red-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base lg:text-lg hover:bg-red-700 transition-colors"
                 >
                   ซื้อเลย
                 </button>
@@ -306,9 +306,9 @@ const ProductDetailPage = () => {
         </div>
 
         {/* Product Details Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">รายละเอียดสินค้า</h3>
+        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-3 sm:mb-4">รายละเอียดสินค้า</h3>
             <div className="prose max-w-none">
               <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                 {product.description || 'ไม่มีข้อมูลรายละเอียดสินค้า'}

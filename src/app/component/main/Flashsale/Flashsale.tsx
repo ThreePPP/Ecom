@@ -99,8 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div
-      className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-gray-100/50 flex flex-col flex-shrink-0"
-      style={{ width: '240px' }}
+      className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-gray-100/50 flex flex-col flex-shrink-0 w-[160px] sm:w-[200px] lg:w-[240px]"
       onClick={() => window.location.href = `/products/${product._id}`}
     >
       <div className="relative aspect-square overflow-hidden bg-gray-50">
@@ -111,14 +110,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         />
 
         {/* Floating Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10 items-start">
+        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-col gap-1.5 sm:gap-2 z-10 items-start">
           {product.category && (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/90 backdrop-blur-md text-gray-900 border border-gray-100 shadow-sm">
+            <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-semibold bg-white/90 backdrop-blur-md text-gray-900 border border-gray-100 shadow-sm">
               {product.category}
             </span>
           )}
           {product.condition && (
-            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm backdrop-blur-md border ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-50/90 text-green-700 border-green-100' :
+            <span className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-semibold shadow-sm backdrop-blur-md border ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-50/90 text-green-700 border-green-100' :
               product.condition === 'สภาพดี' ? 'bg-blue-50/90 text-blue-700 border-blue-100' :
                 product.condition === 'สภาพพอใช้' ? 'bg-yellow-50/90 text-yellow-700 border-yellow-100' :
                   'bg-gray-50/90 text-gray-700 border-gray-100'
@@ -129,33 +128,33 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         {/* Discount Badge */}
-        <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl z-20 shadow-sm">
+        <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-bl-lg sm:rounded-bl-xl z-20 shadow-sm">
           -{discountPercent}%
         </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-2.5 sm:p-4 flex flex-col flex-1">
         {/* Product Name */}
-        <h3 className="text-sm font-medium text-gray-700 mb-2 line-clamp-2 h-10 group-hover:text-black transition-colors leading-relaxed">
+        <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 line-clamp-2 h-8 sm:h-10 group-hover:text-black transition-colors leading-relaxed">
           {product.name}
         </h3>
 
         {/* Flash Sale Timer */}
         {!productCountdown.isExpired && (
-          <div className="mb-2 text-xs font-medium text-red-600 bg-red-50 border border-red-500 rounded-lg px-3 py-1.5 inline-flex items-center gap-1.5 w-fit">
+          <div className="mb-1.5 sm:mb-2 text-[10px] sm:text-xs font-medium text-red-600 bg-red-50 border border-red-500 rounded-md sm:rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 inline-flex items-center gap-1 sm:gap-1.5 w-fit">
             <span>⚡</span>
             <span>เหลือ {productCountdown.days}D {productCountdown.hours}:{productCountdown.minutes.toString().padStart(2, '0')}:{productCountdown.seconds.toString().padStart(2, '0')}</span>
           </div>
         )}
 
-        <div className="mt-auto pt-2 space-y-3">
+        <div className="mt-auto pt-1.5 sm:pt-2 space-y-2 sm:space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold text-gray-900">
+              <div className="flex items-baseline gap-1 sm:gap-2">
+                <span className="text-sm sm:text-lg font-bold text-gray-900">
                   {product.price.toLocaleString()} coins
                 </span>
-                <span className="text-xs text-gray-400 line-through">
+                <span className="text-[10px] sm:text-xs text-gray-400 line-through hidden sm:inline">
                   {originalPrice.toLocaleString()}
                 </span>
               </div>
@@ -164,7 +163,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <div onClick={(e) => e.stopPropagation()}>
             <AddToCartButton
-              className="w-full !rounded-xl !bg-black hover:!bg-gray-800 !text-white !h-9 !text-sm font-medium shadow-none transition-all"
+              className="w-full !rounded-lg sm:!rounded-xl !bg-black hover:!bg-gray-800 !text-white !h-7 sm:!h-9 !text-xs sm:!text-sm font-medium shadow-none transition-all"
               onClick={() => {
                 addToCart({
                   id: product._id,
@@ -285,33 +284,33 @@ const Flashsale = () => {
 
   return (
     <div id="flashsale-section" className="bg-gray-50 w-full">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Flash Sale Header */}
-        <div className="relative bg-white rounded-2xl px-8 py-6 mb-8 shadow-sm border border-gray-200">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <img src="/icons/bolt.png" alt="Flash Sale" className="w-8 h-8" />
-              <h2 className="text-red-600 text-2xl font-bold">Flash Sale</h2>
+        <div className="relative bg-white rounded-xl sm:rounded-2xl px-4 sm:px-8 py-3 sm:py-6 mb-4 sm:mb-8 shadow-sm border border-gray-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <img src="/icons/bolt.png" alt="Flash Sale" className="w-6 h-6 sm:w-8 sm:h-8" />
+              <h2 className="text-red-600 text-lg sm:text-2xl font-bold">Flash Sale</h2>
             </div>
 
             {/* Countdown Timer */}
             {!countdown.isExpired && (
-              <div className="flex items-center gap-3">
-                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                  <div className="text-2xl font-bold text-gray-800">{countdown.days}</div>
-                  <div className="text-xs text-gray-500">วัน</div>
+              <div className="flex items-center gap-1.5 sm:gap-3">
+                <div className="bg-gray-100 px-2 sm:px-4 py-1 sm:py-2 rounded-md sm:rounded-lg text-center min-w-[40px] sm:min-w-[60px]">
+                  <div className="text-base sm:text-2xl font-bold text-gray-800">{countdown.days}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">วัน</div>
                 </div>
-                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                  <div className="text-2xl font-bold text-gray-800">{countdown.hours.toString().padStart(2, '0')}</div>
-                  <div className="text-xs text-gray-500">ชั่วโมง</div>
+                <div className="bg-gray-100 px-2 sm:px-4 py-1 sm:py-2 rounded-md sm:rounded-lg text-center min-w-[40px] sm:min-w-[60px]">
+                  <div className="text-base sm:text-2xl font-bold text-gray-800">{countdown.hours.toString().padStart(2, '0')}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">ชั่วโมง</div>
                 </div>
-                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                  <div className="text-2xl font-bold text-gray-800">{countdown.minutes.toString().padStart(2, '0')}</div>
-                  <div className="text-xs text-gray-500">นาที</div>
+                <div className="bg-gray-100 px-2 sm:px-4 py-1 sm:py-2 rounded-md sm:rounded-lg text-center min-w-[40px] sm:min-w-[60px]">
+                  <div className="text-base sm:text-2xl font-bold text-gray-800">{countdown.minutes.toString().padStart(2, '0')}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">นาที</div>
                 </div>
-                <div className="bg-gray-100 px-4 py-2 rounded-lg text-center min-w-[60px]">
-                  <div className="text-2xl font-bold text-gray-800">{countdown.seconds.toString().padStart(2, '0')}</div>
-                  <div className="text-xs text-gray-500">วินาที</div>
+                <div className="bg-gray-100 px-2 sm:px-4 py-1 sm:py-2 rounded-md sm:rounded-lg text-center min-w-[40px] sm:min-w-[60px]">
+                  <div className="text-base sm:text-2xl font-bold text-gray-800">{countdown.seconds.toString().padStart(2, '0')}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">วินาที</div>
                 </div>
               </div>
             )}
@@ -319,39 +318,39 @@ const Flashsale = () => {
         </div>
 
         <div className="relative">
-          {/* Left Arrow */}
+          {/* Left Arrow - Hidden on mobile (use swipe) */}
           <button
             onClick={scrollLeft}
             disabled={currentIndex === 0}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${currentIndex === 0
+            className={`absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-2 sm:p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl hidden sm:block ${currentIndex === 0
               ? 'bg-gray-400 cursor-not-allowed opacity-50'
               : 'bg-black hover:bg-gray-800'
               }`}
             aria-label="Scroll left"
           >
-            <FaChevronLeft className="text-white text-xl" />
+            <FaChevronLeft className="text-white text-base sm:text-xl" />
           </button>
 
-          {/* Right Arrow */}
+          {/* Right Arrow - Hidden on mobile (use swipe) */}
           <button
             onClick={scrollRight}
             disabled={currentIndex >= Math.max(0, products.length - 5)}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl ${currentIndex >= Math.max(0, products.length - 5)
+            className={`absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-20 shadow-lg rounded-full p-2 sm:p-3 transition-all duration-300 hover:scale-110 hover:shadow-xl hidden sm:block ${currentIndex >= Math.max(0, products.length - 5)
               ? 'bg-gray-400 cursor-not-allowed opacity-50'
               : 'bg-black hover:bg-gray-800'
               }`}
             aria-label="Scroll right"
           >
-            <FaChevronRight className="text-white text-xl" />
+            <FaChevronRight className="text-white text-base sm:text-xl" />
           </button>
 
-          {/* Scrollable Container */}
-          <div className="overflow-hidden px-12">
+          {/* Scrollable Container - Touch scroll on mobile */}
+          <div className="overflow-x-auto sm:overflow-hidden px-0 sm:px-12 scrollbar-hide touch-scroll">
             <div
               ref={scrollContainerRef}
-              className="flex gap-4 transition-transform duration-700 ease-in-out"
+              className="flex gap-2 sm:gap-4 pb-2 sm:pb-0 sm:transition-transform sm:duration-700 sm:ease-in-out"
               style={{
-                transform: `translateX(-${currentIndex * 20.8}%)`
+                transform: `translateX(-${typeof window !== 'undefined' && window.innerWidth >= 640 ? currentIndex * 20.8 : 0}%)`
               }}
             >
               {products.map((product) => (
@@ -360,8 +359,8 @@ const Flashsale = () => {
             </div>
           </div>
 
-          {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-6">
+          {/* Dots Indicator - Hidden on mobile */}
+          <div className="hidden sm:flex justify-center gap-2 mt-6">
             {Array.from({ length: Math.max(1, Math.ceil(products.length / 5)) }).map((_, index) => (
               <button
                 key={index}

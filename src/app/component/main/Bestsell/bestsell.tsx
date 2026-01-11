@@ -48,31 +48,31 @@ const Bestsell = () => {
 
 
   return (
-    <div className="bg-white w-full py-12">
-      <div className="container mx-auto px-4">
+    <div className="bg-white w-full py-6 sm:py-8 lg:py-12">
+      <div className="container mx-auto px-3 sm:px-4">
         {/* Minimal Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-              <span className="text-orange-500 text-sm">🔥</span>
+        <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-orange-100 flex items-center justify-center">
+              <span className="text-orange-500 text-xs sm:text-sm">🔥</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">สินค้าแนะนำ</h2>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 tracking-tight">สินค้าแนะนำ</h2>
           </div>
         </div>
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 lg:gap-6">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="bg-gray-50 rounded-2xl h-80 animate-pulse"></div>
+              <div key={i} className="bg-gray-50 rounded-xl sm:rounded-2xl h-48 sm:h-64 lg:h-80 animate-pulse"></div>
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 bg-gray-50 rounded-2xl text-gray-400 font-light">
+          <div className="text-center py-12 sm:py-20 bg-gray-50 rounded-xl sm:rounded-2xl text-gray-400 font-light text-sm sm:text-base">
             ไม่มีสินค้าแนะนำในขณะนี้
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 lg:gap-6">
             {products.map((product) => {
               const rawImageUrl = product.coverImage || product.images?.[0] || product.image;
               const imageUrl = getImageUrl(rawImageUrl);
@@ -80,7 +80,7 @@ const Bestsell = () => {
               return (
                 <div
                   key={product._id}
-                  className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-gray-100/50 flex flex-col"
+                  className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-all duration-300 cursor-pointer hover:shadow-xl hover:shadow-gray-100/50 flex flex-col"
                   onClick={() => window.location.href = `/products/${product._id}`}
                 >
                   <div className="relative aspect-square overflow-hidden bg-gray-50">
@@ -91,14 +91,14 @@ const Bestsell = () => {
                     />
 
                     {/* Floating Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+                    <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-col gap-1 sm:gap-2 z-10">
                       {product.category && (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/90 backdrop-blur-md text-gray-900 border border-gray-100 shadow-sm">
+                        <span className="inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-semibold bg-white/90 backdrop-blur-md text-gray-900 border border-gray-100 shadow-sm">
                           {product.category}
                         </span>
                       )}
                       {product.condition && (
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-sm backdrop-blur-md border ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-50/90 text-green-700 border-green-100' :
+                        <span className={`inline-flex items-center px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-semibold shadow-sm backdrop-blur-md border ${product.condition === 'สภาพเหมือนใหม่' ? 'bg-green-50/90 text-green-700 border-green-100' :
                           product.condition === 'สภาพดี' ? 'bg-blue-50/90 text-blue-700 border-blue-100' :
                             product.condition === 'สภาพพอใช้' ? 'bg-yellow-50/90 text-yellow-700 border-yellow-100' :
                               'bg-gray-50/90 text-gray-700 border-gray-100'
@@ -109,15 +109,15 @@ const Bestsell = () => {
                     </div>
                   </div>
 
-                  <div className="p-5 flex flex-col flex-1">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2 line-clamp-2 min-h-[40px] group-hover:text-black transition-colors leading-relaxed">
+                  <div className="p-2.5 sm:p-4 lg:p-5 flex flex-col flex-1">
+                    <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 line-clamp-2 min-h-[32px] sm:min-h-[40px] group-hover:text-black transition-colors leading-relaxed">
                       {product.name}
                     </h3>
 
-                    <div className="mt-auto pt-4 space-y-3">
+                    <div className="mt-auto pt-2 sm:pt-4 space-y-2 sm:space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                          <span className="text-lg font-bold text-gray-900">
+                          <span className="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
                             {product.price.toLocaleString()} coins
                           </span>
                         </div>
@@ -125,7 +125,7 @@ const Bestsell = () => {
 
                       <div onClick={(e) => e.stopPropagation()}>
                         <AddToCartButton
-                          className="w-full !rounded-xl !bg-black hover:!bg-gray-800 !text-white !h-10 !text-sm font-medium shadow-none transition-all"
+                          className="w-full !rounded-lg sm:!rounded-xl !bg-black hover:!bg-gray-800 !text-white !h-8 sm:!h-10 !text-xs sm:!text-sm font-medium shadow-none transition-all"
                           onClick={() => {
                             addToCart({
                               id: product._id,
@@ -151,4 +151,3 @@ const Bestsell = () => {
 };
 
 export default Bestsell;
-
