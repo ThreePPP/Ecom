@@ -1074,8 +1074,8 @@ const CartPage = () => {
                       >
                         ย้อนกลับ
                       </button>
-                    )
-                  }</n                  </div>
+                    )}
+                  </div>
 
                   {/* Service Information */}
                   <div className="space-y-3 pt-4 border-t">
