@@ -7,6 +7,7 @@ import { productAPI, adminAPI } from '../../lib/api';
 import MultipleImageUpload from '../../component/ImageUpload/MultipleImageUpload';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 import { useToast } from '@/app/component/Toast/Toast';
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Product {
   _id: string;
@@ -453,7 +454,7 @@ export default function AdminProductsPage() {
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {currentProducts.map((product) => {
-            const imageUrl = product.images?.[0] || product.image || '/placeholder.png';
+            const imageUrl = getImageUrl(product.images?.[0] || product.image) || '/placeholder.png';
             return (
               <div key={product._id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative h-48">
@@ -1125,7 +1126,7 @@ export default function AdminProductsPage() {
                     {formData.coverImage && (
                       <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-orange-300">
                         <img
-                          src={formData.coverImage}
+                          src={getImageUrl(formData.coverImage)}
                           alt="Cover"
                           className="w-full h-full object-cover"
                         />
@@ -1155,7 +1156,7 @@ export default function AdminProductsPage() {
                             }`}
                         >
                           <img
-                            src={img}
+                            src={getImageUrl(img)}
                             alt={`Option ${index + 1}`}
                             className="w-full h-full object-cover"
                           />
@@ -1184,7 +1185,7 @@ export default function AdminProductsPage() {
                     {formData.detailCoverImage ? (
                       <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-blue-300">
                         <img
-                          src={formData.detailCoverImage}
+                          src={getImageUrl(formData.detailCoverImage)}
                           alt="Detail Cover"
                           className="w-full h-full object-cover"
                         />
@@ -1359,7 +1360,7 @@ export default function AdminProductsPage() {
                       }`}
                   >
                     <img
-                      src={img}
+                      src={getImageUrl(img)}
                       alt={`รูปที่ ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
