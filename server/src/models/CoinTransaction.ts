@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ICoinTransaction extends Document {
   userId: mongoose.Types.ObjectId;
   referenceNumber: string;
-  type: 'earn' | 'spend' | 'topup';
+  type: 'earn' | 'spend' | 'topup' | 'deduct';
   amount: number;
   description: string;
   orderId?: mongoose.Types.ObjectId;
@@ -25,7 +25,7 @@ const coinTransactionSchema = new Schema<ICoinTransaction>(
     },
     type: {
       type: String,
-      enum: ['earn', 'spend', 'topup'],
+      enum: ['earn', 'spend', 'topup', 'deduct'],
       required: [true, 'กรุณาระบุประเภทรายการ'],
     },
     amount: {

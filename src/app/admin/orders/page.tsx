@@ -14,7 +14,7 @@ interface Order {
     firstName: string;
     lastName: string;
     email: string;
-  };
+  } | null;
   items: Array<{
     name?: string;
     image?: string;
@@ -341,9 +341,9 @@ function OrdersContent() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {order.user.firstName} {order.user.lastName}
+                          {order.user ? `${order.user.firstName} ${order.user.lastName}` : 'ผู้ใช้ที่ถูกลบ'}
                         </div>
-                        <div className="text-sm text-gray-500">{order.user.email}</div>
+                        <div className="text-sm text-gray-500">{order.user?.email || '-'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-gray-900">
@@ -456,9 +456,9 @@ function OrdersContent() {
                   </div>
                   <div className="space-y-1 ml-11">
                     <p className="text-gray-900 font-medium">
-                      {selectedOrder.user.firstName} {selectedOrder.user.lastName}
+                      {selectedOrder.user ? `${selectedOrder.user.firstName} ${selectedOrder.user.lastName}` : 'ผู้ใช้ที่ถูกลบ'}
                     </p>
-                    <p className="text-sm text-gray-500">{selectedOrder.user.email}</p>
+                    <p className="text-sm text-gray-500">{selectedOrder.user?.email || '-'}</p>
                   </div>
                 </div>
 

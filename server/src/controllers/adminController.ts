@@ -52,7 +52,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void
       users.map(async (user) => {
         // Count total spent coins
         const spentResult = await CoinTransaction.aggregate([
-          { $match: { userId: user._id, type: 'spend' } },
+          { $match: { userId: user._id, type: { $in: ['spend', 'deduct'] } } },
           { $group: { _id: null, total: { $sum: { $abs: '$amount' } } } },
         ]);
 

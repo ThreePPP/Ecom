@@ -13,7 +13,7 @@ interface CoinStats {
   totalEarned: number;
   lastTransaction: {
     createdAt: string;
-    type: 'earn' | 'spend' | 'topup';
+    type: 'earn' | 'spend' | 'topup' | 'deduct';
     amount: number;
   } | null;
 }
