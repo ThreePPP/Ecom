@@ -444,7 +444,7 @@ export const coinAPI = {
   // ดึงรายการ transactions
   getTransactions: async (page = 1, limit = 20) => {
     const token = getToken();
-    const response = await fetch(`/api/coins/transactions?page=${page}&limit=${limit}`, {
+    const response = await fetch(`${API_URL}/coins/transactions?page=${page}&limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -461,7 +461,7 @@ export const coinAPI = {
   // ดึงข้อมูลสรุป coins
   getSummary: async () => {
     const token = getToken();
-    const response = await fetch('/api/coins/summary', {
+    const response = await fetch(`${API_URL}/coins/summary`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
