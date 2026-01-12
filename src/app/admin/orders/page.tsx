@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { orderAPI } from '../../lib/api';
 import Breadcrumb from '../../component/Breadcrumb/Breadcrumb';
 import { useToast } from '@/app/component/Toast/Toast';
+import { getImageUrl } from "@/app/utils/imageUrl";
 
 interface Order {
   _id: string;
@@ -490,7 +491,7 @@ function OrdersContent() {
                     <div key={index} className="flex gap-4 p-4 rounded-xl bg-white/40 border border-white/60 hover:bg-white/60 transition-colors">
                       <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
-                          src={item.image || item.product?.image}
+                          src={getImageUrl(item.image || item.product?.image)}
                           alt={item.name || item.product?.name}
                           className="w-full h-full object-cover"
                         />
