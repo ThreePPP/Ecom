@@ -22,7 +22,7 @@
     "express": "^5.1.0",
     "express-validator": "^7.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.19.3",
+    "mongoose": "^8.21.0",
     "multer": "^2.0.2",
     "next": "15.5.4",
     "react": "19.1.0",

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import CoinTransaction from '../models/CoinTransaction';
 import User from '../models/User';
 import AdminNotification from '../models/AdminNotification';
@@ -216,12 +217,12 @@ export const getCoinSummary = async (req: Request, res: Response) => {
 
     // Calculate total earned and spent
     const earnedResult = await CoinTransaction.aggregate([
-      { $match: { userId: user?._id, type: { $in: ['earn', 'topup'] } } },
+      { $match: { userId: user?._id || userId, type: { $in: ['earn', 'topup'] } } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]);
 
     const spentResult = await CoinTransaction.aggregate([
-      { $match: { userId: user?._id, type: 'spend' } },
+      { $match: { userId: user?._id || userId, type: { $in: ['spend', 'deduct'] } } },
       { $group: { _id: null, total: { $sum: { $abs: '$amount' } } } },
     ]);
 
@@ -448,8 +449,8 @@ export const submitTopupRequest = async (req: Request, res: Response) => {
       title: '💰 คำขอเติมเงิน',
       message: `${user.firstName} ${user.lastName} ส่งคำขอเติมเงิน ${amount.toLocaleString()} บาท`,
       data: {
-        topupRequestId: topupRequest._id,
-        userId: user._id,
+        topupRequestId: topupRequest._id as unknown as mongoose.Types.ObjectId,
+        userId: user._id as unknown as mongoose.Types.ObjectId,
         userName: `${user.firstName} ${user.lastName}`,
         userEmail: user.email,
         amount: amount,
