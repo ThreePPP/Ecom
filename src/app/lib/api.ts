@@ -572,7 +572,7 @@ export const coinAPI = {
     note?: string;
   }) => {
     const token = getToken();
-    const response = await fetch('/api/coins/topup-request', {
+    const response = await fetch(`${API_URL}/coins/topup-request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -590,7 +590,7 @@ export const coinAPI = {
   // ดึงรายการคำขอเติมเงินของตัวเอง
   getMyTopupRequests: async (page = 1, limit = 10) => {
     const token = getToken();
-    const response = await fetch(`/api/coins/topup-requests?page=${page}&limit=${limit}`, {
+    const response = await fetch(`${API_URL}/coins/topup-requests?page=${page}&limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
