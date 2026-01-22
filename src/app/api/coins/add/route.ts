@@ -25,18 +25,41 @@ export async function POST(request: NextRequest) {
         headers['Authorization'] = authHeader;
     }
 
-    const response = await fetch(`${API_URL}/coins/add`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
+    const backendUrl = `${API_URL}/coins/add`;
+    console.log(`🔌 [Proxy] Connecting to backend: ${backendUrl}`);
 
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    try {
+        const response = await fetch(backendUrl, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(body),
+        });
+
+        console.log(`✅ [Proxy] Backend status: ${response.status}`);
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('❌ [Proxy] Backend returned non-JSON:', text.substring(0, 100));
+            return NextResponse.json(
+                { success: false, message: 'Backend returned invalid format', error: text.substring(0, 100) },
+                { status: 502 }
+            );
+        }
+
+        const data = await response.json();
+        return NextResponse.json(data, { status: response.status });
+    } catch (fetchError: any) {
+        console.error('❌ [Proxy] Fetch error:', fetchError);
+        return NextResponse.json(
+            { success: false, message: 'Failed to connect to backend', error: fetchError.message },
+            { status: 502 }
+        );
+    }
   } catch (error: any) {
-    console.error('Error adding coins:', error);
+    console.error('🔥 [Proxy] Internal Error:', error);
     return NextResponse.json(
-      { success: false, message: 'เกิดข้อผิดพลาดในการเพิ่มคอยน์', error: error.message },
+      { success: false, message: 'Proxy internal error', error: error.message },
       { status: 500 }
     );
   }
