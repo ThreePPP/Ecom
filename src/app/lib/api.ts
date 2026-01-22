@@ -439,16 +439,38 @@ export const addressAPI = {
   },
 };
 
-// Coin API - ใช้ Next.js API routes
+// Coin API - เรียก Backend โดยตรง (ไม่ผ่าน Next.js Proxy)
 export const coinAPI = {
   // ดึงรายการ transactions
   getTransactions: async (page = 1, limit = 20) => {
-    return fetchAPI(`/coins/transactions?page=${page}&limit=${limit}`);
+    const token = getToken();
+    const response = await fetch(`${API_URL}/coins/transactions?page=${page}&limit=${limit}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
   },
 
   // ดึงข้อมูลสรุป coins
   getSummary: async () => {
-    return fetchAPI('/coins/summary');
+    const token = getToken();
+    const response = await fetch(`${API_URL}/coins/summary`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
   },
 
   // เพิ่ม coins (topup/earn)
@@ -458,10 +480,20 @@ export const coinAPI = {
     description?: string;
     orderId?: string;
   }) => {
-    return fetchAPI('/coins/add', {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/coins/add`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify(data),
     });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
   },
 
   // ใช้ coins
@@ -470,10 +502,20 @@ export const coinAPI = {
     description?: string;
     orderId?: string;
   }) => {
-    return fetchAPI('/coins/spend', {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/coins/spend`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify(data),
     });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
   },
 
   // Admin: เพิ่ม coins ให้ user
@@ -527,15 +569,36 @@ export const coinAPI = {
     username: string;
     note?: string;
   }) => {
-    return fetchAPI('/coins/topup-request', {
+    const token = getToken();
+    const response = await fetch(`${API_URL}/coins/topup-request`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify(data),
     });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
   },
 
   // ดึงรายการคำขอเติมเงินของตัวเอง
   getMyTopupRequests: async (page = 1, limit = 10) => {
-    return fetchAPI(`/coins/topup-requests?page=${page}&limit=${limit}`);
+    const token = getToken();
+    const response = await fetch(`${API_URL}/coins/topup-requests?page=${page}&limit=${limit}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      },
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'เกิดข้อผิดพลาด');
+    }
+    return result;
   },
 };
 
