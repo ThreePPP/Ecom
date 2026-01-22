@@ -1,26 +1,27 @@
-# Nixpacks Configuration for Combined Frontend + Backend
+# Nixpacks Configuration for Ecommerce (Next.js Frontend + Express Backend)
+# Both services run from same codebase - monorepo setup
 
 [phases.setup]
 nixPkgs = ["nodejs_20"]
 
 [phases.install]
-# Install dependencies for both root (frontend) and server (backend)
-cmds = [
-    "npm install",
-    "cd server && npm install"
-]
+# Install all dependencies (server deps are in root package.json)
+cmds = ["npm ci || npm install"]
 
 [phases.build]
-# Build both applications
-# API URL must be set for Next.js build time if Static Generation is used, 
-# but for rewrites we generally want it to be relative or handle at runtime.
+# Build both Next.js frontend and TypeScript backend
 cmds = [
     "npm run build",
     "npm run server:build"
 ]
 
 [start]
-# Run both servers in parallel
-# Backend forced to port 5000
-# Frontend runs on default PORT (usually 3000 or provided by Dokploy)
-cmd = "export PORT_BACKEND=5000 && (cd server && PORT=5000 node dist/server.js) & npm start"
+# Run both servers in parallel:
+# - Backend Express on port 5000 (internal)
+# - Frontend Next.js on PORT (provided by hosting platform, usually 3000)
+# Next.js rewrites /api/* to localhost:5000/api/*
+cmd = "(cd server && PORT=5000 node dist/server.js) & npm start"
+
+[variables]
+# Environment variables for build time
+NODE_ENV = "production"

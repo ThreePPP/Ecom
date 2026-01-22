@@ -36,7 +36,6 @@ export default function CoinsPage() {
   const { showSuccessToast } = useToast();
   const [transactions, setTransactions] = useState<CoinTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentBalance, setCurrentBalance] = useState(0);
   const [summary, setSummary] = useState({
     totalEarned: 0,
@@ -98,9 +97,8 @@ export default function CoinsPage() {
         });
         setCurrentBalance(summaryRes.data.currentBalance);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching coin data:', error);
-      setError(error?.message || 'ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
     } finally {
       setLoading(false);
     }
@@ -274,27 +272,6 @@ export default function CoinsPage() {
             </h1>
             <p className="text-gray-600 mt-2">จัดการคอยน์ของคุณและดูประวัติการทำรายการ</p>
           </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3">
-              <svg className="w-6 h-6 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <div className="flex-1">
-                <p className="font-medium">{error}</p>
-                <button
-                  onClick={() => {
-                    setError(null);
-                    fetchCoinData();
-                  }}
-                  className="mt-2 text-sm underline hover:no-underline"
-                >
-                  ลองอีกครั้ง
-                </button>
-              </div>
-            </div>
-          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Balance & Bank Info */}
