@@ -10,6 +10,7 @@ import { useToast } from '@/app/component/Toast/Toast';
 import Navbar from '@/app/component/Navbar/Navbar';
 import Features from '@/app/component/main/Features/Features';
 import Footer from '@/app/component/main/footer/footer';
+import { getImageUrl } from '@/app/utils/imageUrl';
 
 export default function ComparePage() {
     const { compareItems, removeFromCompare, clearCompare } = useCompare();
@@ -62,12 +63,10 @@ export default function ComparePage() {
             : '-';
     };
 
-    // Helper to get image URL
-    const getImageUrl = (item: any) => {
-        if (item.coverImage) return item.coverImage;
-        if (item.image) return item.image;
-        if (item.images && item.images.length > 0) return item.images[0];
-        return 'https://via.placeholder.com/300';
+    // Helper to get product image
+    const getProductImage = (item: any) => {
+        const rawUrl = item.coverImage || item.image || (item.images && item.images.length > 0 ? item.images[0] : null);
+        return getImageUrl(rawUrl);
     };
 
     return (
@@ -110,7 +109,7 @@ export default function ComparePage() {
                                                 <div className="pt-4 pb-2">
                                                     <div className="w-full h-40 relative mb-4 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden group">
                                                         <img
-                                                            src={getImageUrl(item)}
+                                                            src={getProductImage(item)}
                                                             alt={item.name}
                                                             className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                                                         />
@@ -150,7 +149,7 @@ export default function ComparePage() {
                                                             name: item.name,
                                                             price: item.price,
                                                             oldPrice: item.originalPrice,
-                                                            image: getImageUrl(item),
+                                                            image: getProductImage(item),
                                                             images: item.images
                                                         })}
                                                         className="w-full"
