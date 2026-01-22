@@ -25,17 +25,30 @@ export async function GET(request: NextRequest) {
         headers['Authorization'] = authHeader;
     }
 
-    const response = await fetch(`${API_URL}/coins/summary`, {
-      method: 'GET',
-      headers,
-    });
+    const backendUrl = `${API_URL}/coins/summary`;
+    console.log(`🔌 [Proxy] Connecting to backend: ${backendUrl}`);
 
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
+    try {
+      const response = await fetch(backendUrl, {
+        method: 'GET',
+        headers,
+      });
+
+      console.log(`✅ [Proxy] Backend response status: ${response.status}`);
+      
+      const data = await response.json();
+      return NextResponse.json(data, { status: response.status });
+    } catch (fetchError: any) {
+      console.error('❌ [Proxy] Failed to fetch from backend:', fetchError);
+      return NextResponse.json(
+        { success: false, message: 'ไม่สามารถเชื่อมต่อกับ Backend Server ได้', error: fetchError.message, backendUrl },
+        { status: 502 } // Bad Gateway
+      );
+    }
   } catch (error: any) {
-    console.error('Error fetching coin summary:', error);
+    console.error('🔥 [Proxy] Internal Error:', error);
     return NextResponse.json(
-      { success: false, message: 'เกิดข้อผิดพลาดในการดึงข้อมูล', error: error.message },
+      { success: false, message: 'เกิดข้อผิดพลาดภายใน Proxy', error: error.message },
       { status: 500 }
     );
   }
