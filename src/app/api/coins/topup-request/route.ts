@@ -12,21 +12,22 @@ export async function POST(request: NextRequest) {
         // Get token from Authorization header
         const authHeader = request.headers.get('Authorization');
 
-        if (!authHeader) {
-            return NextResponse.json(
-                { success: false, message: 'กรุณาเข้าสู่ระบบ' },
-                { status: 401 }
-            );
-        }
+        // We removed the strict check here to let backend handle 401 response appropriately
 
         const body = await request.json();
+        
+        // Prepare headers
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authHeader) {
+            headers['Authorization'] = authHeader;
+        }
 
         const response = await fetch(`${API_URL}/coins/topup-request`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': authHeader,
-            },
+            headers,
             body: JSON.stringify(body),
         });
 

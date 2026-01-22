@@ -11,20 +11,23 @@ export async function GET(request: NextRequest) {
   try {
     // Get token from Authorization header
     const authHeader = request.headers.get('Authorization');
+    
+    console.log('📥 [Proxy] Received auth header:', authHeader ? (authHeader.substring(0, 20) + '...') : 'NULL');
 
-    if (!authHeader) {
-      return NextResponse.json(
-        { success: false, message: 'กรุณาเข้าสู่ระบบ' },
-        { status: 401 }
-      );
+    // We removed the strict check here to let backend handle 401 response appropriately
+    
+    // Prepare headers
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
+
+    if (authHeader) {
+        headers['Authorization'] = authHeader;
     }
 
     const response = await fetch(`${API_URL}/coins/summary`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader,
-      },
+      headers,
     });
 
     const data = await response.json();
