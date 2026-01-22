@@ -215,14 +215,17 @@ export const getCoinSummary = async (req: Request, res: Response) => {
 
     const user = await User.findById(userId).select('coins');
 
+    // Convert userId to ObjectId for aggregate pipeline
+    const userObjectId = new mongoose.Types.ObjectId(userId.toString());
+
     // Calculate total earned and spent
     const earnedResult = await CoinTransaction.aggregate([
-      { $match: { userId: user?._id || userId, type: { $in: ['earn', 'topup'] } } },
+      { $match: { userId: userObjectId, type: { $in: ['earn', 'topup'] } } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]);
 
     const spentResult = await CoinTransaction.aggregate([
-      { $match: { userId: user?._id || userId, type: { $in: ['spend', 'deduct'] } } },
+      { $match: { userId: userObjectId, type: { $in: ['spend', 'deduct'] } } },
       { $group: { _id: null, total: { $sum: { $abs: '$amount' } } } },
     ]);
 
