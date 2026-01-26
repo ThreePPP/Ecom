@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
-import { coinAPI, uploadAPI } from '../lib/api';
-import Navbar from '../component/Navbar/Navbar';
-import Features from '../component/main/Features/Features';
-import Footer from '../component/main/footer/footer';
-import Breadcrumb from '../component/Breadcrumb/Breadcrumb';
-import { useToast } from '../component/Toast/Toast';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
+import { coinAPI, uploadAPI } from "../lib/api";
+import Navbar from "../component/Navbar/Navbar";
+import Features from "../component/main/Features/Features";
+import Footer from "../component/main/footer/footer";
+import Breadcrumb from "../component/Breadcrumb/Breadcrumb";
+import { useToast } from "../component/Toast/Toast";
 
 interface CoinTransaction {
   _id: string;
   referenceNumber: string;
-  type: 'earn' | 'spend' | 'topup';
+  type: "earn" | "spend" | "topup";
   amount: number;
   description: string;
   balanceAfter: number;
@@ -24,7 +24,7 @@ interface TopupRequest {
   _id: string;
   amount: number;
   receiptImage: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   note?: string;
   adminNote?: string;
   createdAt: string;
@@ -46,21 +46,21 @@ export default function CoinsPage() {
 
   // Topup form states
   const [showTopupForm, setShowTopupForm] = useState(false);
-  const [topupAmount, setTopupAmount] = useState<string>('');
-  const [topupUsername, setTopupUsername] = useState('');
-  const [topupNote, setTopupNote] = useState('');
+  const [topupAmount, setTopupAmount] = useState<string>("");
+  const [topupUsername, setTopupUsername] = useState("");
+  const [topupNote, setTopupNote] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [receiptPreview, setReceiptPreview] = useState<string>('');
+  const [receiptPreview, setReceiptPreview] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [topupRequests, setTopupRequests] = useState<TopupRequest[]>([]);
   const [showTopupHistory, setShowTopupHistory] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push('/');
+      router.push("/");
       return;
     }
 
@@ -79,10 +79,7 @@ export default function CoinsPage() {
       setLoading(true);
 
       // Fetch transactions and summary in parallel
-      const [transactionsRes, summaryRes] = await Promise.all([
-        coinAPI.getTransactions(currentPage, 10),
-        coinAPI.getSummary(),
-      ]);
+      const [transactionsRes, summaryRes] = await Promise.all([coinAPI.getTransactions(currentPage, 10), coinAPI.getSummary()]);
 
       if (transactionsRes.success) {
         setTransactions(transactionsRes.data.transactions);
@@ -98,7 +95,7 @@ export default function CoinsPage() {
         setCurrentBalance(summaryRes.data.currentBalance);
       }
     } catch (error) {
-      console.error('Error fetching coin data:', error);
+      console.error("Error fetching coin data:", error);
     } finally {
       setLoading(false);
     }
@@ -111,24 +108,24 @@ export default function CoinsPage() {
         setTopupRequests(response.data.topupRequests);
       }
     } catch (error) {
-      console.error('Error fetching topup requests:', error);
+      console.error("Error fetching topup requests:", error);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        setErrorMessage('กรุณาอัพโหลดไฟล์รูปภาพเท่านั้น');
+      if (!file.type.startsWith("image/")) {
+        setErrorMessage("กรุณาอัพโหลดไฟล์รูปภาพเท่านั้น");
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        setErrorMessage('ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)');
+        setErrorMessage("ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)");
         return;
       }
       setReceiptFile(file);
       setReceiptPreview(URL.createObjectURL(file));
-      setErrorMessage('');
+      setErrorMessage("");
     }
   };
 
@@ -137,23 +134,23 @@ export default function CoinsPage() {
 
     const amount = parseFloat(topupAmount);
     if (!amount || amount <= 0) {
-      setErrorMessage('กรุณาระบุจำนวนเงินที่ถูกต้อง');
+      setErrorMessage("กรุณาระบุจำนวนเงินที่ถูกต้อง");
       return;
     }
 
     if (!topupUsername.trim()) {
-      setErrorMessage('กรุณาระบุชื่อผู้โอน');
+      setErrorMessage("กรุณาระบุชื่อผู้โอน");
       return;
     }
 
     if (!receiptFile) {
-      setErrorMessage('กรุณาอัพโหลดใบเสร็จการโอนเงิน');
+      setErrorMessage("กรุณาอัพโหลดใบเสร็จการโอนเงิน");
       return;
     }
 
     try {
       setSubmitLoading(true);
-      setErrorMessage('');
+      setErrorMessage("");
 
       // Upload receipt image first
       setUploading(true);
@@ -161,7 +158,7 @@ export default function CoinsPage() {
       setUploading(false);
 
       if (!uploadResult.success) {
-        throw new Error('อัพโหลดรูปภาพไม่สำเร็จ');
+        throw new Error("อัพโหลดรูปภาพไม่สำเร็จ");
       }
 
       // Submit topup request
@@ -173,19 +170,19 @@ export default function CoinsPage() {
       });
 
       if (result.success) {
-        setSuccessMessage('ส่งคำขอเติมเงินสำเร็จ! กรุณารอ Admin อนุมัติ');
+        setSuccessMessage("ส่งคำขอเติมเงินสำเร็จ! กรุณารอ Admin อนุมัติ");
         setShowTopupForm(false);
-        setTopupAmount('');
-        setTopupNote('');
+        setTopupAmount("");
+        setTopupNote("");
         setReceiptFile(null);
-        setReceiptPreview('');
+        setReceiptPreview("");
         fetchTopupRequests();
 
         // Clear success message after 5 seconds
-        setTimeout(() => setSuccessMessage(''), 5000);
+        setTimeout(() => setSuccessMessage(""), 5000);
       }
     } catch (error: any) {
-      setErrorMessage(error.message || 'เกิดข้อผิดพลาด');
+      setErrorMessage(error.message || "เกิดข้อผิดพลาด");
     } finally {
       setSubmitLoading(false);
       setUploading(false);
@@ -194,38 +191,38 @@ export default function CoinsPage() {
 
   const getTopupStatusLabel = (status: string) => {
     switch (status) {
-      case 'pending':
-        return { label: 'รอดำเนินการ', color: 'text-yellow-600', bg: 'bg-yellow-100' };
-      case 'approved':
-        return { label: 'อนุมัติแล้ว', color: 'text-green-600', bg: 'bg-green-100' };
-      case 'rejected':
-        return { label: 'ถูกปฏิเสธ', color: 'text-red-600', bg: 'bg-red-100' };
+      case "pending":
+        return { label: "รอดำเนินการ", color: "text-yellow-600", bg: "bg-yellow-100" };
+      case "approved":
+        return { label: "อนุมัติแล้ว", color: "text-green-600", bg: "bg-green-100" };
+      case "rejected":
+        return { label: "ถูกปฏิเสธ", color: "text-red-600", bg: "bg-red-100" };
       default:
-        return { label: status, color: 'text-gray-600', bg: 'bg-gray-100' };
+        return { label: status, color: "text-gray-600", bg: "bg-gray-100" };
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString("th-TH", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getTransactionTypeLabel = (type: string) => {
     switch (type) {
-      case 'earn':
-        return { label: 'ได้รับ', color: 'text-green-600', bg: 'bg-green-100' };
-      case 'topup':
-        return { label: 'เติมเงิน', color: 'text-blue-600', bg: 'bg-blue-100' };
-      case 'spend':
-        return { label: 'ใช้จ่าย', color: 'text-red-600', bg: 'bg-red-100' };
+      case "earn":
+        return { label: "ได้รับ", color: "text-green-600", bg: "bg-green-100" };
+      case "topup":
+        return { label: "เติมเงิน", color: "text-blue-600", bg: "bg-blue-100" };
+      case "spend":
+        return { label: "ใช้จ่าย", color: "text-red-600", bg: "bg-red-100" };
       default:
-        return { label: type, color: 'text-gray-600', bg: 'bg-gray-100' };
+        return { label: type, color: "text-gray-600", bg: "bg-gray-100" };
     }
   };
 
@@ -255,9 +252,8 @@ export default function CoinsPage() {
     <>
       <Navbar showBanner={false} showPromotion={false} />
       <div className="min-h-screen bg-gray-50 pb-20">
-
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <Breadcrumb items={[{ label: 'หน้าแรก', href: '/' }, { label: 'FavorPC Coins' }]} />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <Breadcrumb items={[{ label: "หน้าแรก", href: "/" }, { label: "FavorPC Coins" }]} />
 
           {/* Header */}
           <div className="mb-8">
@@ -273,8 +269,9 @@ export default function CoinsPage() {
             <p className="text-gray-600 mt-2">จัดการคอยน์ของคุณและดูประวัติการทำรายการ</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Left Column - Balance & Bank Info */}
+
             <div className="lg:col-span-1 space-y-6">
               {/* Balance Card */}
               <div className="bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 rounded-2xl p-6 text-white shadow-xl">
@@ -342,8 +339,8 @@ export default function CoinsPage() {
                       <span className="font-mono font-bold text-blue-600 text-lg">123-4-56789-0</span>
                       <button
                         onClick={() => {
-                          navigator.clipboard.writeText('1234567890');
-                          showSuccessToast('คัดลอกเลขบัญชีแล้ว!');
+                          navigator.clipboard.writeText("1234567890");
+                          showSuccessToast("คัดลอกเลขบัญชีแล้ว!");
                         }}
                         className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                         title="คัดลอก"
@@ -380,13 +377,130 @@ export default function CoinsPage() {
                 <div className="p-4 bg-green-100 border border-green-300 rounded-xl">
                   <p className="text-green-800 font-medium flex items-center gap-2">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     {successMessage}
                   </p>
                 </div>
               )}
+            </div>
 
+            {/* Right Column - Transaction History */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                      />
+                    </svg>
+                    ประวัติการทำรายการ
+                  </h2>
+                </div>
+
+                {transactions.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 text-lg">ยังไม่มีประวัติการทำรายการ</p>
+                    <p className="text-gray-400 text-sm mt-2">รายการคอยน์จะแสดงที่นี่</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Transaction Table */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No.</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">เลขที่อ้างอิง</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">วันที่ทำรายการ</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ประเภท</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">จำนวนคอยน์</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {transactions.map((transaction, index) => {
+                            const typeInfo = getTransactionTypeLabel(transaction.type);
+                            return (
+                              <tr key={transaction._id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className="text-sm font-medium text-gray-500">{(currentPage - 1) * 10 + index + 1}</span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className="text-sm font-mono text-gray-900">{transaction.referenceNumber}</span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className="text-sm text-gray-600">{formatDate(transaction.createdAt)}</span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${typeInfo.bg} ${typeInfo.color}`}>
+                                    {typeInfo.label}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                  <span className={`text-sm font-bold ${transaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                    {transaction.amount >= 0 ? "+" : ""}
+                                    {transaction.amount.toLocaleString()}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <button
+                          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                          disabled={currentPage === 1}
+                          className={`px-4 py-2 rounded-lg font-medium ${
+                            currentPage === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          ก่อนหน้า
+                        </button>
+                        <span className="text-sm text-gray-600">
+                          หน้า {currentPage} จาก {totalPages}
+                        </span>
+                        <button
+                          onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                          disabled={currentPage === totalPages}
+                          className={`px-4 py-2 rounded-lg font-medium ${
+                            currentPage === totalPages
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          ถัดไป
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="lg:col-span-1 space-y-6">
               {/* Topup Form Card */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <button
@@ -400,7 +514,12 @@ export default function CoinsPage() {
                       </svg>
                       เติมเงินเข้าระบบ
                     </span>
-                    <svg className={`w-5 h-5 transition-transform ${showTopupForm ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className={`w-5 h-5 transition-transform ${showTopupForm ? "rotate-180" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </h2>
@@ -414,7 +533,11 @@ export default function CoinsPage() {
                       <div className="p-3 bg-red-100 border border-red-300 rounded-lg">
                         <p className="text-red-700 text-sm flex items-center gap-2">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            <path
+                              fillRule="evenodd"
+                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                           {errorMessage}
                         </p>
@@ -463,31 +586,21 @@ export default function CoinsPage() {
                         ใบเสร็จการโอนเงิน <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="hidden"
-                          id="receipt-upload"
-                        />
+                        <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="receipt-upload" />
                         <label
                           htmlFor="receipt-upload"
                           className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all"
                         >
                           {receiptPreview ? (
                             <div className="relative w-full h-full p-2">
-                              <img
-                                src={receiptPreview}
-                                alt="Receipt preview"
-                                className="w-full h-full object-contain rounded-lg"
-                              />
+                              <img src={receiptPreview} alt="Receipt preview" className="w-full h-full object-contain rounded-lg" />
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
                                   setReceiptFile(null);
-                                  setReceiptPreview('');
+                                  setReceiptPreview("");
                                 }}
                                 className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                               >
@@ -499,7 +612,12 @@ export default function CoinsPage() {
                           ) : (
                             <>
                               <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
                               </svg>
                               <p className="text-sm text-gray-500">คลิกเพื่ออัพโหลดรูปใบเสร็จ</p>
                               <p className="text-xs text-gray-400 mt-1">รองรับไฟล์ JPG, PNG (สูงสุด 5MB)</p>
@@ -511,9 +629,7 @@ export default function CoinsPage() {
 
                     {/* Note Input */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        หมายเหตุ (ไม่บังคับ)
-                      </label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">หมายเหตุ (ไม่บังคับ)</label>
                       <textarea
                         value={topupNote}
                         onChange={(e) => setTopupNote(e.target.value)}
@@ -532,7 +648,7 @@ export default function CoinsPage() {
                       {submitLoading ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                          {uploading ? 'กำลังอัพโหลดรูป...' : 'กำลังส่งคำขอ...'}
+                          {uploading ? "กำลังอัพโหลดรูป..." : "กำลังส่งคำขอ..."}
                         </>
                       ) : (
                         <>
@@ -561,7 +677,12 @@ export default function CoinsPage() {
                         </svg>
                         ประวัติคำขอเติมเงิน ({topupRequests.length})
                       </span>
-                      <svg className={`w-4 h-4 transition-transform ${showTopupHistory ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className={`w-4 h-4 transition-transform ${showTopupHistory ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </h3>
@@ -598,7 +719,7 @@ export default function CoinsPage() {
               {/* Quick Actions */}
               <div className="grid grid-cols-2 gap-4">
                 <button
-                  onClick={() => router.push('/orders')}
+                  onClick={() => router.push("/orders")}
                   className="flex items-center justify-center gap-2 px-4 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold shadow-lg"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -612,7 +733,7 @@ export default function CoinsPage() {
                   คำสั่งซื้อ
                 </button>
                 <button
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push("/")}
                   className="flex items-center justify-center gap-2 px-4 py-4 bg-gray-700 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold shadow-lg"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -625,132 +746,6 @@ export default function CoinsPage() {
                   </svg>
                   หน้าหลัก
                 </button>
-              </div>
-            </div>
-
-            {/* Right Column - Transaction History */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                      />
-                    </svg>
-                    ประวัติการทำรายการ
-                  </h2>
-                </div>
-
-                {transactions.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-gray-500 text-lg">ยังไม่มีประวัติการทำรายการ</p>
-                    <p className="text-gray-400 text-sm mt-2">รายการคอยน์จะแสดงที่นี่</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Transaction Table */}
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                              No.
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                              เลขที่อ้างอิง
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                              วันที่ทำรายการ
-                            </th>
-                            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                              ประเภท
-                            </th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                              จำนวนคอยน์
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {transactions.map((transaction, index) => {
-                            const typeInfo = getTransactionTypeLabel(transaction.type);
-                            return (
-                              <tr key={transaction._id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className="text-sm font-medium text-gray-500">
-                                    {(currentPage - 1) * 10 + index + 1}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className="text-sm font-mono text-gray-900">{transaction.referenceNumber}</span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className="text-sm text-gray-600">{formatDate(transaction.createdAt)}</span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${typeInfo.bg} ${typeInfo.color}`}>
-                                    {typeInfo.label}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                  <span
-                                    className={`text-sm font-bold ${transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
-                                      }`}
-                                  >
-                                    {transaction.amount >= 0 ? '+' : ''}
-                                    {transaction.amount.toLocaleString()}
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                      <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                        <button
-                          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                          disabled={currentPage === 1}
-                          className={`px-4 py-2 rounded-lg font-medium ${currentPage === 1
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                        >
-                          ก่อนหน้า
-                        </button>
-                        <span className="text-sm text-gray-600">
-                          หน้า {currentPage} จาก {totalPages}
-                        </span>
-                        <button
-                          onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                          disabled={currentPage === totalPages}
-                          className={`px-4 py-2 rounded-lg font-medium ${currentPage === totalPages
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                        >
-                          ถัดไป
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
               </div>
             </div>
           </div>
