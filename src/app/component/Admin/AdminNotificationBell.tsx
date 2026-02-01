@@ -237,6 +237,20 @@ const AdminNotificationBell: React.FC = () => {
                             )}
                             {notification.type === 'topup_request' && (
                               <div className="flex items-center gap-2">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (!notification.isRead) {
+                                      handleMarkAsRead(notification._id);
+                                    }
+                                    setIsOpen(false);
+                                    router.push(`/admin/topup-requests?requestId=${notification.data?.topupRequestId}`);
+                                  }}
+                                  className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600 transition-colors"
+                                >
+                                  <FaExternalLinkAlt size={10} />
+                                  ดูคำขอ
+                                </button>
                                 <span className="font-bold text-green-600 text-sm">
                                   +฿{notification.data?.amount?.toLocaleString()}
                                 </span>
