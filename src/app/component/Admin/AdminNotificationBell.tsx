@@ -236,10 +236,9 @@ const AdminNotificationBell: React.FC = () => {
                               </button>
                             )}
                             {notification.type === 'topup_request' && (
-                              <div className="text-right">
-                                <span className="block text-xs text-gray-500">ยอดเติมเงิน</span>
-                                <span className="block font-bold text-green-600">
-                                  +{notification.data.amount?.toLocaleString()}
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-green-600 text-sm">
+                                  +฿{notification.data?.amount?.toLocaleString()}
                                 </span>
                               </div>
                             )}
@@ -250,17 +249,45 @@ const AdminNotificationBell: React.FC = () => {
                       <p className="text-sm text-gray-500 mt-1">{notification.message}</p>
 
                       {notification.type === 'topup_request' && notification.data?.receiptImage && (
-                        <div className="mt-2">
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
                           <a
                             href={notification.data.receiptImage}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                            className="text-xs text-blue-600 hover:underline flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <FaExternalLinkAlt size={10} />
                             ดูใบเสร็จหลักฐาน
                           </a>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!notification.isRead) {
+                                handleMarkAsRead(notification._id);
+                              }
+                              setIsOpen(false);
+                              router.push(`/admin/topup-requests?requestId=${notification.data?.topupRequestId}&action=approve`);
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 bg-emerald-500 text-white text-xs rounded-lg hover:bg-emerald-600 transition-colors"
+                          >
+                            <FaCheck size={10} />
+                            อนุมัติ
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!notification.isRead) {
+                                handleMarkAsRead(notification._id);
+                              }
+                              setIsOpen(false);
+                              router.push(`/admin/topup-requests?requestId=${notification.data?.topupRequestId}&action=reject`);
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors"
+                          >
+                            <FaTimes size={10} />
+                            ปฏิเสธ
+                          </button>
                         </div>
                       )}
 

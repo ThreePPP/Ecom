@@ -517,6 +517,28 @@ export const coinAPI = {
   getMyTopupRequests: async (page = 1, limit = 10) => {
     return fetchAPI(`/coins/topup-requests?page=${page}&limit=${limit}`);
   },
+
+  // Admin: ดึงคำขอเติมเงินทั้งหมด
+  getAllTopupRequests: async (page = 1, limit = 20, status?: string) => {
+    const statusQuery = status ? `&status=${status}` : '';
+    return fetchAPI(`/coins/admin/topup-requests?page=${page}&limit=${limit}${statusQuery}`);
+  },
+
+  // Admin: อนุมัติคำขอเติมเงิน
+  approveTopupRequest: async (requestId: string, adminNote?: string) => {
+    return fetchAPI(`/coins/admin/topup-requests/${requestId}/process`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'approve', adminNote }),
+    });
+  },
+
+  // Admin: ปฏิเสธคำขอเติมเงิน
+  rejectTopupRequest: async (requestId: string, reason?: string) => {
+    return fetchAPI(`/coins/admin/topup-requests/${requestId}/process`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reject', adminNote: reason }),
+    });
+  },
 };
 
 // Wishlist API

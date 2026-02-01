@@ -112,20 +112,91 @@ export default function CoinsPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ฟังก์ชันบีบอัดรูปภาพ
+  const compressImage = (file: File, maxWidth: number = 800, quality: number = 0.6): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // คำนวณขนาดใหม่
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('ไม่สามารถสร้าง canvas context'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                reject(new Error('ไม่สามารถบีบอัดรูปภาพได้'));
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        img.onerror = () => reject(new Error('ไม่สามารถโหลดรูปภาพได้'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('ไม่สามารถอ่านไฟล์ได้'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
         setErrorMessage("กรุณาอัพโหลดไฟล์รูปภาพเท่านั้น");
         return;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        setErrorMessage("ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 5MB)");
-        return;
+      
+      try {
+        setErrorMessage("");
+        setUploading(true);
+        
+        // บีบอัดรูปภาพถ้าขนาดใหญ่กว่า 500KB
+        let processedFile = file;
+        if (file.size > 500 * 1024) {
+          processedFile = await compressImage(file, 800, 0.6);
+          console.log(`Compressed: ${(file.size / 1024).toFixed(0)}KB -> ${(processedFile.size / 1024).toFixed(0)}KB`);
+        }
+        
+        // ถ้ายังใหญ่กว่า 2MB ให้บีบอัดอีกครั้ง
+        if (processedFile.size > 2 * 1024 * 1024) {
+          processedFile = await compressImage(processedFile, 600, 0.4);
+          console.log(`Re-compressed: ${(processedFile.size / 1024).toFixed(0)}KB`);
+        }
+
+        setReceiptFile(processedFile);
+        setReceiptPreview(URL.createObjectURL(processedFile));
+      } catch (error) {
+        console.error("Error compressing image:", error);
+        setErrorMessage("เกิดข้อผิดพลาดในการประมวลผลรูปภาพ");
+      } finally {
+        setUploading(false);
       }
-      setReceiptFile(file);
-      setReceiptPreview(URL.createObjectURL(file));
-      setErrorMessage("");
     }
   };
 
@@ -545,7 +616,7 @@ export default function CoinsPage() {
                         value={topupUsername}
                         onChange={(e) => setTopupUsername(e.target.value)}
                         placeholder="ระบุชื่อบัญชีผู้โอน"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black"
                         required
                       />
                     </div>
@@ -559,7 +630,7 @@ export default function CoinsPage() {
                         placeholder="0.00"
                         min="1"
                         step="0.01"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black"
                         required
                       />
                     </div>
