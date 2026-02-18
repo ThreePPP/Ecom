@@ -333,11 +333,10 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors border ${
-          selected.length > 0
-            ? "bg-gray-100 text-gray-900 border-gray-900"
-            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-        }`}
+        className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors border ${selected.length > 0
+          ? "bg-gray-100 text-gray-900 border-gray-900"
+          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+          }`}
       >
         {label}
         {selected.length > 0 && (
@@ -522,6 +521,9 @@ export default function PCBuilderPage() {
     );
   };
 
+  const normalize = (str: string | undefined) =>
+    str ? str.toLowerCase().replace(/[\s-]/g, "") : "";
+
   const checkSocketCompatibility = (): {
     compatible: boolean;
     message: string;
@@ -540,7 +542,8 @@ export default function PCBuilderPage() {
       return { compatible: true, message: "" };
     }
 
-    const compatible = cpuSocket === mbSocket;
+    // Normalize for comparison
+    const compatible = normalize(cpuSocket) === normalize(mbSocket);
     return {
       compatible,
       message: compatible
@@ -865,24 +868,89 @@ export default function PCBuilderPage() {
     // Auto-filter by component compatibility
     let matchesCompatibility = true;
 
-    // If viewing Mainboard and CPU is selected → filter by CPU socket
+    // 1. CPU <-> Mainboard (Socket)
     if (activeComponentId === "mainboard" && selectedComponents["cpu"]) {
       const cpuSocket = getSpecValue(selectedComponents["cpu"], "socket");
-      if (cpuSocket) {
-        const mbSocket = getSpec("socket");
-        matchesCompatibility = !!mbSocket && mbSocket === cpuSocket;
+      const mbSocket = getSpec("socket");
+      if (cpuSocket && mbSocket) {
+        const s1 = normalize(cpuSocket);
+        const s2 = normalize(mbSocket);
+        matchesCompatibility = s1.includes(s2) || s2.includes(s1);
+      }
+    } else if (activeComponentId === "cpu" && selectedComponents["mainboard"]) {
+      const mbSocket = getSpecValue(selectedComponents["mainboard"], "socket");
+      const cpuSocket = getSpec("socket");
+      if (cpuSocket && mbSocket) {
+        const s1 = normalize(cpuSocket);
+        const s2 = normalize(mbSocket);
+        matchesCompatibility = s1.includes(s2) || s2.includes(s1);
       }
     }
 
-    // If viewing Memory and Mainboard is selected → filter by DDR type
+    // 2. Mainboard <-> Memory (DDR Type)
     if (activeComponentId === "memory" && selectedComponents["mainboard"]) {
       const mainboard = selectedComponents["mainboard"];
-      const ramType = (mainboard as any).detectedRamType;
+      let ramType = (mainboard as any).detectedRamType;
+      // Try to detect if not already
+      if (!ramType) {
+        const spec =
+          getSpecValue(mainboard, "ramType") ||
+          getSpecValue(mainboard, "ram") ||
+          getSpecValue(mainboard, "memory");
+        if (spec?.toUpperCase().includes("DDR5")) ramType = "DDR5";
+        else if (spec?.toUpperCase().includes("DDR4")) ramType = "DDR4";
+      }
+
       if (ramType) {
-        const memRamSpec = getSpec("type") || getSpec("ramType");
-        matchesCompatibility = Boolean(
-          product.name.toUpperCase().includes(ramType) ||
-          (memRamSpec && memRamSpec.toUpperCase().includes(ramType)),
+        const memType =
+          getSpec("type") || getSpec("ramType") || product.name || "";
+        matchesCompatibility = memType.toUpperCase().includes(ramType);
+      }
+    } else if (
+      activeComponentId === "mainboard" &&
+      selectedComponents["memory"]
+    ) {
+      const memory = selectedComponents["memory"];
+      let memType = "";
+      if (memory.name.toUpperCase().includes("DDR5")) memType = "DDR5";
+      else if (memory.name.toUpperCase().includes("DDR4")) memType = "DDR4";
+
+      if (memType) {
+        const mbRamSpec =
+          getSpec("ramType") ||
+          getSpec("ram") ||
+          getSpec("memory") ||
+          product.name ||
+          "";
+        matchesCompatibility = mbRamSpec.toUpperCase().includes(memType);
+      }
+    }
+
+    // 3. Mainboard <-> Case (Form Factor)
+    if (activeComponentId === "case" && selectedComponents["mainboard"]) {
+      const mbForm =
+        getSpecValue(selectedComponents["mainboard"], "formFactor") ||
+        getSpecValue(selectedComponents["mainboard"], "size");
+      const caseSupport = getSpec("mainboardSupport");
+
+      if (mbForm && caseSupport) {
+        matchesCompatibility = normalize(caseSupport).includes(
+          normalize(mbForm),
+        );
+      }
+    } else if (
+      activeComponentId === "mainboard" &&
+      selectedComponents["case"]
+    ) {
+      const caseSupport = getSpecValue(
+        selectedComponents["case"],
+        "mainboardSupport",
+      );
+      const mbForm = getSpec("formFactor") || getSpec("size");
+
+      if (mbForm && caseSupport) {
+        matchesCompatibility = normalize(caseSupport).includes(
+          normalize(mbForm),
         );
       }
     }
@@ -909,7 +977,74 @@ export default function PCBuilderPage() {
     });
   };
 
-  const currentFilters = FILTER_DATA[activeComponentId] || {};
+  const getCompatibleFilters = () => {
+    const baseFilters = FILTER_DATA[activeComponentId] || {};
+    // Shallow copy carefully. Arrays need to be copied if we filter them.
+    const newFilters = { ...baseFilters };
+
+    // 1. CPU <-> Mainboard (Socket & Chipset)
+    if (activeComponentId === "mainboard" && selectedComponents["cpu"]) {
+      const cpuSocket = getSpecValue(selectedComponents["cpu"], "socket");
+      if (cpuSocket) {
+        if (newFilters.sockets) {
+          newFilters.sockets = newFilters.sockets.filter((s) => {
+            const s1 = normalize(s);
+            const s2 = normalize(cpuSocket);
+            return s1.includes(s2) || s2.includes(s1);
+          });
+        }
+        if (newFilters.chipsets) {
+          // Filter chipsets that look like they belong to the socket.
+          // Assumption: Chipset string contains socket name (e.g. "AMD AM4 (B450)")
+          // or we rely on the product filtering logic which is safer, but here we only have strings.
+          // Let's try matching standardized socket names.
+          newFilters.chipsets = newFilters.chipsets.filter((c) => {
+            const cNorm = normalize(c);
+            const sNorm = normalize(cpuSocket);
+            // Check if "am4" is in "amdam4..."
+            // "AMD AM4" -> "amdam4"
+            // "AMD AM4 (A320)" -> "amdam4a320"
+            // This is a bit heuristical.
+            // Better: Check if the socket part matches.
+            return cNorm.includes(sNorm) || sNorm.includes(cNorm);
+          });
+        }
+      }
+    } else if (activeComponentId === "cpu" && selectedComponents["mainboard"]) {
+      const mbSocket = getSpecValue(selectedComponents["mainboard"], "socket");
+      if (mbSocket && newFilters.sockets) {
+        newFilters.sockets = newFilters.sockets.filter((s) => {
+          const s1 = normalize(s);
+          const s2 = normalize(mbSocket);
+          return s1.includes(s2) || s2.includes(s1);
+        });
+      }
+    }
+
+    // 2. Mainboard <-> Memory (DDR Type)
+    if (activeComponentId === "memory" && selectedComponents["mainboard"]) {
+      const mainboard = selectedComponents["mainboard"];
+      let ramType = (mainboard as any).detectedRamType;
+      if (!ramType) {
+        const spec =
+          getSpecValue(mainboard, "ramType") ||
+          getSpecValue(mainboard, "ram") ||
+          getSpecValue(mainboard, "memory");
+        if (spec?.toUpperCase().includes("DDR5")) ramType = "DDR5";
+        else if (spec?.toUpperCase().includes("DDR4")) ramType = "DDR4";
+      }
+
+      if (ramType && newFilters.bus) {
+        newFilters.bus = newFilters.bus.filter((b) =>
+          b.toUpperCase().includes(ramType),
+        );
+      }
+    }
+
+    return newFilters;
+  };
+
+  const currentFilters = getCompatibleFilters();
 
   if (showSummary) {
     return (
@@ -1000,8 +1135,8 @@ export default function PCBuilderPage() {
                                 src={
                                   getImageUrl(
                                     product.coverImage ||
-                                      product.images?.[0] ||
-                                      product.image,
+                                    product.images?.[0] ||
+                                    product.image,
                                   ) || "/placeholder.jpg"
                                 }
                                 className="w-full h-full object-contain"
@@ -1071,11 +1206,10 @@ export default function PCBuilderPage() {
                 if (message) {
                   return (
                     <div
-                      className={`mb-4 p-3 rounded-xl text-sm font-medium backdrop-blur-sm ${
-                        compatible
-                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                          : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                      }`}
+                      className={`mb-4 p-3 rounded-xl text-sm font-medium backdrop-blur-sm ${compatible
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                        : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                        }`}
                     >
                       {message}
                     </div>
@@ -1092,11 +1226,10 @@ export default function PCBuilderPage() {
                   return (
                     <div
                       key={component.id}
-                      className={`p-3 rounded-xl transition-all duration-300 cursor-pointer active:scale-95 ${
-                        isActive
-                          ? "bg-[#D3D3D3] shadow-lg shadow-blue-500/20"
-                          : "bg-[#D3D3D3] hover:bg-gray-300"
-                      }`}
+                      className={`p-3 rounded-xl transition-all duration-300 cursor-pointer active:scale-95 ${isActive
+                        ? "bg-[#D3D3D3] shadow-lg shadow-blue-500/20"
+                        : "bg-[#D3D3D3] hover:bg-gray-300"
+                        }`}
                       onClick={() => setActiveComponentId(component.id)}
                     >
                       {selected ? (
@@ -1366,18 +1499,17 @@ export default function PCBuilderPage() {
                       const imageUrl =
                         getImageUrl(
                           product.coverImage ||
-                            product.images?.[0] ||
-                            product.image,
+                          product.images?.[0] ||
+                          product.image,
                         ) || "/placeholder.jpg";
 
                       return (
                         <div
                           key={product._id}
-                          className={`bg-white border rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col ${
-                            isSelected
-                              ? "ring-2 ring-blue-500 border-transparent"
-                              : "border-gray-200"
-                          }`}
+                          className={`bg-white border rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col ${isSelected
+                            ? "ring-2 ring-blue-500 border-transparent"
+                            : "border-gray-200"
+                            }`}
                         >
                           <div className="aspect-square bg-gray-100 flex items-center justify-center relative overflow-hidden">
                             <img
@@ -1408,13 +1540,12 @@ export default function PCBuilderPage() {
                                   !animatingProductId &&
                                   handleSelectProduct(product)
                                 }
-                                className={`relative p-2 rounded-md transition-all duration-300 overflow-hidden ${
-                                  isSelected
-                                    ? "bg-gray-200 text-gray-600 cursor-not-allowed"
-                                    : animatingProductId === product._id
-                                      ? "bg-green-500 text-white scale-110"
-                                      : "bg-red-500 hover:bg-red-600 text-white hover:scale-105"
-                                }`}
+                                className={`relative p-2 rounded-md transition-all duration-300 overflow-hidden ${isSelected
+                                  ? "bg-gray-200 text-gray-600 cursor-not-allowed"
+                                  : animatingProductId === product._id
+                                    ? "bg-green-500 text-white scale-110"
+                                    : "bg-red-500 hover:bg-red-600 text-white hover:scale-105"
+                                  }`}
                                 disabled={
                                   isSelected ||
                                   animatingProductId === product._id
@@ -1427,11 +1558,10 @@ export default function PCBuilderPage() {
 
                                 {/* Icon */}
                                 <span
-                                  className={`relative z-10 transition-transform duration-300 flex items-center justify-center ${
-                                    animatingProductId === product._id
-                                      ? "scale-125"
-                                      : ""
-                                  }`}
+                                  className={`relative z-10 transition-transform duration-300 flex items-center justify-center ${animatingProductId === product._id
+                                    ? "scale-125"
+                                    : ""
+                                    }`}
                                 >
                                   {isSelected ? (
                                     <FaTrash

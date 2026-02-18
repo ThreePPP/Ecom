@@ -271,11 +271,10 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors border ${
-          selected.length > 0
-            ? "bg-gray-100 text-gray-900 border-gray-900"
-            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-        }`}
+        className={`px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors border ${selected.length > 0
+          ? "bg-gray-100 text-gray-900 border-gray-900"
+          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+          }`}
       >
         {label}
         {selected.length > 0 && (
@@ -815,6 +814,7 @@ function AutoPCBuilderContent() {
         ].filter((id) => !newSelection[id]),
       );
       setSelectedComponents(newSelection);
+      setShowSummary(true);
       showToast(
         "จัดสเปคเรียบร้อย! คุณสามารถปรับเปลี่ยนได้ตามต้องการ",
         "success",
@@ -918,7 +918,7 @@ function AutoPCBuilderContent() {
         console.log("[RAM Filter] Product memRamSpec:", memRamSpec);
         matchesCompatibility =
           product.name.toUpperCase().includes(ramType) ||
-          (memRamSpec && memRamSpec.toUpperCase().includes(ramType));
+          (memRamSpec ? memRamSpec.toUpperCase().includes(ramType) : false);
         console.log("[RAM Filter] matchesCompatibility:", matchesCompatibility);
       } else {
         console.log(
@@ -1087,13 +1087,13 @@ function AutoPCBuilderContent() {
                             key={comp.id}
                             className="border rounded-lg p-4 flex gap-4 items-center"
                           >
-                            <div className="w-20 h-20 bg-gray-100 rounded p-2 flex-shrink-0 flex items-center justify-center">
+                            <div className="w-48 h-48 bg-gray-100 rounded p-2 flex-shrink-0 flex items-center justify-center">
                               <img
                                 src={
                                   getImageUrl(
                                     product.coverImage ||
-                                      product.images?.[0] ||
-                                      product.image,
+                                    product.images?.[0] ||
+                                    product.image,
                                   ) || "/placeholder.jpg"
                                 }
                                 className="w-full h-full object-contain"
@@ -1166,11 +1166,10 @@ function AutoPCBuilderContent() {
                   return (
                     <div
                       key={component.id}
-                      className={`p-3 rounded-xl transition-all duration-300 cursor-pointer active:scale-95 ${
-                        isActive
-                          ? "bg-[#D3D3D3] shadow-lg shadow-blue-500/20"
-                          : "bg-[#D3D3D3] hover:bg-[#D3D3D3]"
-                      }`}
+                      className={`p-3 rounded-xl transition-all duration-300 cursor-pointer active:scale-95 ${isActive
+                        ? "bg-[#D3D3D3] shadow-lg shadow-blue-500/20"
+                        : "bg-[#D3D3D3] hover:bg-[#D3D3D3]"
+                        }`}
                       onClick={() => setActiveComponentId(component.id)}
                     >
                       {selected ? (
@@ -1191,7 +1190,7 @@ function AutoPCBuilderContent() {
                             </span>
                           </div>
                           <div className="flex gap-3 items-start">
-                            <div className="w-12 h-12 bg-gray-900 border border-gray-700 rounded-lg p-1 flex-shrink-0 flex items-center justify-center">
+                            <div className="w-32 h-32 bg-gray-900 border border-gray-700 rounded-lg p-1 flex-shrink-0 flex items-center justify-center">
                               <img
                                 src={
                                   getImageUrl(
@@ -1204,7 +1203,7 @@ function AutoPCBuilderContent() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p
-                                className={`text-xs line-clamp-2 mb-1 ${isActive ? "text-gray-800" : "text-gray-800"}`}
+                                className={`text-sm mb-1 ${isActive ? "text-gray-800" : "text-gray-800"}`}
                               >
                                 {selected.name}
                               </p>
@@ -1376,18 +1375,17 @@ function AutoPCBuilderContent() {
                       const imageUrl =
                         getImageUrl(
                           product.coverImage ||
-                            product.images?.[0] ||
-                            product.image,
+                          product.images?.[0] ||
+                          product.image,
                         ) || "/placeholder.jpg";
 
                       return (
                         <div
                           key={product._id}
-                          className={`bg-white border rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col ${
-                            isSelected
-                              ? "ring-2 ring-blue-500 border-transparent"
-                              : "border-gray-200"
-                          }`}
+                          className={`bg-white border rounded-lg overflow-hidden hover:shadow-md transition-all flex flex-col ${isSelected
+                            ? "ring-2 ring-blue-500 border-transparent"
+                            : "border-gray-200"
+                            }`}
                         >
                           <div className="aspect-square bg-gray-100 flex items-center justify-center relative overflow-hidden">
                             <img
@@ -1418,13 +1416,12 @@ function AutoPCBuilderContent() {
                                   !animatingProductId &&
                                   handleSelectProduct(product)
                                 }
-                                className={`relative p-2 rounded-md transition-all duration-300 overflow-hidden ${
-                                  isSelected
-                                    ? "bg-gray-200 text-gray-600 cursor-not-allowed"
-                                    : animatingProductId === product._id
-                                      ? "bg-green-500 text-white scale-110"
-                                      : "bg-red-500 hover:bg-red-600 text-white hover:scale-105"
-                                }`}
+                                className={`relative p-2 rounded-md transition-all duration-300 overflow-hidden ${isSelected
+                                  ? "bg-gray-200 text-gray-600 cursor-not-allowed"
+                                  : animatingProductId === product._id
+                                    ? "bg-green-500 text-white scale-110"
+                                    : "bg-red-500 hover:bg-red-600 text-white hover:scale-105"
+                                  }`}
                                 disabled={
                                   isSelected ||
                                   animatingProductId === product._id
