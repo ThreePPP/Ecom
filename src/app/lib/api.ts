@@ -32,10 +32,14 @@ const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  // Disable caching for all API requests to ensure fresh data
+  const fetchOptions: RequestInit = {
     ...options,
     headers,
-  });
+    cache: options.cache || 'no-store',
+  };
+
+  const response = await fetch(`${API_URL}${endpoint}`, fetchOptions);
 
   const data = await response.json();
 
